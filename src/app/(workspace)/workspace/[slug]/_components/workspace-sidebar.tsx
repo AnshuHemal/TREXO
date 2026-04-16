@@ -26,6 +26,7 @@ import { Separator } from "@/components/ui/separator";
 import { signOut, useSession } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
 import type { WorkspaceRole } from "@/generated/prisma/enums";
+import { CreateProjectDialog } from "../projects/_components/create-project-dialog";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -50,11 +51,12 @@ export function WorkspaceSidebar({
   workspace,
   projects,
   userWorkspaces,
-  currentUserRole: _currentUserRole,
+  currentUserRole,
 }: WorkspaceSidebarProps) {
   const pathname = usePathname();
   const { data: session } = useSession();
   const user = session?.user;
+  const canCreateProject = currentUserRole === "OWNER" || currentUserRole === "ADMIN";
 
   async function handleSignOut() {
     await signOut({
@@ -167,15 +169,34 @@ export function WorkspaceSidebar({
           <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
             Projects
           </span>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="size-5 text-muted-foreground hover:text-foreground"
-            aria-label="Create project"
-            title="Create project"
-          >
-            <Plus className="size-3.5" />
-          </Button>
+          {canCreateProject ? (
+            <CreateProjectDialog
+              workspaceId={workspace.id}
+              workspaceSlug={workspace.slug}
+              trigger={
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="size-5 text-muted-foreground hover:text-foreground"
+                  aria-label="Create project"
+                  title="Create project"
+                >
+                  <Plus className="size-3.5" />
+                </Button>
+              }
+            />
+          ) : (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-5 text-muted-foreground hover:text-foreground"
+              aria-label="Create project"
+              title="Create project"
+              disabled
+            >
+              <Plus className="size-3.5" />
+            </Button>
+          )}
         </div>
 
         {/* Project list */}
