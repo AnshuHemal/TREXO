@@ -1,0 +1,286 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// Trexo — Prisma Schema
+// Docs: https://pris.ly/d/prisma-schema
+// ─────────────────────────────────────────────────────────────────────────────
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── Better Auth core tables ──────────────────────────────────────────────────
+// Required by Better Auth. Do NOT rename these models or their fields.
+// Ref: https://better-auth.com/docs/concepts/database
+
+model User {
+  id            String    @id @default(cuid())
+  name          String
+  email         String    @unique
+  emailVerified Boolean   @default(false)
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // ── App relations ──────────────────────────────────────────────────────────
+  sessions      Session[]
+  accounts      Account[]
+
+  workspaceMembers WorkspaceMember[]
+  assignedIssues   Issue[]           @relation("IssueAssignee")
+  reportedIssues   Issue[]           @relation("IssueReporter")
+  comments         Comment[]
+  activities       Activity[]
+
+  @@map("users")
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model Account {
+  id                    String    @id @default(cuid())
+  userId                String
+  accountId             String
+  providerId            String
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("accounts")
+}
+
+model Verification {
+  id         String    @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  @@map("verifications")
+}
+
+// ─── Trexo app models ─────────────────────────────────────────────────────────
+
+// ── Workspace ─────────────────────────────────────────────────────────────────
+
+model Workspace {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  logo      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  members  WorkspaceMember[]
+  projects Project[]
+
+  @@map("workspaces")
+}
+
+model WorkspaceMember {
+  id          String          @id @default(cuid())
+  workspaceId String
+  userId      String
+  role        WorkspaceRole   @default(MEMBER)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([workspaceId, userId])
+  @@map("workspace_members")
+}
+
+enum WorkspaceRole {
+  OWNER
+  ADMIN
+  MEMBER
+  VIEWER
+}
+
+// ── Project ───────────────────────────────────────────────────────────────────
+
+model Project {
+  id          String   @id @default(cuid())
+  workspaceId String
+  name        String
+  key         String   // e.g. "TRX" — used to generate issue keys like TRX-42
+  description String?
+  icon        String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  issues    Issue[]
+  sprints   Sprint[]
+
+  @@unique([workspaceId, key])
+  @@map("projects")
+}
+
+// ── Sprint ────────────────────────────────────────────────────────────────────
+
+model Sprint {
+  id        String       @id @default(cuid())
+  projectId String
+  name      String
+  goal      String?
+  status    SprintStatus @default(PLANNED)
+  startDate DateTime?
+  endDate   DateTime?
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  issues  Issue[]
+
+  @@map("sprints")
+}
+
+enum SprintStatus {
+  PLANNED
+  ACTIVE
+  COMPLETED
+}
+
+// ── Issue ─────────────────────────────────────────────────────────────────────
+
+model Issue {
+  id          String        @id @default(cuid())
+  projectId   String
+  sprintId    String?
+  parentId    String?       // sub-task support (one level deep)
+  key         Int           // auto-incremented per project (e.g. 42 → "TRX-42")
+  title       String
+  description String?       // rich text (Tiptap JSON stored as string)
+  type        IssueType     @default(TASK)
+  status      IssueStatus   @default(TODO)
+  priority    IssuePriority @default(MEDIUM)
+  position    Float         @default(0) // LexoRank-style ordering on the board
+  dueDate     DateTime?
+  assigneeId  String?
+  reporterId  String
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  project    Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  sprint     Sprint?   @relation(fields: [sprintId], references: [id], onDelete: SetNull)
+  parent     Issue?    @relation("SubTasks", fields: [parentId], references: [id], onDelete: SetNull)
+  subTasks   Issue[]   @relation("SubTasks")
+  assignee   User?     @relation("IssueAssignee", fields: [assigneeId], references: [id], onDelete: SetNull)
+  reporter   User      @relation("IssueReporter", fields: [reporterId], references: [id])
+  comments   Comment[]
+  activities Activity[]
+  labels     IssueLabel[]
+
+  @@unique([projectId, key])
+  @@map("issues")
+}
+
+enum IssueType {
+  EPIC
+  STORY
+  TASK
+  BUG
+  SUBTASK
+}
+
+enum IssueStatus {
+  BACKLOG
+  TODO
+  IN_PROGRESS
+  IN_REVIEW
+  DONE
+  CANCELLED
+}
+
+enum IssuePriority {
+  URGENT
+  HIGH
+  MEDIUM
+  LOW
+  NO_PRIORITY
+}
+
+// ── Label ─────────────────────────────────────────────────────────────────────
+
+model Label {
+  id        String   @id @default(cuid())
+  name      String
+  color     String   @default("#6366f1")
+  createdAt DateTime @default(now())
+
+  issues IssueLabel[]
+
+  @@map("labels")
+}
+
+model IssueLabel {
+  issueId String
+  labelId String
+
+  issue Issue @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  label Label @relation(fields: [labelId], references: [id], onDelete: Cascade)
+
+  @@id([issueId, labelId])
+  @@map("issue_labels")
+}
+
+// ── Comment ───────────────────────────────────────────────────────────────────
+
+model Comment {
+  id        String   @id @default(cuid())
+  issueId   String
+  authorId  String
+  body      String   // rich text (Tiptap JSON)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  issue  Issue @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  author User  @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@map("comments")
+}
+
+// ── Activity (audit log) ──────────────────────────────────────────────────────
+
+model Activity {
+  id        String   @id @default(cuid())
+  issueId   String
+  actorId   String
+  type      String   // e.g. "status_changed", "assignee_changed", "comment_added"
+  fromValue String?
+  toValue   String?
+  createdAt DateTime @default(now())
+
+  issue Issue @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  actor User  @relation(fields: [actorId], references: [id], onDelete: Cascade)
+
+  @@map("activities")
+}
