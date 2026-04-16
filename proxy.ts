@@ -54,7 +54,7 @@ const PROTECTED_PREFIXES = [
 /**
  * Auth pages that logged-in users should be bounced away from.
  */
-const AUTH_ROUTES = ["/login", "/signup", "/verify-email"];
+const AUTH_ROUTES = ["/login", "/signup", "/verify-email", "/forgot-password"];
 
 // ─── Matcher ──────────────────────────────────────────────────────────────────
 
