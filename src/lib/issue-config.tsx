@@ -76,3 +76,31 @@ export function formatActivityType(type: string): string {
   };
   return map[type] ?? type.replace(/_/g, " ");
 }
+
+// ─── Activity value formatters ────────────────────────────────────────────────
+
+/**
+ * Converts a raw enum value stored in Activity.fromValue / toValue
+ * into a human-readable label for display in the timeline.
+ */
+export function formatActivityValue(value: string | null | undefined): string {
+  if (!value) return "none";
+
+  // Status values
+  const status = ISSUE_STATUSES.find((s) => s.value === value);
+  if (status) return status.label;
+
+  // Priority values
+  const priority = ISSUE_PRIORITIES.find((p) => p.value === value);
+  if (priority) return priority.label;
+
+  // Type values
+  const type = ISSUE_TYPES.find((t) => t.value === value);
+  if (type) return type.label;
+
+  // Fallback: humanise snake_case / UPPER_CASE
+  return value
+    .toLowerCase()
+    .replace(/_/g, " ")
+    .replace(/\b\w/g, (c) => c.toUpperCase());
+}

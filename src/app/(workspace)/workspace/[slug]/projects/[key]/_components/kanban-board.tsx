@@ -46,6 +46,8 @@ interface KanbanBoardProps {
   issues: BoardIssue[];
   members: Member[];
   currentUserId: string;
+  currentUserName?: string;
+  currentUserImage?: string | null;
   workspaceSlug: string;
 }
 
@@ -79,6 +81,8 @@ export function KanbanBoard({
   issues: initialIssues,
   members,
   currentUserId,
+  currentUserName,
+  currentUserImage,
   workspaceSlug: _workspaceSlug,
 }: KanbanBoardProps) {
   const [issues, setIssues] = useState<BoardIssue[]>(initialIssues);
@@ -287,6 +291,8 @@ export function KanbanBoard({
               projectKey={project.key}
               members={members}
               currentUserId={currentUserId}
+              currentUserName={currentUserName}
+              currentUserImage={currentUserImage}
               onClose={handleCloseModal}
               onDeleted={handleIssueDeleted}
             />

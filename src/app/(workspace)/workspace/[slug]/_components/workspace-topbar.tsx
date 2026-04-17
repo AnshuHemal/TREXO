@@ -4,23 +4,25 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Bell, ChevronRight } from "lucide-react";
 import { ThemeToggle } from "@/components/shared/theme-toggle";
+import { GlobalSearch } from "@/components/shared/global-search";
 import { Button } from "@/components/ui/button";
+import { useWorkspaceSafe } from "@/components/providers/workspace-provider";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 const SEGMENT_LABELS: Record<string, string> = {
-  settings: "Settings",
-  members: "Members",
+  settings:   "Settings",
+  members:    "Members",
   "my-issues": "My Issues",
-  projects: "Projects",
+  projects:   "Projects",
+  sprints:    "Sprints",
+  backlog:    "Backlog",
 };
 
 function derivePageTitle(pathname: string, slug: string): string {
-  // Strip the base workspace path
   const base = `/workspace/${slug}`;
   const rest = pathname.replace(base, "").replace(/^\//, "");
   if (!rest) return "Home";
-
   const firstSegment = rest.split("/")[0];
   return SEGMENT_LABELS[firstSegment] ?? firstSegment;
 }
@@ -30,7 +32,10 @@ function derivePageTitle(pathname: string, slug: string): string {
 interface WorkspaceTopbarProps {
   workspaceName: string;
   workspaceSlug: string;
+  workspaceId?: string;
   pageTitle?: string;
+  projects?: { id: string; name: string; key: string }[];
+  members?: { id: string; name: string; image: string | null }[];
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -38,10 +43,19 @@ interface WorkspaceTopbarProps {
 export function WorkspaceTopbar({
   workspaceName,
   workspaceSlug,
+  workspaceId,
   pageTitle,
+  projects = [],
+  members = [],
 }: WorkspaceTopbarProps) {
   const pathname = usePathname();
   const title = pageTitle ?? derivePageTitle(pathname, workspaceSlug);
+  const ctx = useWorkspaceSafe();
+
+  // Prefer context values (always up-to-date) over props
+  const resolvedWorkspaceId = workspaceId ?? ctx?.workspaceId;
+  const resolvedProjects    = projects.length > 0 ? projects : (ctx?.projects ?? []);
+  const resolvedMembers     = members.length  > 0 ? members  : (ctx?.members  ?? []);
 
   return (
     <header className="sticky top-0 z-40 flex h-14 items-center justify-between border-b border-border bg-background/95 px-4 backdrop-blur-sm">
@@ -61,14 +75,24 @@ export function WorkspaceTopbar({
         )}
       </nav>
 
-      {/* Right: actions */}
-      <div className="flex items-center gap-1">
+      {/* Right: search + actions */}
+      <div className="flex items-center gap-1.5">
+        {/* Global search */}
+        <GlobalSearch
+          workspaceId={resolvedWorkspaceId}
+          workspaceSlug={workspaceSlug}
+          projects={resolvedProjects}
+          members={resolvedMembers}
+        />
+
+        <div className="h-4 w-px bg-border" aria-hidden />
+
         <Button
           variant="ghost"
           size="icon"
           aria-label="Notifications"
           title="Notifications"
-          className="text-muted-foreground hover:text-foreground"
+          className="size-8 text-muted-foreground hover:text-foreground"
         >
           <Bell className="size-4" />
         </Button>

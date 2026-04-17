@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useTransition, useCallback } from "react";
+import { useState, useTransition, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import {
   X, Trash2, Loader2, XCircle, Send, MessageSquare,
+  Pencil, Check, Clock,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -29,10 +30,13 @@ import {
 import { RichTextEditor } from "@/components/editor/rich-text-editor";
 import {
   ISSUE_TYPES, ISSUE_STATUSES, ISSUE_PRIORITIES,
-  formatActivityType,
+  formatActivityType, formatActivityValue,
 } from "@/lib/issue-config";
 import { cn } from "@/lib/utils";
-import { updateIssue, deleteIssue, addComment, deleteComment } from "../actions";
+import {
+  updateIssue, deleteIssue,
+  addComment, editComment, deleteComment,
+} from "../actions";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -43,14 +47,15 @@ interface Member {
   image: string | null;
 }
 
-interface Comment {
+interface CommentItem {
   id: string;
   body: string;
   createdAt: Date;
+  updatedAt?: Date;
   author: { id: string; name: string; image: string | null };
 }
 
-interface Activity {
+interface ActivityItem {
   id: string;
   type: string;
   fromValue: string | null;
@@ -58,6 +63,11 @@ interface Activity {
   createdAt: Date;
   actor: { id: string; name: string; image: string | null };
 }
+
+/** Unified timeline entry */
+type TimelineEntry =
+  | { kind: "activity"; data: ActivityItem }
+  | { kind: "comment";  data: CommentItem };
 
 export interface IssueDetail {
   id: string;
@@ -72,8 +82,8 @@ export interface IssueDetail {
   reporter: { id: string; name: string; image: string | null };
   createdAt: Date;
   updatedAt: Date;
-  comments: Comment[];
-  activities: Activity[];
+  comments: CommentItem[];
+  activities: ActivityItem[];
 }
 
 interface IssueDetailModalProps {
@@ -81,6 +91,8 @@ interface IssueDetailModalProps {
   projectKey: string;
   members: Member[];
   currentUserId: string;
+  currentUserName?: string;
+  currentUserImage?: string | null;
   onClose: () => void;
   onDeleted: () => void;
 }
@@ -94,7 +106,9 @@ function getInitials(name: string) {
 }
 
 function formatDate(date: Date) {
-  return new Intl.DateTimeFormat("en", { month: "short", day: "numeric", year: "numeric" }).format(new Date(date));
+  return new Intl.DateTimeFormat("en", {
+    month: "short", day: "numeric", year: "numeric",
+  }).format(new Date(date));
 }
 
 function formatRelative(date: Date) {
@@ -120,13 +134,140 @@ function SidebarField({ label, children }: { label: string; children: React.Reac
   );
 }
 
-// ─── Component ────────────────────────────────────────────────────────────────
+// ─── Activity entry ───────────────────────────────────────────────────────────
+
+function ActivityEntry({ activity }: { activity: ActivityItem }) {
+  return (
+    <div className="flex items-start gap-2.5">
+      <div className="mt-1 flex size-6 shrink-0 items-center justify-center rounded-full bg-muted">
+        <Clock className="size-3 text-muted-foreground" />
+      </div>
+      <div className="flex flex-wrap items-baseline gap-1 pt-0.5 text-sm text-muted-foreground">
+        <span className="font-medium text-foreground">{activity.actor.name}</span>
+        <span>{formatActivityType(activity.type)}</span>
+        {activity.fromValue && activity.toValue && (
+          <>
+            <span className="rounded bg-muted px-1.5 py-0.5 text-xs font-medium">
+              {formatActivityValue(activity.fromValue)}
+            </span>
+            <span>→</span>
+            <span className="rounded bg-muted px-1.5 py-0.5 text-xs font-medium">
+              {formatActivityValue(activity.toValue)}
+            </span>
+          </>
+        )}
+        <span className="text-xs">{formatRelative(activity.createdAt)}</span>
+      </div>
+    </div>
+  );
+}
+
+// ─── Comment entry ────────────────────────────────────────────────────────────
+
+function CommentEntry({
+  comment,
+  currentUserId,
+  onEdit,
+  onDelete,
+}: {
+  comment: CommentItem;
+  currentUserId: string;
+  onEdit: (id: string, body: string) => void;
+  onDelete: (id: string) => void;
+}) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [editBody, setEditBody] = useState(comment.body);
+  const [isPending, startTransition] = useTransition();
+  const isOwn = comment.author.id === currentUserId;
+
+  function handleSaveEdit() {
+    if (!editBody.trim()) return;
+    startTransition(async () => {
+      onEdit(comment.id, editBody);
+      setIsEditing(false);
+    });
+  }
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 4 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="flex items-start gap-2.5"
+    >
+      <Avatar className="mt-1 size-6 shrink-0">
+        <AvatarImage src={comment.author.image ?? undefined} />
+        <AvatarFallback className="text-[10px]">{getInitials(comment.author.name)}</AvatarFallback>
+      </Avatar>
+
+      <div className="flex flex-1 flex-col gap-1.5">
+        {/* Header */}
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 text-sm">
+            <span className="font-medium text-foreground">{comment.author.name}</span>
+            <span className="text-xs text-muted-foreground">{formatRelative(comment.createdAt)}</span>
+            {comment.updatedAt && new Date(comment.updatedAt).getTime() !== new Date(comment.createdAt).getTime() && (
+              <span className="text-xs text-muted-foreground">(edited)</span>
+            )}
+          </div>
+
+          {isOwn && !isEditing && (
+            <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+              <Button
+                variant="ghost" size="icon"
+                className="size-6 text-muted-foreground hover:text-foreground"
+                onClick={() => { setEditBody(comment.body); setIsEditing(true); }}
+              >
+                <Pencil className="size-3" />
+              </Button>
+              <Button
+                variant="ghost" size="icon"
+                className="size-6 text-muted-foreground hover:text-destructive"
+                onClick={() => onDelete(comment.id)}
+              >
+                <X className="size-3" />
+              </Button>
+            </div>
+          )}
+        </div>
+
+        {/* Body */}
+        {isEditing ? (
+          <div className="flex flex-col gap-2">
+            <RichTextEditor
+              content={editBody}
+              onChange={setEditBody}
+              placeholder="Edit comment…"
+              minHeight="60px"
+            />
+            <div className="flex items-center gap-2">
+              <Button size="sm" className="h-7 px-2.5 text-xs" onClick={handleSaveEdit} disabled={isPending || !editBody.trim()}>
+                {isPending ? <Loader2 className="size-3.5 animate-spin" /> : <><Check className="mr-1 size-3" />Save</>}
+              </Button>
+              <Button size="sm" variant="ghost" className="h-7 px-2.5 text-xs" onClick={() => setIsEditing(false)}>
+                Cancel
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <div
+            className="prose prose-sm dark:prose-invert max-w-none rounded-lg border border-border bg-muted/30 px-3 py-2 text-sm"
+            dangerouslySetInnerHTML={{ __html: comment.body }}
+          />
+        )}
+      </div>
+    </motion.div>
+  );
+}
+
+// ─── Main component ───────────────────────────────────────────────────────────
 
 export function IssueDetailModal({
   issue: initialIssue,
   projectKey,
   members,
   currentUserId,
+  currentUserName,
+  currentUserImage,
   onClose,
   onDeleted,
 }: IssueDetailModalProps) {
@@ -135,8 +276,8 @@ export function IssueDetailModal({
   const [titleDraft, setTitleDraft] = useState(issue.title);
   const [description, setDescription] = useState(issue.description ?? "");
   const [commentBody, setCommentBody] = useState("");
-  const [comments, setComments] = useState(issue.comments);
-  const [activities] = useState(issue.activities);
+  const [comments, setComments] = useState<CommentItem[]>(issue.comments);
+  const [activities] = useState<ActivityItem[]>(issue.activities);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const [isSubmittingComment, startCommentTransition] = useTransition();
@@ -144,7 +285,20 @@ export function IssueDetailModal({
 
   const issueKey = `${projectKey}-${issue.key}`;
 
-  // ── Field updates ────────────────────────────────────────────────────────────
+  // ── Unified timeline (activities + comments sorted by createdAt) ──────────────
+
+  const timeline = useMemo<TimelineEntry[]>(() => {
+    const entries: TimelineEntry[] = [
+      ...activities.map((a) => ({ kind: "activity" as const, data: a })),
+      ...comments.map((c) => ({ kind: "comment" as const, data: c })),
+    ];
+    return entries.sort(
+      (a, b) =>
+        new Date(a.data.createdAt).getTime() - new Date(b.data.createdAt).getTime(),
+    );
+  }, [activities, comments]);
+
+  // ── Field updates ─────────────────────────────────────────────────────────────
 
   function handleFieldUpdate(field: string, value: string | null) {
     startTransition(async () => {
@@ -159,7 +313,7 @@ export function IssueDetailModal({
     });
   }
 
-  async function handleTitleSave() {
+  function handleTitleSave() {
     if (titleDraft.trim() === issue.title) { setIsEditingTitle(false); return; }
     startTransition(async () => {
       const result = await updateIssue(issue.id, { title: titleDraft });
@@ -176,7 +330,7 @@ export function IssueDetailModal({
     });
   }, [issue.id, description]);
 
-  // ── Comments ─────────────────────────────────────────────────────────────────
+  // ── Comments ──────────────────────────────────────────────────────────────────
 
   function handleAddComment(e: React.FormEvent) {
     e.preventDefault();
@@ -184,17 +338,33 @@ export function IssueDetailModal({
     startCommentTransition(async () => {
       const result = await addComment(issue.id, commentBody);
       if (!result.success) { setError(result.error ?? "Failed to add comment."); return; }
-      // Optimistic: add comment to local state
       setComments((prev) => [
         ...prev,
         {
           id: result.data!.id,
           body: commentBody,
           createdAt: new Date(),
-          author: { id: currentUserId, name: "You", image: null },
+          author: {
+            id: currentUserId,
+            name: currentUserName ?? "You",
+            image: currentUserImage ?? null,
+          },
         },
       ]);
       setCommentBody("");
+      setError(null);
+    });
+  }
+
+  function handleEditComment(commentId: string, body: string) {
+    startTransition(async () => {
+      const result = await editComment(commentId, body);
+      if (!result.success) { setError(result.error ?? "Failed to edit comment."); return; }
+      setComments((prev) =>
+        prev.map((c) =>
+          c.id === commentId ? { ...c, body, updatedAt: new Date() } : c,
+        ),
+      );
       setError(null);
     });
   }
@@ -207,7 +377,7 @@ export function IssueDetailModal({
     });
   }
 
-  // ── Delete issue ─────────────────────────────────────────────────────────────
+  // ── Delete issue ──────────────────────────────────────────────────────────────
 
   function handleDeleteIssue() {
     startTransition(async () => {
@@ -217,7 +387,7 @@ export function IssueDetailModal({
     });
   }
 
-  // ── Render ───────────────────────────────────────────────────────────────────
+  // ── Render ────────────────────────────────────────────────────────────────────
 
   return (
     <motion.div
@@ -239,7 +409,6 @@ export function IssueDetailModal({
         <div className="flex items-center justify-between border-b border-border px-6 py-4">
           <span className="font-mono text-sm font-medium text-muted-foreground">{issueKey}</span>
           <div className="flex items-center gap-1">
-            {/* Delete */}
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button variant="ghost" size="icon" className="size-8 text-muted-foreground hover:text-destructive">
@@ -261,7 +430,6 @@ export function IssueDetailModal({
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
-
             <Button variant="ghost" size="icon" className="size-8 text-muted-foreground" onClick={onClose}>
               <X className="size-4" />
             </Button>
@@ -277,20 +445,21 @@ export function IssueDetailModal({
             {/* Title */}
             <div>
               {isEditingTitle ? (
-                <div className="flex items-center gap-2">
-                  <Input
-                    value={titleDraft}
-                    onChange={(e) => setTitleDraft(e.target.value)}
-                    onBlur={handleTitleSave}
-                    onKeyDown={(e) => { if (e.key === "Enter") handleTitleSave(); if (e.key === "Escape") { setTitleDraft(issue.title); setIsEditingTitle(false); } }}
-                    autoFocus
-                    className="text-lg font-semibold"
-                    disabled={isPending}
-                  />
-                </div>
+                <Input
+                  value={titleDraft}
+                  onChange={(e) => setTitleDraft(e.target.value)}
+                  onBlur={handleTitleSave}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") handleTitleSave();
+                    if (e.key === "Escape") { setTitleDraft(issue.title); setIsEditingTitle(false); }
+                  }}
+                  autoFocus
+                  className="text-lg font-semibold"
+                  disabled={isPending}
+                />
               ) : (
                 <h1
-                  className="cursor-text text-xl font-semibold text-foreground hover:bg-accent/50 rounded px-1 -mx-1 py-0.5 transition-colors"
+                  className="cursor-text rounded px-1 -mx-1 py-0.5 text-xl font-semibold text-foreground transition-colors hover:bg-accent/50"
                   onClick={() => { setTitleDraft(issue.title); setIsEditingTitle(true); }}
                 >
                   {issue.title}
@@ -309,7 +478,7 @@ export function IssueDetailModal({
                 minHeight="100px"
               />
               {isSavingDesc && (
-                <span className="text-xs text-muted-foreground flex items-center gap-1">
+                <span className="flex items-center gap-1 text-xs text-muted-foreground">
                   <Loader2 className="size-3 animate-spin" /> Saving…
                 </span>
               )}
@@ -318,105 +487,105 @@ export function IssueDetailModal({
             {/* Error */}
             <AnimatePresence>
               {error && (
-                <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
-                  className="flex items-center gap-2 rounded-lg bg-destructive/10 px-4 py-3 text-sm text-destructive">
+                <motion.div
+                  initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+                  className="flex items-center gap-2 rounded-lg bg-destructive/10 px-4 py-3 text-sm text-destructive"
+                >
                   <XCircle className="size-4 shrink-0" />{error}
+                  <button onClick={() => setError(null)} className="ml-auto"><X className="size-3.5" /></button>
                 </motion.div>
               )}
             </AnimatePresence>
 
             <Separator />
 
-            {/* Activity + Comments */}
+            {/* ── Unified timeline ─────────────────────────────────────── */}
             <div className="flex flex-col gap-4">
               <h3 className="flex items-center gap-2 text-sm font-semibold text-foreground">
                 <MessageSquare className="size-4" />
                 Activity
+                <span className="ml-1 text-xs font-normal text-muted-foreground">
+                  {timeline.length} {timeline.length === 1 ? "entry" : "entries"}
+                </span>
               </h3>
 
-              {/* Timeline */}
-              <div className="flex flex-col gap-3">
-                {/* Activities */}
-                {activities.map((a) => (
-                  <div key={a.id} className="flex items-start gap-2.5 text-sm">
-                    <Avatar className="size-6 mt-0.5 shrink-0">
-                      <AvatarImage src={a.actor.image ?? undefined} />
-                      <AvatarFallback className="text-[10px]">{getInitials(a.actor.name)}</AvatarFallback>
-                    </Avatar>
-                    <div className="flex flex-wrap items-baseline gap-1 text-muted-foreground">
-                      <span className="font-medium text-foreground">{a.actor.name}</span>
-                      <span>{formatActivityType(a.type)}</span>
-                      {a.fromValue && a.toValue && (
-                        <>
-                          <span className="rounded bg-muted px-1 py-0.5 text-xs font-mono">{a.fromValue}</span>
-                          <span>→</span>
-                          <span className="rounded bg-muted px-1 py-0.5 text-xs font-mono">{a.toValue}</span>
-                        </>
-                      )}
-                      <span className="text-xs">{formatRelative(a.createdAt)}</span>
-                    </div>
-                  </div>
-                ))}
-
-                {/* Comments */}
-                {comments.map((c) => (
-                  <motion.div
-                    key={c.id}
-                    initial={{ opacity: 0, y: 4 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="flex items-start gap-2.5"
-                  >
-                    <Avatar className="size-6 mt-1 shrink-0">
-                      <AvatarImage src={c.author.image ?? undefined} />
-                      <AvatarFallback className="text-[10px]">{getInitials(c.author.name)}</AvatarFallback>
-                    </Avatar>
-                    <div className="flex flex-1 flex-col gap-1">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2 text-sm">
-                          <span className="font-medium text-foreground">{c.author.name}</span>
-                          <span className="text-xs text-muted-foreground">{formatRelative(c.createdAt)}</span>
+              {timeline.length === 0 ? (
+                <p className="text-sm text-muted-foreground">No activity yet.</p>
+              ) : (
+                <div className="flex flex-col gap-4">
+                  <AnimatePresence initial={false}>
+                    {timeline.map((entry) =>
+                      entry.kind === "activity" ? (
+                        <motion.div
+                          key={`activity-${entry.data.id}`}
+                          initial={{ opacity: 0, y: 4 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.2 }}
+                        >
+                          <ActivityEntry activity={entry.data} />
+                        </motion.div>
+                      ) : (
+                        <div key={`comment-${entry.data.id}`} className="group">
+                          <CommentEntry
+                            comment={entry.data}
+                            currentUserId={currentUserId}
+                            onEdit={handleEditComment}
+                            onDelete={handleDeleteComment}
+                          />
                         </div>
-                        {c.author.id === currentUserId && (
-                          <Button variant="ghost" size="icon" className="size-6 text-muted-foreground hover:text-destructive"
-                            onClick={() => handleDeleteComment(c.id)}>
-                            <X className="size-3" />
-                          </Button>
-                        )}
-                      </div>
-                      <div
-                        className="prose prose-sm dark:prose-invert max-w-none rounded-lg border border-border bg-muted/30 px-3 py-2 text-sm"
-                        dangerouslySetInnerHTML={{ __html: c.body }}
-                      />
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
+                      ),
+                    )}
+                  </AnimatePresence>
+                </div>
+              )}
 
-              {/* Add comment */}
-              <form onSubmit={handleAddComment} className="flex items-start gap-2.5">
-                <Avatar className="size-6 mt-2 shrink-0">
-                  <AvatarFallback className="text-[10px]">ME</AvatarFallback>
+              {/* ── Add comment ─────────────────────────────────────────── */}
+              <form onSubmit={handleAddComment} className="flex items-start gap-2.5 pt-1">
+                <Avatar className="mt-1 size-6 shrink-0">
+                  <AvatarImage src={currentUserImage ?? undefined} />
+                  <AvatarFallback className="text-[10px]">
+                    {getInitials(currentUserName ?? "Me")}
+                  </AvatarFallback>
                 </Avatar>
-                <div className="flex flex-1 items-center gap-2 rounded-lg border border-border bg-background px-3 py-2 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all">
-                  <input
-                    type="text"
+
+                <div className="flex flex-1 flex-col gap-2">
+                  <RichTextEditor
+                    content={commentBody}
+                    onChange={setCommentBody}
                     placeholder="Add a comment…"
-                    value={commentBody}
-                    onChange={(e) => setCommentBody(e.target.value)}
-                    disabled={isSubmittingComment}
-                    className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+                    minHeight="60px"
+                    showToolbar={false}
                   />
-                  <Button type="submit" size="icon" variant="ghost" className="size-6 shrink-0 text-muted-foreground hover:text-primary"
-                    disabled={!commentBody.trim() || isSubmittingComment}>
-                    {isSubmittingComment ? <Loader2 className="size-3.5 animate-spin" /> : <Send className="size-3.5" />}
-                  </Button>
+                  <div className="flex items-center justify-end gap-2">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="h-7 px-2.5 text-xs"
+                      onClick={() => setCommentBody("")}
+                      disabled={!commentBody.trim() || isSubmittingComment}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      type="submit"
+                      size="sm"
+                      className="h-7 px-2.5 text-xs"
+                      disabled={!commentBody.trim() || isSubmittingComment}
+                    >
+                      {isSubmittingComment
+                        ? <span className="flex items-center gap-1.5"><Loader2 className="size-3.5 animate-spin" />Saving…</span>
+                        : <span className="flex items-center gap-1.5"><Send className="size-3.5" />Comment</span>
+                      }
+                    </Button>
+                  </div>
                 </div>
               </form>
             </div>
           </div>
 
           {/* Right — sidebar */}
-          <div className="w-64 shrink-0 border-l border-border p-5 flex flex-col gap-5 overflow-y-auto">
+          <div className="flex w-64 shrink-0 flex-col gap-5 overflow-y-auto border-l border-border p-5">
 
             <SidebarField label="Status">
               <Select value={issue.status} onValueChange={(v) => handleFieldUpdate("status", v)} disabled={isPending}>

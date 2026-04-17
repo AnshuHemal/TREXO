@@ -301,3 +301,34 @@ export async function moveIssue(
     return { success: false, error: "Failed to move issue." };
   }
 }
+
+// ─── editComment ──────────────────────────────────────────────────────────────
+
+export async function editComment(
+  commentId: string,
+  body: string,
+): Promise<ActionResult> {
+  const user = await requireUser();
+
+  if (!body.trim()) return { success: false, error: "Comment cannot be empty." };
+
+  const comment = await prisma.comment.findUnique({
+    where: { id: commentId },
+    select: { authorId: true },
+  });
+
+  if (!comment) return { success: false, error: "Comment not found." };
+  if (comment.authorId !== user.id) {
+    return { success: false, error: "You can only edit your own comments." };
+  }
+
+  try {
+    await prisma.comment.update({
+      where: { id: commentId },
+      data: { body },
+    });
+    return { success: true };
+  } catch {
+    return { success: false, error: "Failed to edit comment." };
+  }
+}

@@ -15,7 +15,6 @@ import {
 import { cn } from "@/lib/utils";
 import { CreateIssueDialog } from "../../issues/_components/create-issue-dialog";
 import { IssueDetailModal, type IssueDetail } from "../../issues/_components/issue-detail-modal";
-import { prisma } from "@/lib/prisma";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -47,6 +46,8 @@ interface BacklogClientProps {
   issues: IssueRow[];
   members: Member[];
   currentUserId: string;
+  currentUserName?: string;
+  currentUserImage?: string | null;
   workspaceSlug: string;
 }
 
@@ -139,6 +140,8 @@ export function BacklogClient({
   issues: initialIssues,
   members,
   currentUserId,
+  currentUserName,
+  currentUserImage,
   workspaceSlug: _workspaceSlug,
 }: BacklogClientProps) {
   const [issues, setIssues] = useState(initialIssues);
@@ -269,6 +272,8 @@ export function BacklogClient({
               projectKey={project.key}
               members={members}
               currentUserId={currentUserId}
+              currentUserName={currentUserName}
+              currentUserImage={currentUserImage}
               onClose={handleCloseModal}
               onDeleted={handleIssueDeleted}
             />

@@ -70,6 +70,8 @@ export default async function ProjectBoardPage({ params }: ProjectBoardPageProps
       issues={issueList}
       members={memberList}
       currentUserId={user.id}
+      currentUserName={user.name}
+      currentUserImage={user.image}
       workspaceSlug={workspace.slug}
     />
   );
