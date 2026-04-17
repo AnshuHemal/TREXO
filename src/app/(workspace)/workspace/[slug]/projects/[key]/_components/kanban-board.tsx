@@ -32,6 +32,7 @@ export interface BoardIssue {
   assigneeId: string | null;
   assignee: { id: string; name: string; image: string | null } | null;
   commentCount: number;
+  dueDate?: Date | null;
 }
 
 interface Member {

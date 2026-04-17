@@ -3,9 +3,10 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { motion } from "motion/react";
-import { MessageSquare } from "lucide-react";
+import { MessageSquare, CalendarDays } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getPriorityConfig, getTypeConfig } from "@/lib/issue-config";
+import { isOverdue } from "@/lib/due-date";
 import { cn } from "@/lib/utils";
 import type { BoardIssue } from "./kanban-board";
 
@@ -51,7 +52,8 @@ export function KanbanCard({ issue, projectKey, isDragging = false, onOpen }: Ka
   const PriorityIcon = priority.icon;
   const TypeIcon     = type.icon;
 
-  const isGhost = isSortableDragging && !isDragging;
+  const isGhost   = isSortableDragging && !isDragging;
+  const overdue   = isOverdue(issue.dueDate, issue.status);
 
   return (
     <motion.div
@@ -70,6 +72,7 @@ export function KanbanCard({ issue, projectKey, isDragging = false, onOpen }: Ka
         "hover:border-primary/40 hover:shadow-md transition-all",
         isDragging && "rotate-1 shadow-xl ring-2 ring-primary/30",
         isGhost && "pointer-events-none",
+        overdue && "border-destructive/40",
       )}
     >
       {/* Top row: type icon + key + priority */}
@@ -80,7 +83,15 @@ export function KanbanCard({ issue, projectKey, isDragging = false, onOpen }: Ka
             {projectKey}-{issue.key}
           </span>
         </div>
-        <PriorityIcon className={cn("size-3.5 shrink-0", priority.color)} />
+        <div className="flex items-center gap-1.5">
+          {overdue && (
+            <span className="flex items-center gap-0.5 rounded-full bg-destructive/10 px-1.5 py-0.5 text-[10px] font-medium text-destructive">
+              <CalendarDays className="size-2.5" />
+              Overdue
+            </span>
+          )}
+          <PriorityIcon className={cn("size-3.5 shrink-0", priority.color)} />
+        </div>
       </div>
 
       {/* Title */}

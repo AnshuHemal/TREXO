@@ -4,7 +4,7 @@ import { useState, useTransition, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import {
   X, Trash2, Loader2, XCircle, Send, MessageSquare,
-  Pencil, Check, Clock,
+  Pencil, Check, Clock, CalendarDays,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -39,6 +39,7 @@ import {
   addLabelToIssue, removeLabelFromIssue,
 } from "../actions";
 import { LabelPicker, type LabelOption } from "@/components/shared/label-picker";
+import { isOverdue, toInputDate, fromInputDate } from "@/lib/due-date";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -82,6 +83,7 @@ export interface IssueDetail {
   assigneeId: string | null;
   assignee: { id: string; name: string; image: string | null } | null;
   reporter: { id: string; name: string; image: string | null };
+  dueDate?: Date | null;
   createdAt: Date;
   updatedAt: Date;
   comments: CommentItem[];
@@ -286,6 +288,7 @@ export function IssueDetailModal({
   const [selectedLabels, setSelectedLabels] = useState<LabelOption[]>(
     (issue.labels ?? []).map((il) => il.label),
   );
+  const [dueDate, setDueDate] = useState<Date | null>(issue.dueDate ?? null);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const [isSubmittingComment, startCommentTransition] = useTransition();
@@ -694,6 +697,49 @@ export function IssueDetailModal({
                 }}
                 disabled={isPending}
               />
+            </SidebarField>
+
+            <Separator />
+
+            <SidebarField label="Due date">
+              <div className="flex items-center gap-2">
+                <Input
+                  type="date"
+                  value={toInputDate(dueDate)}
+                  onChange={(e) => {
+                    const newDate = fromInputDate(e.target.value);
+                    setDueDate(newDate);
+                    startTransition(async () => {
+                      const result = await updateIssue(issue.id, { dueDate: newDate });
+                      if (!result.success) setError(result.error ?? "Failed to update due date.");
+                    });
+                  }}
+                  disabled={isPending}
+                  className="h-8 flex-1 text-xs"
+                />
+                {dueDate && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setDueDate(null);
+                      startTransition(async () => {
+                        await updateIssue(issue.id, { dueDate: null });
+                      });
+                    }}
+                    disabled={isPending}
+                    className="text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50"
+                    aria-label="Clear due date"
+                  >
+                    <X className="size-3.5" />
+                  </button>
+                )}
+              </div>
+              {dueDate && isOverdue(dueDate, issue.status) && (
+                <span className="flex items-center gap-1 text-xs text-destructive">
+                  <CalendarDays className="size-3" />
+                  Overdue
+                </span>
+              )}
             </SidebarField>
 
             <Separator />

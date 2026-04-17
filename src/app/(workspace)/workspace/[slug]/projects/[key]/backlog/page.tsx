@@ -64,6 +64,7 @@ export default async function BacklogPage({ params }: BacklogPageProps) {
     assignee: i.assignee,
     reporter: i.reporter,
     description: i.description,
+    dueDate: i.dueDate,
     createdAt: i.createdAt,
     updatedAt: i.updatedAt,
     commentCount: i._count.comments,

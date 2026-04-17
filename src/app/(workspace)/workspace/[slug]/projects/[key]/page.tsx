@@ -62,6 +62,7 @@ export default async function ProjectBoardPage({ params }: ProjectBoardPageProps
     assigneeId: i.assigneeId,
     assignee: i.assignee,
     commentCount: i._count.comments,
+    dueDate: i.dueDate,
   }));
 
   return (
