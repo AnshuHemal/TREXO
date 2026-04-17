@@ -409,3 +409,63 @@ export async function removeLabelFromIssue(
     return { success: false, error: "Failed to remove label." };
   }
 }
+
+// ─── createSubTask ────────────────────────────────────────────────────────────
+
+export interface CreateSubTaskInput {
+  parentId: string;
+  projectId: string;
+  title: string;
+  assigneeId?: string | null;
+}
+
+/**
+ * Creates a sub-task linked to a parent issue.
+ * Sub-tasks always have type=SUBTASK and start in BACKLOG status.
+ */
+export async function createSubTask(
+  input: CreateSubTaskInput,
+): Promise<ActionResult<{ id: string; key: number }>> {
+  const user = await requireUser();
+
+  const title = input.title.trim();
+  if (!title) return { success: false, fieldErrors: { title: "Title is required." } };
+  if (title.length > 255) return { success: false, fieldErrors: { title: "Title must be 255 characters or fewer." } };
+
+  try {
+    const issue = await prisma.$transaction(async (tx) => {
+      const key = await getNextIssueKey(tx, input.projectId);
+
+      const lastIssue = await tx.issue.findFirst({
+        where: { projectId: input.projectId, status: "BACKLOG" },
+        orderBy: { position: "desc" },
+        select: { position: true },
+      });
+      const position = (lastIssue?.position ?? 0) + 1000;
+
+      return tx.issue.create({
+        data: {
+          projectId: input.projectId,
+          parentId: input.parentId,
+          reporterId: user.id,
+          key,
+          title,
+          type: "SUBTASK",
+          status: "BACKLOG",
+          priority: "MEDIUM",
+          assigneeId: input.assigneeId ?? null,
+          position,
+        },
+        select: { id: true, key: true },
+      });
+    });
+
+    await prisma.activity.create({
+      data: { issueId: issue.id, actorId: user.id, type: "issue_created" },
+    }).catch(() => {});
+
+    return { success: true, data: { id: issue.id, key: issue.key } };
+  } catch {
+    return { success: false, error: "Failed to create sub-task. Please try again." };
+  }
+}

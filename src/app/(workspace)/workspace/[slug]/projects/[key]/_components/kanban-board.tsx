@@ -100,11 +100,11 @@ export function KanbanBoard({
     }),
   );
 
-  // ── Issues grouped by status ─────────────────────────────────────────────────
+  // ── Issues grouped by status — exclude sub-tasks from the board ──────────────
   const columnIssues = useCallback(
     (status: string) =>
       issues
-        .filter((i) => i.status === status)
+        .filter((i) => i.status === status && i.type !== "SUBTASK")
         .sort((a, b) => a.position - b.position),
     [issues],
   );

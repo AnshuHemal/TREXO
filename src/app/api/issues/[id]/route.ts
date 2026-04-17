@@ -4,8 +4,8 @@ import { getUser } from "@/lib/session";
 
 /**
  * GET /api/issues/[id]
- * Returns full issue detail including comments and activities.
- * Used by the issue detail modal to avoid passing large data through props.
+ * Returns full issue detail including comments, activities, labels,
+ * sub-tasks, and parent issue info.
  */
 export async function GET(
   _request: NextRequest,
@@ -36,6 +36,27 @@ export async function GET(
       labels: {
         include: {
           label: { select: { id: true, name: true, color: true } },
+        },
+      },
+      // Sub-tasks
+      subTasks: {
+        orderBy: { key: "asc" },
+        select: {
+          id: true,
+          key: true,
+          title: true,
+          status: true,
+          priority: true,
+          assignee: { select: { id: true, name: true, image: true } },
+        },
+      },
+      // Parent issue (for breadcrumb in sub-task detail)
+      parent: {
+        select: {
+          id: true,
+          key: true,
+          title: true,
+          project: { select: { key: true } },
         },
       },
     },

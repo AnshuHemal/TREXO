@@ -40,6 +40,7 @@ import {
 } from "../actions";
 import { LabelPicker, type LabelOption } from "@/components/shared/label-picker";
 import { isOverdue, toInputDate, fromInputDate } from "@/lib/due-date";
+import { SubTaskList, type SubTaskItem } from "./sub-task-list";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -89,6 +90,14 @@ export interface IssueDetail {
   comments: CommentItem[];
   activities: ActivityItem[];
   labels?: { label: LabelOption }[];
+  subTasks?: SubTaskItem[];
+  parent?: {
+    id: string;
+    key: number;
+    title: string;
+    project: { key: string };
+  } | null;
+  projectId?: string;
 }
 
 interface IssueDetailModalProps {
@@ -289,6 +298,10 @@ export function IssueDetailModal({
     (issue.labels ?? []).map((il) => il.label),
   );
   const [dueDate, setDueDate] = useState<Date | null>(issue.dueDate ?? null);
+  const [subTasks, setSubTasks] = useState<SubTaskItem[]>(issue.subTasks ?? []);
+  const [selectedSubTaskId, setSelectedSubTaskId] = useState<string | null>(null);
+  const [subTaskDetail, setSubTaskDetail] = useState<IssueDetail | null>(null);
+  const [isLoadingSubTask, setIsLoadingSubTask] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const [isSubmittingComment, startCommentTransition] = useTransition();
@@ -388,10 +401,30 @@ export function IssueDetailModal({
     });
   }
 
+  // ── Open sub-task ─────────────────────────────────────────────────────────────
+
+  async function handleOpenSubTask(subTaskId: string) {
+    setSelectedSubTaskId(subTaskId);
+    setIsLoadingSubTask(true);
+    try {
+      const res = await fetch(`/api/issues/${subTaskId}`);
+      if (res.ok) {
+        const data = await res.json();
+        setSubTaskDetail(data);
+      }
+    } finally {
+      setIsLoadingSubTask(false);
+    }
+  }
+
+  function handleCloseSubTask() {
+    setSelectedSubTaskId(null);
+    setSubTaskDetail(null);
+  }
+
   // ── Delete issue ──────────────────────────────────────────────────────────────
 
-  function handleDeleteIssue() {
-    startTransition(async () => {
+  function handleDeleteIssue() {    startTransition(async () => {
       const result = await deleteIssue(issue.id);
       if (!result.success) { setError(result.error ?? "Failed to delete issue."); return; }
       onDeleted();
@@ -401,6 +434,7 @@ export function IssueDetailModal({
   // ── Render ────────────────────────────────────────────────────────────────────
 
   return (
+    <>
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
@@ -418,7 +452,22 @@ export function IssueDetailModal({
       >
         {/* ── Header ──────────────────────────────────────────────────────── */}
         <div className="flex items-center justify-between border-b border-border px-6 py-4">
-          <span className="font-mono text-sm font-medium text-muted-foreground">{issueKey}</span>
+          <div className="flex items-center gap-2 text-sm">
+            {/* Parent breadcrumb */}
+            {issue.parent && (
+              <>
+                <button
+                  type="button"
+                  onClick={() => handleOpenSubTask(issue.parent!.id)}
+                  className="font-mono text-xs text-muted-foreground hover:text-primary transition-colors"
+                >
+                  {issue.parent.project.key}-{issue.parent.key}
+                </button>
+                <span className="text-muted-foreground">/</span>
+              </>
+            )}
+            <span className="font-mono text-sm font-medium text-muted-foreground">{issueKey}</span>
+          </div>
           <div className="flex items-center gap-1">
             <AlertDialog>
               <AlertDialogTrigger asChild>
@@ -494,6 +543,17 @@ export function IssueDetailModal({
                 </span>
               )}
             </div>
+
+            {/* Sub-tasks — only show on parent issues (not on sub-tasks themselves) */}
+            {!issue.parent && issue.projectId && (
+              <SubTaskList
+                parentId={issue.id}
+                projectId={issue.projectId}
+                projectKey={projectKey}
+                subTasks={subTasks}
+                onOpenSubTask={handleOpenSubTask}
+              />
+            )}
 
             {/* Error */}
             <AnimatePresence>
@@ -766,5 +826,39 @@ export function IssueDetailModal({
         </div>
       </motion.div>
     </motion.div>
+
+    {/* ── Nested sub-task modal ──────────────────────────────────────────── */}
+    <AnimatePresence>
+      {selectedSubTaskId && (
+        isLoadingSubTask || !subTaskDetail ? (
+          <motion.div
+            key="subtask-loading"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-60 flex items-center justify-center bg-black/30 backdrop-blur-sm"
+          >
+            <div className="size-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+          </motion.div>
+        ) : (
+          <IssueDetailModal
+            key="subtask-detail"
+            issue={subTaskDetail}
+            projectKey={projectKey}
+            members={members}
+            allLabels={allLabels}
+            currentUserId={currentUserId}
+            currentUserName={currentUserName}
+            currentUserImage={currentUserImage}
+            onClose={handleCloseSubTask}
+            onDeleted={() => {
+              setSubTasks((prev) => prev.filter((s) => s.id !== selectedSubTaskId));
+              handleCloseSubTask();
+            }}
+          />
+        )
+      )}
+    </AnimatePresence>
+  </>
   );
 }
