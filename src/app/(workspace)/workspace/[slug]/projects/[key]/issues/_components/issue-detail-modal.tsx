@@ -41,6 +41,7 @@ import {
 import { LabelPicker, type LabelOption } from "@/components/shared/label-picker";
 import { isOverdue, toInputDate, fromInputDate } from "@/lib/due-date";
 import { SubTaskList, type SubTaskItem } from "./sub-task-list";
+import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -308,6 +309,36 @@ export function IssueDetailModal({
   const [isSavingDesc, startDescTransition] = useTransition();
 
   const issueKey = `${projectKey}-${issue.key}`;
+
+  // ── Issue-level keyboard shortcuts ────────────────────────────────────────────
+  useKeyboardShortcuts([
+    {
+      keys: "e",
+      description: "Edit issue title",
+      group: "Issue detail",
+      handler: () => {
+        setTitleDraft(issue.title);
+        setIsEditingTitle(true);
+      },
+    },
+    {
+      keys: "a",
+      description: "Assign to me",
+      group: "Issue detail",
+      handler: () => {
+        if (issue.assigneeId !== currentUserId) {
+          handleFieldUpdate("assigneeId", currentUserId);
+        }
+      },
+    },
+    {
+      keys: "escape",
+      description: "Close modal",
+      group: "Issue detail",
+      handler: onClose,
+      allowInInput: false,
+    },
+  ]);
 
   // ── Unified timeline (activities + comments sorted by createdAt) ──────────────
 

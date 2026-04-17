@@ -42,6 +42,9 @@ interface CreateIssueDialogProps {
   defaultStatus?: string;
   trigger?: React.ReactNode;
   onCreated?: (issueId: string) => void;
+  /** Controlled open state — when provided, the dialog is fully controlled */
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -62,8 +65,10 @@ export function CreateIssueDialog({
   defaultStatus = "BACKLOG",
   trigger,
   onCreated,
+  open: controlledOpen,
+  onOpenChange: controlledOnOpenChange,
 }: CreateIssueDialogProps) {
-  const [open, setOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [type, setType] = useState("TASK");
   const [status, setStatus] = useState(defaultStatus);
@@ -72,6 +77,11 @@ export function CreateIssueDialog({
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [serverError, setServerError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+
+  // Use controlled or internal state
+  const isControlled = controlledOpen !== undefined;
+  const open = isControlled ? controlledOpen : internalOpen;
+  const setOpen = isControlled ? controlledOnOpenChange! : setInternalOpen;
 
   function reset() {
     setTitle("");

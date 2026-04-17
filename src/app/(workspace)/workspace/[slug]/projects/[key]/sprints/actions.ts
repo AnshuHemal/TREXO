@@ -248,3 +248,27 @@ export async function removeIssueFromSprint(issueId: string): Promise<ActionResu
     return { success: false, error: "Failed to remove issue from sprint." };
   }
 }
+
+// ─── updateSprintDates (roadmap drag) ─────────────────────────────────────────
+
+export async function updateSprintDates(
+  sprintId: string,
+  startDate: Date,
+  endDate: Date,
+): Promise<ActionResult> {
+  await requireUser();
+
+  if (startDate >= endDate) {
+    return { success: false, error: "Start date must be before end date." };
+  }
+
+  try {
+    await prisma.sprint.update({
+      where: { id: sprintId },
+      data: { startDate, endDate },
+    });
+    return { success: true };
+  } catch {
+    return { success: false, error: "Failed to update sprint dates." };
+  }
+}
