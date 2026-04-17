@@ -38,6 +38,8 @@ export interface BoardIssue {
   // Epic grouping
   epicId?: string | null;
   epicTitle?: string | null;
+  // Blocking indicator
+  isBlocked?: boolean;
 }
 
 interface Member {

@@ -46,6 +46,19 @@ export default async function ProjectBoardPage({ params }: ProjectBoardPageProps
     }
   }
 
+  // Find which issues are blocked (have an incoming BLOCKS link from an unresolved issue)
+  const issueIds = issues.map((i) => i.id);
+  const blockingLinks = await prisma.issueLink.findMany({
+    where: {
+      type: "BLOCKS",
+      targetId: { in: issueIds },
+      // Only count as blocked if the blocking issue is not done/cancelled
+      source: { status: { notIn: ["DONE", "CANCELLED"] } },
+    },
+    select: { targetId: true },
+  });
+  const blockedIds = new Set(blockingLinks.map((l) => l.targetId));
+
   // Workspace members for assignee picker in quick-create
   const members = await prisma.workspaceMember.findMany({
     where: { workspaceId: workspace.id },
@@ -74,6 +87,7 @@ export default async function ProjectBoardPage({ params }: ProjectBoardPageProps
     dueDate: i.dueDate,
     epicId: epicMap.get(i.id)?.id ?? null,
     epicTitle: epicMap.get(i.id)?.title ?? null,
+    isBlocked: blockedIds.has(i.id),
   }));
 
   return (

@@ -59,6 +59,30 @@ export async function GET(
           project: { select: { key: true } },
         },
       },
+      // Outgoing links (this issue is the source)
+      outgoingLinks: {
+        include: {
+          target: {
+            select: {
+              id: true, key: true, title: true,
+              status: true, priority: true, type: true,
+              project: { select: { key: true } },
+            },
+          },
+        },
+      },
+      // Incoming links (this issue is the target)
+      incomingLinks: {
+        include: {
+          source: {
+            select: {
+              id: true, key: true, title: true,
+              status: true, priority: true, type: true,
+              project: { select: { key: true } },
+            },
+          },
+        },
+      },
     },
   });
 

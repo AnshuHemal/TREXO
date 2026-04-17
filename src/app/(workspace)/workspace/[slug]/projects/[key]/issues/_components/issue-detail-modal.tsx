@@ -42,6 +42,8 @@ import { LabelPicker, type LabelOption } from "@/components/shared/label-picker"
 import { isOverdue, toInputDate, fromInputDate } from "@/lib/due-date";
 import { SubTaskList, type SubTaskItem } from "./sub-task-list";
 import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
+import { IssueLinks } from "./issue-links";
+import type { IssueLinkItem } from "../link-actions";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -99,6 +101,7 @@ export interface IssueDetail {
     project: { key: string };
   } | null;
   projectId?: string;
+  links?: IssueLinkItem[];
 }
 
 interface IssueDetailModalProps {
@@ -303,6 +306,24 @@ export function IssueDetailModal({
   );
   const [dueDate, setDueDate] = useState<Date | null>(issue.dueDate ?? null);
   const [subTasks, setSubTasks] = useState<SubTaskItem[]>(issue.subTasks ?? []);
+  const [links] = useState<IssueLinkItem[]>(() => {
+    // Normalise links from API response (outgoing + flipped incoming)
+    const out = (issue as IssueDetail & {
+      outgoingLinks?: Array<{ id: string; type: string; target: IssueLinkItem["issue"] }>;
+      incomingLinks?: Array<{ id: string; type: string; source: IssueLinkItem["issue"] }>;
+    });
+    const result: IssueLinkItem[] = [];
+    for (const l of out.outgoingLinks ?? []) {
+      result.push({ id: l.id, type: l.type as IssueLinkItem["type"], issue: l.target });
+    }
+    for (const l of out.incomingLinks ?? []) {
+      const flipped = l.type === "BLOCKS" ? "BLOCKED_BY"
+        : l.type === "BLOCKED_BY" ? "BLOCKS"
+        : l.type;
+      result.push({ id: l.id, type: flipped as IssueLinkItem["type"], issue: l.source });
+    }
+    return issue.links ?? result;
+  });
   const [selectedSubTaskId, setSelectedSubTaskId] = useState<string | null>(null);
   const [subTaskDetail, setSubTaskDetail] = useState<IssueDetail | null>(null);
   const [isLoadingSubTask, setIsLoadingSubTask] = useState(false);
@@ -586,6 +607,16 @@ export function IssueDetailModal({
                 projectKey={projectKey}
                 subTasks={subTasks}
                 onOpenSubTask={handleOpenSubTask}
+              />
+            )}
+
+            {/* Linked issues */}
+            {issue.projectId && (
+              <IssueLinks
+                issueId={issue.id}
+                projectId={issue.projectId}
+                initialLinks={links}
+                onOpenIssue={handleOpenSubTask}
               />
             )}
 

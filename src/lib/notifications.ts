@@ -3,6 +3,23 @@
 import { prisma } from "@/lib/prisma";
 import { parseMentionIds } from "@/lib/mentions";
 
+// ─── prefKey ──────────────────────────────────────────────────────────────────
+
+/** Maps a notification type string to the corresponding preference column. */
+function prefKey(
+  type: string,
+): "assigned" | "mentioned" | "statusChanged" | "commentAdded" | null {
+  switch (type) {
+    case "assigned":       return "assigned";
+    case "mentioned":      return "mentioned";
+    case "status_changed": return "statusChanged";
+    case "comment_added":  return "commentAdded";
+    default:               return null;
+  }
+}
+
+// ─── createNotification ───────────────────────────────────────────────────────
+
 export async function createNotification({
   userId,
   actorId,
@@ -16,6 +33,21 @@ export async function createNotification({
 }): Promise<void> {
   // Never notify yourself
   if (userId === actorId) return;
+
+  // Check user's notification preferences
+  const col = prefKey(type);
+  if (col) {
+    try {
+      const pref = await prisma.notificationPreference.findUnique({
+        where: { userId },
+        select: { [col]: true },
+      });
+      // If a preference record exists and the toggle is off, skip
+      if (pref && pref[col] === false) return;
+    } catch {
+      // If pref check fails, fall through and create the notification anyway
+    }
+  }
 
   try {
     await prisma.notification.create({

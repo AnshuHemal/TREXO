@@ -3,7 +3,7 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { motion } from "motion/react";
-import { MessageSquare, CalendarDays } from "lucide-react";
+import { MessageSquare, CalendarDays, ShieldAlert } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getPriorityConfig, getTypeConfig } from "@/lib/issue-config";
 import { isOverdue } from "@/lib/due-date";
@@ -105,6 +105,12 @@ export function KanbanCard({ issue, projectKey, isDragging = false, onOpen }: Ka
             <span className="flex items-center gap-0.5 rounded-full bg-destructive/10 px-1.5 py-0.5 text-[10px] font-medium text-destructive">
               <CalendarDays className="size-2.5" />
               Overdue
+            </span>
+          )}
+          {issue.isBlocked && (
+            <span className="flex items-center gap-0.5 rounded-full bg-destructive/10 px-1.5 py-0.5 text-[10px] font-medium text-destructive">
+              <ShieldAlert className="size-2.5" />
+              Blocked
             </span>
           )}
           <PriorityIcon className={cn("size-3.5 shrink-0", priority.color)} />

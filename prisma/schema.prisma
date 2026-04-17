@@ -36,6 +36,7 @@ model User {
   activities       Activity[]
   notifications    Notification[]    @relation("NotificationRecipient")
   sentNotifications Notification[]   @relation("NotificationActor")
+  notificationPreference NotificationPreference?
 
   @@map("users")
 }
@@ -202,6 +203,11 @@ model Issue {
   labels     IssueLabel[]
   notifications Notification[]
 
+  // Issue links (outgoing: this issue is the source)
+  outgoingLinks IssueLink[] @relation("LinkSource")
+  // Issue links (incoming: this issue is the target)
+  incomingLinks IssueLink[] @relation("LinkTarget")
+
   @@unique([projectId, key])
   @@map("issues")
 }
@@ -306,4 +312,42 @@ model Notification {
   @@index([userId, read])
   @@index([userId, createdAt])
   @@map("notifications")
+}
+
+// ── NotificationPreference ────────────────────────────────────────────────────
+
+model NotificationPreference {
+  id             String  @id @default(cuid())
+  userId         String  @unique
+  assigned       Boolean @default(true)
+  mentioned      Boolean @default(true)
+  statusChanged  Boolean @default(true)
+  commentAdded   Boolean @default(true)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notification_preferences")
+}
+
+// ── IssueLink ─────────────────────────────────────────────────────────────────
+
+model IssueLink {
+  id        String   @id @default(cuid())
+  sourceId  String
+  targetId  String
+  type      LinkType
+  createdAt DateTime @default(now())
+
+  source Issue @relation("LinkSource", fields: [sourceId], references: [id], onDelete: Cascade)
+  target Issue @relation("LinkTarget", fields: [targetId], references: [id], onDelete: Cascade)
+
+  @@unique([sourceId, targetId, type])
+  @@map("issue_links")
+}
+
+enum LinkType {
+  BLOCKS
+  BLOCKED_BY
+  DUPLICATES
+  RELATES_TO
 }
