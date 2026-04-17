@@ -2,6 +2,11 @@
 
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/session";
+import {
+  notifyAssigned,
+  notifyStatusChanged,
+  notifyCommentAdded,
+} from "@/lib/notifications";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -103,6 +108,15 @@ export async function createIssue(
       },
     }).catch(() => {}); // non-critical
 
+    // Notify assignee if set
+    if (input.assigneeId) {
+      notifyAssigned({
+        assigneeId: input.assigneeId,
+        actorId: user.id,
+        issueId: issue.id,
+      }).catch(() => {});
+    }
+
     return { success: true, data: { id: issue.id, key: issue.key } };
   } catch {
     return { success: false, error: "Failed to create issue. Please try again." };
@@ -170,6 +184,36 @@ export async function updateIssue(
       }).catch(() => {});
     }
 
+    // ── Notifications ──────────────────────────────────────────────────────────
+
+    // Notify new assignee
+    if (
+      input.assigneeId !== undefined &&
+      input.assigneeId !== existing.assigneeId &&
+      input.assigneeId
+    ) {
+      notifyAssigned({
+        assigneeId: input.assigneeId,
+        actorId: user.id,
+        issueId,
+      }).catch(() => {});
+    }
+
+    // Notify reporter on status change (fetch reporter only if needed)
+    if (input.status !== undefined && input.status !== existing.status) {
+      prisma.issue.findUnique({ where: { id: issueId }, select: { reporterId: true } })
+        .then((issue) => {
+          if (issue) {
+            notifyStatusChanged({
+              reporterId: issue.reporterId,
+              actorId: user.id,
+              issueId,
+            }).catch(() => {});
+          }
+        })
+        .catch(() => {});
+    }
+
     return { success: true };
   } catch {
     return { success: false, error: "Failed to update issue. Please try again." };
@@ -208,6 +252,9 @@ export async function addComment(
     await prisma.activity.create({
       data: { issueId, actorId: user.id, type: "comment_added" },
     }).catch(() => {});
+
+    // Notify reporter + previous commenters
+    notifyCommentAdded({ issueId, actorId: user.id }).catch(() => {});
 
     return { success: true, data: { id: comment.id } };
   } catch {

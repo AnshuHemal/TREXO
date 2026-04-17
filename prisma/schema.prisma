@@ -34,6 +34,8 @@ model User {
   reportedIssues   Issue[]           @relation("IssueReporter")
   comments         Comment[]
   activities       Activity[]
+  notifications    Notification[]    @relation("NotificationRecipient")
+  sentNotifications Notification[]   @relation("NotificationActor")
 
   @@map("users")
 }
@@ -198,6 +200,7 @@ model Issue {
   comments   Comment[]
   activities Activity[]
   labels     IssueLabel[]
+  notifications Notification[]
 
   @@unique([projectId, key])
   @@map("issues")
@@ -283,4 +286,24 @@ model Activity {
   actor User  @relation(fields: [actorId], references: [id], onDelete: Cascade)
 
   @@map("activities")
+}
+
+// ── Notification ──────────────────────────────────────────────────────────────
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  type      String   // "assigned" | "status_changed" | "comment_added"
+  issueId   String?
+  actorId   String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user  User   @relation("NotificationRecipient", fields: [userId],  references: [id], onDelete: Cascade)
+  issue Issue? @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  actor User   @relation("NotificationActor",     fields: [actorId], references: [id], onDelete: Cascade)
+
+  @@index([userId, read])
+  @@index([userId, createdAt])
+  @@map("notifications")
 }

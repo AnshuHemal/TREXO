@@ -1,0 +1,113 @@
+"use server";
+
+import { prisma } from "@/lib/prisma";
+
+/**
+ * Notification helper — fire-and-forget notification creation.
+ *
+ * All functions are intentionally non-throwing: notification failures
+ * must never break the primary action that triggered them.
+ *
+ * Call with `.catch(() => {})` at the call-site for extra safety.
+ */
+
+// ─── createNotification ───────────────────────────────────────────────────────
+
+export async function createNotification({
+  userId,
+  actorId,
+  type,
+  issueId,
+}: {
+  userId: string;
+  actorId: string;
+  type: string;
+  issueId?: string;
+}): Promise<void> {
+  // Never notify yourself
+  if (userId === actorId) return;
+
+  try {
+    await prisma.notification.create({
+      data: { userId, actorId, type, issueId: issueId ?? null },
+    });
+  } catch {
+    // Non-critical — swallow silently
+  }
+}
+
+// ─── notifyAssigned ───────────────────────────────────────────────────────────
+
+/**
+ * Notify a user that they were assigned to an issue.
+ */
+export async function notifyAssigned({
+  assigneeId,
+  actorId,
+  issueId,
+}: {
+  assigneeId: string;
+  actorId: string;
+  issueId: string;
+}): Promise<void> {
+  await createNotification({ userId: assigneeId, actorId, type: "assigned", issueId });
+}
+
+// ─── notifyStatusChanged ──────────────────────────────────────────────────────
+
+/**
+ * Notify the issue reporter that the status changed.
+ */
+export async function notifyStatusChanged({
+  reporterId,
+  actorId,
+  issueId,
+}: {
+  reporterId: string;
+  actorId: string;
+  issueId: string;
+}): Promise<void> {
+  await createNotification({ userId: reporterId, actorId, type: "status_changed", issueId });
+}
+
+// ─── notifyCommentAdded ───────────────────────────────────────────────────────
+
+/**
+ * Notify the issue reporter + all unique previous commenters that a new
+ * comment was added. Deduplicates recipients and excludes the actor.
+ */
+export async function notifyCommentAdded({
+  issueId,
+  actorId,
+}: {
+  issueId: string;
+  actorId: string;
+}): Promise<void> {
+  try {
+    const issue = await prisma.issue.findUnique({
+      where: { id: issueId },
+      select: {
+        reporterId: true,
+        comments: {
+          select: { authorId: true },
+          distinct: ["authorId"],
+        },
+      },
+    });
+
+    if (!issue) return;
+
+    // Collect unique recipients: reporter + all commenters
+    const recipients = new Set<string>([issue.reporterId]);
+    for (const c of issue.comments) recipients.add(c.authorId);
+    recipients.delete(actorId); // never notify yourself
+
+    await Promise.all(
+      Array.from(recipients).map((userId) =>
+        createNotification({ userId, actorId, type: "comment_added", issueId }),
+      ),
+    );
+  } catch {
+    // Non-critical
+  }
+}

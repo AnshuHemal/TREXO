@@ -2,9 +2,10 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Bell, ChevronRight } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import { ThemeToggle } from "@/components/shared/theme-toggle";
 import { GlobalSearch } from "@/components/shared/global-search";
+import { NotificationBell } from "@/components/shared/notification-bell";
 import { Button } from "@/components/ui/button";
 import { useWorkspaceSafe } from "@/components/providers/workspace-provider";
 
@@ -87,15 +88,7 @@ export function WorkspaceTopbar({
 
         <div className="h-4 w-px bg-border" aria-hidden />
 
-        <Button
-          variant="ghost"
-          size="icon"
-          aria-label="Notifications"
-          title="Notifications"
-          className="size-8 text-muted-foreground hover:text-foreground"
-        >
-          <Bell className="size-4" />
-        </Button>
+        <NotificationBell />
         <ThemeToggle />
       </div>
     </header>
