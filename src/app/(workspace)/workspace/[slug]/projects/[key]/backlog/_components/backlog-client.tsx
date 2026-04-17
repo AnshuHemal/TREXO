@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "motion/react";
 import {
   MessageSquare, Search, CalendarDays, ArrowUpDown, X,
   ChevronDown, Plus, Check, Loader2, Layers, Eye, EyeOff,
-  SquareCheck, Square,
+  SquareCheck, Square, SlidersHorizontal,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,6 +26,11 @@ import { cn } from "@/lib/utils";
 import { createIssue, bulkUpdateIssues } from "../../issues/actions";
 import { CreateIssueDialog } from "../../issues/_components/create-issue-dialog";
 import { IssueDetailModal, type IssueDetail } from "../../issues/_components/issue-detail-modal";
+import { SavedFiltersDropdown } from "./saved-filters-dropdown";
+import type { SavedFilterItem, FilterState } from "../saved-filter-actions";
+import { useRealtimeIssues } from "@/hooks/use-realtime-issues";
+import { useWorkspaceSafe } from "@/components/providers/workspace-provider";
+import { RealtimeIndicator, ReconnectBanner, LiveUpdateToast } from "@/components/shared/realtime-indicator";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -40,8 +45,8 @@ interface IssueRow {
   createdAt: Date; updatedAt: Date; commentCount: number;
 }
 
-type SortKey      = "default" | "dueDate" | "priority" | "status" | "createdAt" | "updatedAt";
-type GroupBy      = "none" | "status" | "priority" | "assignee";
+type SortKey       = "default" | "dueDate" | "priority" | "status" | "createdAt" | "updatedAt";
+type GroupBy       = "none" | "status" | "priority" | "assignee";
 type DueDateFilter = "all" | "due_this_week" | "overdue" | "no_due_date";
 
 interface VisibleColumns {
@@ -56,6 +61,8 @@ interface BacklogClientProps {
   currentUserName?: string;
   currentUserImage?: string | null;
   workspaceSlug: string;
+  workspaceId: string;
+  savedFilters: SavedFilterItem[];
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -122,7 +129,6 @@ function IssueRowItem({
           : "border-border bg-card hover:border-primary/30 hover:bg-accent/30",
       )}
     >
-      {/* Checkbox */}
       <button
         type="button"
         onClick={(e) => { e.stopPropagation(); onSelect(issue.id, !selected); }}
@@ -233,7 +239,6 @@ function GroupSection({
       transition={{ duration: 0.22, delay: groupIndex * 0.06 }}
       className="flex flex-col gap-1.5"
     >
-      {/* Group header */}
       {groupBy !== "none" && (
         <div className="flex items-center gap-2 py-1">
           <button
@@ -261,7 +266,6 @@ function GroupSection({
         </div>
       )}
 
-      {/* Issues */}
       <AnimatePresence>
         {isExpanded && (
           <motion.div
@@ -284,7 +288,6 @@ function GroupSection({
               />
             ))}
 
-            {/* Inline create */}
             <AnimatePresence>
               {isCreating && (
                 <motion.div
@@ -319,7 +322,6 @@ function GroupSection({
               )}
             </AnimatePresence>
 
-            {/* Add issue button */}
             {!isCreating && (
               <button
                 type="button"
@@ -354,13 +356,9 @@ function BulkActionBar({
       transition={{ duration: 0.2 }}
       className="flex items-center gap-2 rounded-lg border border-primary/40 bg-card px-4 py-2.5 shadow-md"
     >
-      <span className="text-sm font-medium text-foreground">
-        {selectedCount} selected
-      </span>
-
+      <span className="text-sm font-medium text-foreground">{selectedCount} selected</span>
       <div className="mx-2 h-4 w-px bg-border" />
 
-      {/* Status */}
       <Select onValueChange={(v) => onBulkUpdate("status", v)} disabled={isPending}>
         <SelectTrigger className="h-7 w-32 text-xs">
           <SelectValue placeholder="Set status" />
@@ -376,7 +374,6 @@ function BulkActionBar({
         </SelectContent>
       </Select>
 
-      {/* Priority */}
       <Select onValueChange={(v) => onBulkUpdate("priority", v)} disabled={isPending}>
         <SelectTrigger className="h-7 w-32 text-xs">
           <SelectValue placeholder="Set priority" />
@@ -392,7 +389,6 @@ function BulkActionBar({
         </SelectContent>
       </Select>
 
-      {/* Assignee */}
       <Select onValueChange={(v) => onBulkUpdate("assigneeId", v === "none" ? null : v)} disabled={isPending}>
         <SelectTrigger className="h-7 w-36 text-xs">
           <SelectValue placeholder="Assign to…" />
@@ -424,11 +420,51 @@ function BulkActionBar({
   );
 }
 
+// ─── Active filter banner ─────────────────────────────────────────────────────
+
+function ActiveFilterBanner({
+  filterName, isShared, onClear,
+}: {
+  filterName: string; isShared: boolean; onClear: () => void;
+}) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: -6 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -6 }}
+      transition={{ duration: 0.2 }}
+      className="flex items-center gap-2 rounded-lg border border-primary/30 bg-primary/5 px-4 py-2"
+    >
+      <div className="flex flex-1 items-center gap-2">
+        <div className="size-1.5 rounded-full bg-primary animate-pulse" />
+        <span className="text-xs font-medium text-primary">
+          Active view: <span className="font-semibold">{filterName}</span>
+        </span>
+        {isShared && (
+          <span className="rounded-full bg-primary/10 px-1.5 py-0.5 text-[10px] font-medium text-primary">
+            Shared
+          </span>
+        )}
+      </div>
+      <Button
+        variant="ghost"
+        size="sm"
+        className="h-6 gap-1 px-2 text-xs text-primary/70 hover:text-primary hover:bg-primary/10"
+        onClick={onClear}
+      >
+        <X className="size-3" />
+        Clear view
+      </Button>
+    </motion.div>
+  );
+}
+
 // ─── Main component ───────────────────────────────────────────────────────────
 
 export function BacklogClient({
   project, issues: initialIssues, members, currentUserId,
-  currentUserName, currentUserImage, workspaceSlug,
+  currentUserName, currentUserImage, workspaceSlug, workspaceId,
+  savedFilters: initialSavedFilters,
 }: BacklogClientProps) {
   const [issues, setIssues]               = useState(initialIssues);
   const [search, setSearch]               = useState("");
@@ -444,8 +480,88 @@ export function BacklogClient({
   const [isLoadingDetail, startDetailTransition] = useTransition();
   const [isBulkPending, startBulkTransition]     = useTransition();
 
-  const hasActiveFilters = dueDateFilter !== "all";
-  const selectedCount    = selectedIds.size;
+  // ── Saved filters state ───────────────────────────────────────────────────────
+  const [savedFilters, setSavedFilters]   = useState<SavedFilterItem[]>(initialSavedFilters);
+  const [activeFilterId, setActiveFilterId] = useState<string | null>(null);
+
+  // ── Real-time state ───────────────────────────────────────────────────────────
+  type ConnStatus = "connecting" | "connected" | "disconnected";
+  const [connStatus, setConnStatus]     = useState<ConnStatus>("connecting");
+  const [liveToast, setLiveToast]       = useState<string | null>(null);
+  const ctx = useWorkspaceSafe();
+
+  function showLiveToast(msg: string) {
+    setLiveToast(msg);
+    setTimeout(() => setLiveToast(null), 3000);
+  }
+
+  useRealtimeIssues({
+    workspaceId: ctx?.workspaceId,
+    projectId: project.id,
+    currentUserId,
+    onConnected:    () => setConnStatus("connected"),
+    onDisconnected: () => setConnStatus("disconnected"),
+    onIssueCreated: (issue) => {
+      setIssues((prev) => {
+        if (prev.some((i) => i.id === issue.id)) return prev;
+        return [...prev, {
+          id:           issue.id!,
+          key:          issue.key ?? 0,
+          title:        issue.title ?? "Untitled",
+          type:         issue.type ?? "TASK",
+          status:       issue.status ?? "BACKLOG",
+          priority:     issue.priority ?? "MEDIUM",
+          assigneeId:   issue.assigneeId ?? null,
+          assignee:     null,
+          reporter:     { id: "", name: "Someone", image: null },
+          description:  null,
+          dueDate:      null,
+          createdAt:    new Date(),
+          updatedAt:    new Date(),
+          commentCount: 0,
+        }];
+      });
+      showLiveToast("New issue added");
+    },
+    onIssueUpdated: (update) => {
+      setIssues((prev) =>
+        prev.map((i) =>
+          i.id === update.id
+            ? {
+                ...i,
+                ...(update.title      !== undefined && { title:      update.title }),
+                ...(update.status     !== undefined && { status:     update.status }),
+                ...(update.priority   !== undefined && { priority:   update.priority }),
+                ...(update.type       !== undefined && { type:       update.type }),
+                ...(update.assigneeId !== undefined && { assigneeId: update.assigneeId }),
+              }
+            : i,
+        ),
+      );
+      showLiveToast("Issue updated");
+    },
+    onIssueMoved: (update) => {
+      setIssues((prev) =>
+        prev.map((i) =>
+          i.id === update.id
+            ? { ...i, status: update.newStatus, position: update.newPosition }
+            : i,
+        ),
+      );
+    },
+    onIssueDeleted: (issueId) => {
+      setIssues((prev) => prev.filter((i) => i.id !== issueId));
+      showLiveToast("Issue deleted");
+    },
+  });
+
+  const hasActiveFilters =
+    dueDateFilter !== "all" ||
+    sortKey !== "default" ||
+    groupBy !== "none" ||
+    search.trim() !== "";
+
+  const selectedCount = selectedIds.size;
 
   // ── Selection ─────────────────────────────────────────────────────────────────
 
@@ -488,6 +604,40 @@ export function BacklogClient({
       }
     });
   }
+
+  // ── Apply saved filter ────────────────────────────────────────────────────────
+
+  function applyFilter(filter: SavedFilterItem) {
+    // Passing an empty id means "clear"
+    if (!filter.id) {
+      clearFilters();
+      setActiveFilterId(null);
+      return;
+    }
+    const f = filter.filters as FilterState;
+    setSearch(f.search ?? "");
+    setSortKey((f.sortKey as SortKey) ?? "default");
+    setGroupBy((f.groupBy as GroupBy) ?? "none");
+    setDueDateFilter((f.dueDateFilter as DueDateFilter) ?? "all");
+    setActiveFilterId(filter.id);
+  }
+
+  function clearFilters() {
+    setSearch("");
+    setSortKey("default");
+    setGroupBy("none");
+    setDueDateFilter("all");
+    setActiveFilterId(null);
+  }
+
+  // ── Current filter state (for saving) ────────────────────────────────────────
+
+  const currentFilterState: FilterState = {
+    ...(search.trim()            && { search }),
+    ...(sortKey !== "default"    && { sortKey }),
+    ...(groupBy !== "none"       && { groupBy }),
+    ...(dueDateFilter !== "all"  && { dueDateFilter }),
+  };
 
   // ── Filter + sort ─────────────────────────────────────────────────────────────
 
@@ -557,6 +707,8 @@ export function BacklogClient({
     handleCloseModal();
   }
 
+  const activeFilter = savedFilters.find((f) => f.id === activeFilterId);
+
   // ── Render ────────────────────────────────────────────────────────────────────
 
   return (
@@ -567,11 +719,16 @@ export function BacklogClient({
           {/* Search */}
           <div className="relative">
             <Search className="absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
-            <Input placeholder="Search…" value={search} onChange={(e) => setSearch(e.target.value)} className="h-8 w-44 pl-8 text-sm" />
+            <Input
+              placeholder="Search…"
+              value={search}
+              onChange={(e) => { setSearch(e.target.value); setActiveFilterId(null); }}
+              className="h-8 w-44 pl-8 text-sm"
+            />
           </div>
 
           {/* Group by */}
-          <Select value={groupBy} onValueChange={(v) => setGroupBy(v as GroupBy)}>
+          <Select value={groupBy} onValueChange={(v) => { setGroupBy(v as GroupBy); setActiveFilterId(null); }}>
             <SelectTrigger className={cn("h-8 w-auto min-w-[10rem] text-xs", groupBy !== "none" && "border-primary text-primary")}>
               <Layers className="mr-1.5 size-3.5" />
               <SelectValue />
@@ -602,8 +759,11 @@ export function BacklogClient({
                 { key: "createdAt", label: "Created" },
                 { key: "updatedAt", label: "Last updated" },
               ].map(({ key, label }) => (
-                <DropdownMenuItem key={key} onClick={() => setSortKey(key as SortKey)}
-                  className={cn("text-xs", sortKey === key && "text-primary font-medium")}>
+                <DropdownMenuItem
+                  key={key}
+                  onClick={() => { setSortKey(key as SortKey); setActiveFilterId(null); }}
+                  className={cn("text-xs", sortKey === key && "text-primary font-medium")}
+                >
                   {label}{sortKey === key && <span className="ml-auto">✓</span>}
                 </DropdownMenuItem>
               ))}
@@ -611,8 +771,8 @@ export function BacklogClient({
           </DropdownMenu>
 
           {/* Due date filter */}
-          <Select value={dueDateFilter} onValueChange={(v) => setDueDateFilter(v as DueDateFilter)}>
-            <SelectTrigger className={cn("h-8 w-36 text-xs", hasActiveFilters && "border-primary text-primary")}>
+          <Select value={dueDateFilter} onValueChange={(v) => { setDueDateFilter(v as DueDateFilter); setActiveFilterId(null); }}>
+            <SelectTrigger className={cn("h-8 w-36 text-xs", dueDateFilter !== "all" && "border-primary text-primary")}>
               <CalendarDays className="mr-1.5 size-3.5" />
               <SelectValue />
             </SelectTrigger>
@@ -635,29 +795,85 @@ export function BacklogClient({
               <DropdownMenuLabel className="text-xs text-muted-foreground">Show columns</DropdownMenuLabel>
               <DropdownMenuSeparator />
               {(["type", "priority", "assignee", "dueDate"] as const).map((col) => (
-                <DropdownMenuItem key={col} onClick={() => setVisibleColumns((prev) => ({ ...prev, [col]: !prev[col] }))}
-                  className="flex items-center justify-between text-xs">
+                <DropdownMenuItem
+                  key={col}
+                  onClick={() => setVisibleColumns((prev) => ({ ...prev, [col]: !prev[col] }))}
+                  className="flex items-center justify-between text-xs"
+                >
                   {col === "dueDate" ? "Due date" : col.charAt(0).toUpperCase() + col.slice(1)}
-                  {visibleColumns[col] ? <Eye className="size-3.5 text-primary" /> : <EyeOff className="size-3.5 text-muted-foreground" />}
+                  {visibleColumns[col]
+                    ? <Eye className="size-3.5 text-primary" />
+                    : <EyeOff className="size-3.5 text-muted-foreground" />
+                  }
                 </DropdownMenuItem>
               ))}
             </DropdownMenuContent>
           </DropdownMenu>
 
-          {/* Clear */}
-          {(hasActiveFilters || sortKey !== "default" || groupBy !== "none") && (
-            <Button variant="ghost" size="sm" className="h-8 gap-1 px-2 text-xs text-muted-foreground hover:text-foreground"
-              onClick={() => { setDueDateFilter("all"); setSortKey("default"); setGroupBy("none"); }}>
+          {/* Saved views */}
+          <SavedFiltersDropdown
+            workspaceId={workspaceId}
+            projectId={project.id}
+            currentUserId={currentUserId}
+            currentFilters={currentFilterState}
+            savedFilters={savedFilters}
+            activeFilterId={activeFilterId}
+            onApply={applyFilter}
+            onFiltersChange={setSavedFilters}
+            hasActiveFilters={hasActiveFilters}
+          />
+
+          {/* Clear all */}
+          {hasActiveFilters && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-8 gap-1 px-2 text-xs text-muted-foreground hover:text-foreground"
+              onClick={clearFilters}
+            >
               <X className="size-3.5" />Clear
             </Button>
           )}
         </div>
 
-        <CreateIssueDialog projectId={project.id} projectKey={project.key} workspaceSlug={workspaceSlug} members={members} />
+        <CreateIssueDialog
+          projectId={project.id}
+          projectKey={project.key}
+          workspaceSlug={workspaceSlug}
+          members={members}
+        />
+
+        {/* Real-time indicator */}
+        <RealtimeIndicator status={connStatus} />
       </div>
+
+      {/* Reconnect banner */}
+      <ReconnectBanner show={connStatus === "disconnected"} />
 
       {/* Content */}
       <div className="flex-1 overflow-y-auto p-6">
+        {/* Live update toast */}
+        <AnimatePresence>
+          {liveToast && (
+            <div className="mb-3">
+              <LiveUpdateToast message={liveToast} show={!!liveToast} />
+            </div>
+          )}
+        </AnimatePresence>
+
+        {/* Active filter banner */}
+        <AnimatePresence>
+          {activeFilter && (
+            <div className="mb-4">
+              <ActiveFilterBanner
+                filterName={activeFilter.name}
+                isShared={activeFilter.isShared}
+                onClear={clearFilters}
+              />
+            </div>
+          )}
+        </AnimatePresence>
+
         {/* Bulk action bar */}
         <AnimatePresence>
           {selectedCount > 0 && (
@@ -675,12 +891,18 @@ export function BacklogClient({
 
         {filtered.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">
+            <SlidersHorizontal className="size-8 text-muted-foreground/30 mb-3" />
             <p className="text-sm text-muted-foreground">
               {search || hasActiveFilters ? "No issues match your filters." : "No issues yet."}
             </p>
             {!search && !hasActiveFilters && (
               <div className="mt-4">
-                <CreateIssueDialog projectId={project.id} projectKey={project.key} workspaceSlug={workspaceSlug} members={members} />
+                <CreateIssueDialog
+                  projectId={project.id}
+                  projectKey={project.key}
+                  workspaceSlug={workspaceSlug}
+                  members={members}
+                />
               </div>
             )}
           </div>
@@ -715,8 +937,13 @@ export function BacklogClient({
       <AnimatePresence>
         {selectedIssueId && (
           isLoadingDetail || !issueDetail ? (
-            <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+            <motion.div
+              key="loading"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+            >
               <div className="size-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
             </motion.div>
           ) : (

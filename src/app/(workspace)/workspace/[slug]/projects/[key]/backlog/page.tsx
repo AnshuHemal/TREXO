@@ -3,6 +3,7 @@ import { requireUser } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { FadeIn } from "@/components/motion/fade-in";
 import { BacklogClient } from "./_components/backlog-client";
+import type { FilterState } from "./saved-filter-actions";
 
 interface BacklogPageProps {
   params: Promise<{ slug: string; key: string }>;
@@ -46,6 +47,23 @@ export default async function BacklogPage({ params }: BacklogPageProps) {
     orderBy: { createdAt: "asc" },
   });
 
+  // Fetch saved filters for this project (personal + shared)
+  const savedFilters = await prisma.savedFilter.findMany({
+    where: {
+      projectId: project.id,
+      OR: [{ userId: user.id }, { isShared: true }],
+    },
+    orderBy: [{ isShared: "asc" }, { createdAt: "desc" }],
+    select: {
+      id: true,
+      name: true,
+      filters: true,
+      isShared: true,
+      userId: true,
+      createdAt: true,
+    },
+  });
+
   const memberList = members.map((m) => ({
     id: m.user.id,
     name: m.user.name,
@@ -70,6 +88,15 @@ export default async function BacklogPage({ params }: BacklogPageProps) {
     commentCount: i._count.comments,
   }));
 
+  const savedFilterList = savedFilters.map((f) => ({
+    id: f.id,
+    name: f.name,
+    filters: f.filters as FilterState,
+    isShared: f.isShared,
+    userId: f.userId,
+    createdAt: f.createdAt,
+  }));
+
   return (
     <FadeIn className="flex flex-1 flex-col">
       <BacklogClient
@@ -80,6 +107,8 @@ export default async function BacklogPage({ params }: BacklogPageProps) {
         currentUserName={user.name}
         currentUserImage={user.image}
         workspaceSlug={workspace.slug}
+        workspaceId={workspace.id}
+        savedFilters={savedFilterList}
       />
     </FadeIn>
   );

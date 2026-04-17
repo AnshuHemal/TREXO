@@ -2,6 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { parseMentionIds } from "@/lib/mentions";
+import { broadcast } from "@/lib/sse";
 
 // ─── Preference check ─────────────────────────────────────────────────────────
 
@@ -59,6 +60,23 @@ export async function createNotification({
     await prisma.notification.create({
       data: { userId, actorId, type, issueId: issueId ?? null },
     });
+
+    // Broadcast real-time notification event to the recipient
+    // Fetch workspaceId via the issue's project
+    if (issueId) {
+      prisma.issue.findUnique({
+        where: { id: issueId },
+        select: { project: { select: { workspaceId: true } } },
+      }).then((issue) => {
+        if (!issue) return;
+        broadcast({
+          type: "notification.created",
+          workspaceId: issue.project.workspaceId,
+          actorId,
+          data: { userId, type, issueId },
+        });
+      }).catch(() => {});
+    }
   } catch {
     // Non-critical — swallow silently
   }

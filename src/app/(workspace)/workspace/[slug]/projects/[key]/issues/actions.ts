@@ -8,6 +8,11 @@ import {
   notifyCommentAdded,
   notifyMentioned,
 } from "@/lib/notifications";
+import {
+  broadcastIssueEvent,
+  broadcastIssueDeleted,
+  broadcastCommentEvent,
+} from "@/lib/broadcast";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -119,6 +124,9 @@ export async function createIssue(
       }).catch(() => {});
     }
 
+    // Broadcast real-time event
+    broadcastIssueEvent("issue.created", issue.id, user.id).catch(() => {});
+
     return { success: true, data: { id: issue.id, key: issue.key } };
   } catch {
     return { success: false, error: "Failed to create issue. Please try again." };
@@ -217,6 +225,11 @@ export async function updateIssue(
         .catch(() => {});
     }
 
+    // Broadcast real-time event
+    broadcastIssueEvent("issue.updated", issueId, user.id, {
+      changedFields: Object.keys(input),
+    }).catch(() => {});
+
     return { success: true };
   } catch {
     return { success: false, error: "Failed to update issue. Please try again." };
@@ -227,9 +240,26 @@ export async function updateIssue(
 
 export async function deleteIssue(issueId: string): Promise<ActionResult> {
   await requireUser();
+  const user = await requireUser();
 
   try {
+    // Fetch context before deletion
+    const issue = await prisma.issue.findUnique({
+      where: { id: issueId },
+      select: { projectId: true, project: { select: { workspaceId: true } } },
+    });
+
     await prisma.issue.delete({ where: { id: issueId } });
+
+    if (issue) {
+      broadcastIssueDeleted(
+        issueId,
+        issue.projectId,
+        issue.project.workspaceId,
+        user.id,
+      ).catch(() => {});
+    }
+
     return { success: true };
   } catch {
     return { success: false, error: "Failed to delete issue. Please try again." };
@@ -261,6 +291,9 @@ export async function addComment(
 
     // Notify @mentioned users
     notifyMentioned({ html: body, actorId: user.id, issueId }).catch(() => {});
+
+    // Broadcast real-time event
+    broadcastCommentEvent("comment.added", comment.id, issueId, user.id, { body }).catch(() => {});
 
     return { success: true, data: { id: comment.id } };
   } catch {
@@ -349,6 +382,12 @@ export async function moveIssue(
       );
     }
 
+    // Broadcast real-time move event
+    broadcastIssueEvent("issue.moved", issueId, "system", {
+      newStatus: newStatus,
+      newPosition: newPosition,
+    }).catch(() => {});
+
     return { success: true };
   } catch {
     return { success: false, error: "Failed to move issue." };
@@ -382,12 +421,13 @@ export async function editComment(
     });
 
     // Re-notify any newly @mentioned users on edit
-    const comment = await prisma.comment.findUnique({
+    const updatedComment = await prisma.comment.findUnique({
       where: { id: commentId },
       select: { issueId: true },
     });
-    if (comment) {
-      notifyMentioned({ html: body, actorId: user.id, issueId: comment.issueId }).catch(() => {});
+    if (updatedComment) {
+      notifyMentioned({ html: body, actorId: user.id, issueId: updatedComment.issueId }).catch(() => {});
+      broadcastCommentEvent("comment.edited", commentId, updatedComment.issueId, user.id, { body }).catch(() => {});
     }
 
     return { success: true };

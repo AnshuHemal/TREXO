@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/select";
 import { ISSUE_PRIORITIES } from "@/lib/issue-config";
 import { cn } from "@/lib/utils";
+import { RealtimeIndicator } from "@/components/shared/realtime-indicator";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -26,6 +27,7 @@ interface BoardFilterBarProps {
   onSwimlane: (v: SwimlaneMode) => void;
   onClear: () => void;
   hasActiveFilters: boolean;
+  realtimeStatus?: "connecting" | "connected" | "disconnected";
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -41,6 +43,7 @@ function getInitials(name: string) {
 export function BoardFilterBar({
   members, filterAssignee, filterPriority, swimlane,
   onFilterAssignee, onFilterPriority, onSwimlane, onClear, hasActiveFilters,
+  realtimeStatus,
 }: BoardFilterBarProps) {
   return (
     <motion.div
@@ -112,6 +115,13 @@ export function BoardFilterBar({
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Real-time indicator */}
+      {realtimeStatus && (
+        <div className="ml-auto">
+          <RealtimeIndicator status={realtimeStatus} />
+        </div>
+      )}
     </motion.div>
   );
 }

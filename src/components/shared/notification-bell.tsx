@@ -9,6 +9,9 @@ import {
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
+import { useRealtime } from "@/hooks/use-realtime";
+import { useWorkspaceSafe } from "@/components/providers/workspace-provider";
+import type { RealtimeEvent } from "@/lib/sse";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -67,14 +70,13 @@ function NotificationIcon({ type }: { type: string }) {
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-const POLL_INTERVAL = 30_000; // 30 seconds
-
 export function NotificationBell() {
   const [open, setOpen]                   = useState(false);
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [unreadCount, setUnreadCount]     = useState(0);
   const [isLoading, setIsLoading]         = useState(false);
   const dropdownRef                       = useRef<HTMLDivElement>(null);
+  const ctx                               = useWorkspaceSafe();
 
   // ── Fetch ─────────────────────────────────────────────────────────────────────
 
@@ -86,16 +88,25 @@ export function NotificationBell() {
       setNotifications(data.notifications);
       setUnreadCount(data.unreadCount);
     } catch {
-      // Silently fail — polling should not break the UI
+      // Silently fail
     }
   }, []);
 
-  // Initial fetch + polling
+  // Initial fetch only — SSE replaces polling
   useEffect(() => {
     fetchNotifications();
-    const id = setInterval(fetchNotifications, POLL_INTERVAL);
-    return () => clearInterval(id);
   }, [fetchNotifications]);
+
+  // ── SSE — replace 30s polling with instant push ───────────────────────────────
+  useRealtime({
+    workspaceId: ctx?.workspaceId,
+    filter: ["notification.created"],
+    onEvent: useCallback((event: RealtimeEvent) => {
+      // Re-fetch to get the full notification with actor/issue details
+      fetchNotifications();
+    }, [fetchNotifications]),
+    enabled: !!ctx?.workspaceId,
+  });
 
   // Close on outside click
   useEffect(() => {

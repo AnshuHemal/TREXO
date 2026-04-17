@@ -20,6 +20,9 @@ import { KanbanColumn } from "./kanban-column";
 import { KanbanCard } from "./kanban-card";
 import { IssueDetailModal, type IssueDetail } from "../issues/_components/issue-detail-modal";
 import { BoardFilterBar, type SwimlaneMode } from "./board-filter-bar";
+import { useRealtimeIssues } from "@/hooks/use-realtime-issues";
+import { useWorkspaceSafe } from "@/components/providers/workspace-provider";
+import { RealtimeIndicator, ReconnectBanner } from "@/components/shared/realtime-indicator";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -103,6 +106,64 @@ export function KanbanBoard({
   const [filterAssignee, setFilterAssignee] = useState("all");
   const [filterPriority, setFilterPriority] = useState("all");
   const [swimlane, setSwimlane]             = useState<SwimlaneMode>("none");
+
+  // ── Real-time state ───────────────────────────────────────────────────────────
+  type ConnStatus = "connecting" | "connected" | "disconnected";
+  const [connStatus, setConnStatus] = useState<ConnStatus>("connecting");
+  const ctx = useWorkspaceSafe();
+
+  useRealtimeIssues({
+    workspaceId: ctx?.workspaceId,
+    projectId: project.id,
+    currentUserId,
+    onConnected:    () => setConnStatus("connected"),
+    onDisconnected: () => setConnStatus("disconnected"),
+    onIssueCreated: (issue) => {
+      setIssues((prev) => {
+        if (prev.some((i) => i.id === issue.id)) return prev;
+        return [...prev, {
+          id:          issue.id!,
+          key:         issue.key ?? 0,
+          title:       issue.title ?? "",
+          type:        issue.type ?? "TASK",
+          status:      issue.status ?? "BACKLOG",
+          priority:    issue.priority ?? "MEDIUM",
+          position:    issue.position ?? 0,
+          assigneeId:  issue.assigneeId ?? null,
+          assignee:    null,
+          commentCount: 0,
+        }];
+      });
+    },
+    onIssueUpdated: (update) => {
+      setIssues((prev) =>
+        prev.map((i) =>
+          i.id === update.id
+            ? {
+                ...i,
+                ...(update.title      !== undefined && { title:      update.title }),
+                ...(update.status     !== undefined && { status:     update.status }),
+                ...(update.priority   !== undefined && { priority:   update.priority }),
+                ...(update.type       !== undefined && { type:       update.type }),
+                ...(update.assigneeId !== undefined && { assigneeId: update.assigneeId }),
+              }
+            : i,
+        ),
+      );
+    },
+    onIssueMoved: (update) => {
+      setIssues((prev) =>
+        prev.map((i) =>
+          i.id === update.id
+            ? { ...i, status: update.newStatus, position: update.newPosition }
+            : i,
+        ),
+      );
+    },
+    onIssueDeleted: (issueId) => {
+      setIssues((prev) => prev.filter((i) => i.id !== issueId));
+    },
+  });
 
   // WIP limits per status (configurable — defaults shown)
   const WIP_LIMITS: Record<string, number> = {
@@ -299,6 +360,9 @@ export function KanbanBoard({
 
   return (
     <>
+      {/* Reconnect banner */}
+      <ReconnectBanner show={connStatus === "disconnected"} />
+
       {/* Filter bar */}
       <BoardFilterBar
         members={members}
@@ -310,6 +374,7 @@ export function KanbanBoard({
         onSwimlane={setSwimlane}
         onClear={clearFilters}
         hasActiveFilters={hasActiveFilters}
+        realtimeStatus={connStatus}
       />
 
       <div className="flex flex-1 overflow-x-auto overflow-y-hidden">

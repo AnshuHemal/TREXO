@@ -2,6 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/session";
+import { broadcastSprintEvent, broadcastIssueEvent } from "@/lib/broadcast";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -34,7 +35,7 @@ export interface UpdateSprintInput {
 export async function createSprint(
   input: CreateSprintInput,
 ): Promise<ActionResult<{ id: string }>> {
-  await requireUser();
+  const user = await requireUser();
 
   const name = input.name.trim();
   if (!name) return { success: false, fieldErrors: { name: "Sprint name is required." } };
@@ -52,6 +53,8 @@ export async function createSprint(
       },
       select: { id: true },
     });
+
+    broadcastSprintEvent("sprint.created", sprint.id, user.id).catch(() => {});
 
     return { success: true, data: { id: sprint.id } };
   } catch {
@@ -112,7 +115,7 @@ export async function deleteSprint(sprintId: string): Promise<ActionResult> {
 // ─── startSprint ──────────────────────────────────────────────────────────────
 
 export async function startSprint(sprintId: string): Promise<ActionResult> {
-  await requireUser();
+  const user = await requireUser();
 
   const sprint = await prisma.sprint.findUnique({
     where: { id: sprintId },
@@ -141,6 +144,8 @@ export async function startSprint(sprintId: string): Promise<ActionResult> {
       },
     });
 
+    broadcastSprintEvent("sprint.started", sprintId, user.id).catch(() => {});
+
     return { success: true };
   } catch {
     return { success: false, error: "Failed to start sprint. Please try again." };
@@ -162,7 +167,7 @@ export interface CompleteSprintInput {
 export async function completeSprint(
   input: CompleteSprintInput,
 ): Promise<ActionResult> {
-  await requireUser();
+  const user = await requireUser();
 
   const sprint = await prisma.sprint.findUnique({
     where: { id: input.sprintId },
@@ -207,6 +212,8 @@ export async function completeSprint(
         data: { status: "COMPLETED", endDate: new Date() },
       });
     });
+
+    broadcastSprintEvent("sprint.completed", input.sprintId, user.id).catch(() => {});
 
     return { success: true };
   } catch {
