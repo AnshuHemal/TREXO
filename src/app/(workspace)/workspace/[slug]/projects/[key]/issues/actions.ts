@@ -469,3 +469,46 @@ export async function createSubTask(
     return { success: false, error: "Failed to create sub-task. Please try again." };
   }
 }
+
+// ─── bulkUpdateIssues ─────────────────────────────────────────────────────────
+
+export interface BulkUpdateInput {
+  issueIds: string[];
+  status?: IssueStatus;
+  priority?: IssuePriority;
+  assigneeId?: string | null;
+}
+
+/**
+ * Updates multiple issues at once.
+ * Only updates fields that are explicitly provided.
+ */
+export async function bulkUpdateIssues(
+  input: BulkUpdateInput,
+): Promise<ActionResult<{ updatedCount: number }>> {
+  await requireUser();
+
+  if (input.issueIds.length === 0) {
+    return { success: false, error: "No issues selected." };
+  }
+
+  const data: Record<string, unknown> = {};
+  if (input.status    !== undefined) data.status    = input.status;
+  if (input.priority  !== undefined) data.priority  = input.priority;
+  if (input.assigneeId !== undefined) data.assigneeId = input.assigneeId;
+
+  if (Object.keys(data).length === 0) {
+    return { success: false, error: "No fields to update." };
+  }
+
+  try {
+    const result = await prisma.issue.updateMany({
+      where: { id: { in: input.issueIds } },
+      data,
+    });
+
+    return { success: true, data: { updatedCount: result.count } };
+  } catch {
+    return { success: false, error: "Failed to update issues. Please try again." };
+  }
+}

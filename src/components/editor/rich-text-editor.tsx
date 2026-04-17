@@ -85,6 +85,7 @@ export function RichTextEditor({
   const showBar = showToolbar ?? editable;
 
   const editor = useEditor({
+    immediatelyRender: false,
     extensions: [
       StarterKit.configure({
         bulletList: { keepMarks: true },

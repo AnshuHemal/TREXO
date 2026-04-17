@@ -19,6 +19,7 @@ interface KanbanColumnProps {
   iconColor: string;
   issues: BoardIssue[];
   projectKey: string;
+  wipLimit?: number;
   onQuickCreate: (title: string) => void;
   onOpenIssue: (issueId: string) => void;
 }
@@ -32,6 +33,7 @@ export function KanbanColumn({
   iconColor,
   issues,
   projectKey,
+  wipLimit,
   onQuickCreate,
   onOpenIssue,
 }: KanbanColumnProps) {
@@ -68,17 +70,30 @@ export function KanbanColumn({
     if (e.key === "Escape") handleCancelCreate();
   }
 
+  const isWipExceeded = wipLimit !== undefined && issues.length > wipLimit;
+
   return (
-    <div className="flex w-72 shrink-0 flex-col rounded-xl border border-border bg-muted/40">
+    <div className={cn(
+      "flex w-72 shrink-0 flex-col rounded-xl border bg-muted/40",
+      isWipExceeded ? "border-destructive/50" : "border-border",
+    )}>
 
       {/* Column header */}
       <div className="flex items-center justify-between px-3 py-3">
         <div className="flex items-center gap-2">
           <Icon className={cn("size-4 shrink-0", iconColor)} />
           <span className="text-sm font-semibold text-foreground">{label}</span>
-          <span className="flex size-5 items-center justify-center rounded-full bg-muted text-xs font-medium text-muted-foreground">
+          <span className={cn(
+            "flex size-5 items-center justify-center rounded-full text-xs font-medium",
+            isWipExceeded
+              ? "bg-destructive/10 text-destructive"
+              : "bg-muted text-muted-foreground",
+          )}>
             {issues.length}
           </span>
+          {wipLimit !== undefined && (
+            <span className="text-[10px] text-muted-foreground">/{wipLimit}</span>
+          )}
         </div>
         <Button
           variant="ghost"
@@ -90,6 +105,18 @@ export function KanbanColumn({
           <Plus className="size-3.5" />
         </Button>
       </div>
+
+      {/* WIP limit warning */}
+      {isWipExceeded && (
+        <motion.div
+          initial={{ opacity: 0, height: 0 }}
+          animate={{ opacity: 1, height: "auto" }}
+          className="mx-2 mb-2 flex items-center gap-1.5 rounded-md bg-destructive/10 px-2.5 py-1.5 text-xs text-destructive"
+        >
+          <span className="font-medium">WIP limit exceeded</span>
+          <span className="text-destructive/70">({issues.length}/{wipLimit})</span>
+        </motion.div>
+      )}
 
       {/* Cards */}
       <div

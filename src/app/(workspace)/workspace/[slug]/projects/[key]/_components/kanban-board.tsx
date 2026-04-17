@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import { useState, useCallback } from "react";
@@ -13,11 +14,12 @@ import {
   type DragEndEvent,
 } from "@dnd-kit/core";
 import { AnimatePresence } from "motion/react";
-import { ISSUE_STATUSES } from "@/lib/issue-config";
+import { ISSUE_STATUSES, getPriorityConfig } from "@/lib/issue-config";
 import { moveIssue, createIssue } from "../issues/actions";
 import { KanbanColumn } from "./kanban-column";
 import { KanbanCard } from "./kanban-card";
 import { IssueDetailModal, type IssueDetail } from "../issues/_components/issue-detail-modal";
+import { BoardFilterBar, type SwimlaneMode } from "./board-filter-bar";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -33,6 +35,9 @@ export interface BoardIssue {
   assignee: { id: string; name: string; image: string | null } | null;
   commentCount: number;
   dueDate?: Date | null;
+  // Epic grouping
+  epicId?: string | null;
+  epicTitle?: string | null;
 }
 
 interface Member {
@@ -92,6 +97,25 @@ export function KanbanBoard({
   const [issueDetail, setIssueDetail] = useState<IssueDetail | null>(null);
   const [isLoadingDetail, setIsLoadingDetail] = useState(false);
 
+  // ── Filter + swimlane state ───────────────────────────────────────────────────
+  const [filterAssignee, setFilterAssignee] = useState("all");
+  const [filterPriority, setFilterPriority] = useState("all");
+  const [swimlane, setSwimlane]             = useState<SwimlaneMode>("none");
+
+  // WIP limits per status (configurable — defaults shown)
+  const WIP_LIMITS: Record<string, number> = {
+    IN_PROGRESS: 5,
+    IN_REVIEW:   3,
+  };
+
+  const hasActiveFilters = filterAssignee !== "all" || filterPriority !== "all" || swimlane !== "none";
+
+  function clearFilters() {
+    setFilterAssignee("all");
+    setFilterPriority("all");
+    setSwimlane("none");
+  }
+
   // ── DnD sensors ──────────────────────────────────────────────────────────────
   // PointerSensor with a 5px activation distance prevents accidental drags on click
   const sensors = useSensors(
@@ -102,12 +126,48 @@ export function KanbanBoard({
 
   // ── Issues grouped by status — exclude sub-tasks from the board ──────────────
   const columnIssues = useCallback(
-    (status: string) =>
-      issues
-        .filter((i) => i.status === status && i.type !== "SUBTASK")
-        .sort((a, b) => a.position - b.position),
-    [issues],
+    (status: string) => {
+      return issues
+        .filter((i) => {
+          if (i.status !== status || i.type === "SUBTASK") return false;
+          if (filterAssignee === "unassigned" && i.assigneeId !== null) return false;
+          if (filterAssignee !== "all" && filterAssignee !== "unassigned" && i.assigneeId !== filterAssignee) return false;
+          if (filterPriority !== "all" && i.priority !== filterPriority) return false;
+          return true;
+        })
+        .sort((a, b) => a.position - b.position);
+    },
+    [issues, filterAssignee, filterPriority],
   );
+
+  // ── Swimlane grouping ─────────────────────────────────────────────────────────
+  function getSwimlaneGroups(colIssues: BoardIssue[]): { key: string; label: string; issues: BoardIssue[] }[] {
+    if (swimlane === "none") return [{ key: "all", label: "", issues: colIssues }];
+
+    const map = new Map<string, BoardIssue[]>();
+    for (const issue of colIssues) {
+      const key = swimlane === "assignee"
+        ? (issue.assignee?.name ?? "Unassigned")
+        : issue.priority;
+      if (!map.has(key)) map.set(key, []);
+      map.get(key)!.push(issue);
+    }
+
+    const entries = Array.from(map.entries()).map(([key, iss]) => ({
+      key,
+      label: swimlane === "priority" ? getPriorityConfig(key).label : key,
+      issues: iss,
+    }));
+
+    if (swimlane === "priority") {
+      const ORDER: Record<string, number> = { URGENT: 0, HIGH: 1, MEDIUM: 2, LOW: 3, NO_PRIORITY: 4 };
+      entries.sort((a, b) => (ORDER[a.key] ?? 99) - (ORDER[b.key] ?? 99));
+    } else {
+      entries.sort((a, b) => a.key.localeCompare(b.key));
+    }
+
+    return entries;
+  }
 
   // ── Drag handlers ─────────────────────────────────────────────────────────────
 
@@ -237,6 +297,19 @@ export function KanbanBoard({
 
   return (
     <>
+      {/* Filter bar */}
+      <BoardFilterBar
+        members={members}
+        filterAssignee={filterAssignee}
+        filterPriority={filterPriority}
+        swimlane={swimlane}
+        onFilterAssignee={setFilterAssignee}
+        onFilterPriority={setFilterPriority}
+        onSwimlane={setSwimlane}
+        onClear={clearFilters}
+        hasActiveFilters={hasActiveFilters}
+      />
+
       <div className="flex flex-1 overflow-x-auto overflow-y-hidden">
         <DndContext
           sensors={sensors}
@@ -246,22 +319,69 @@ export function KanbanBoard({
           onDragEnd={handleDragEnd}
         >
           <div className="flex h-full gap-3 p-4">
-            {ISSUE_STATUSES.map(({ value, label, icon, color }) => (
-              <KanbanColumn
-                key={value}
-                status={value}
-                label={label}
-                icon={icon}
-                iconColor={color}
-                issues={columnIssues(value)}
-                projectKey={project.key}
-                onQuickCreate={(title) => handleQuickCreate(value, title)}
-                onOpenIssue={handleOpenIssue}
-              />
-            ))}
+            {ISSUE_STATUSES.map(({ value, label, icon, color }) => {
+              const colIssues = columnIssues(value);
+              const groups    = getSwimlaneGroups(colIssues);
+
+              return (
+                <div key={value} className="flex w-72 shrink-0 flex-col gap-2">
+                  {swimlane === "none" ? (
+                    <KanbanColumn
+                      status={value}
+                      label={label}
+                      icon={icon}
+                      iconColor={color}
+                      issues={colIssues}
+                      projectKey={project.key}
+                      wipLimit={WIP_LIMITS[value]}
+                      onQuickCreate={(title) => handleQuickCreate(value, title)}
+                      onOpenIssue={handleOpenIssue}
+                    />
+                  ) : (
+                    <>
+                      {/* Column header (shared across swimlanes) */}
+                      <div className="flex items-center gap-2 rounded-xl border border-border bg-muted/40 px-3 py-2.5">
+                        {(() => { const Icon = icon; return <Icon className={`size-4 shrink-0 ${color}`} />; })()}
+                        <span className="text-sm font-semibold text-foreground">{label}</span>
+                        <span className="flex size-5 items-center justify-center rounded-full bg-muted text-xs font-medium text-muted-foreground">
+                          {colIssues.length}
+                        </span>
+                        {WIP_LIMITS[value] !== undefined && colIssues.length > WIP_LIMITS[value] && (
+                          <span className="ml-auto text-[10px] font-medium text-destructive">
+                            WIP exceeded
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Swimlane groups */}
+                      {groups.map(({ key, label: groupLabel, issues: groupIssues }) => (
+                        <div key={key} className="flex flex-col rounded-xl border border-border bg-muted/40">
+                          {groupLabel && (
+                            <div className="border-b border-border px-3 py-1.5">
+                              <span className="text-xs font-medium text-muted-foreground">{groupLabel}</span>
+                              <span className="ml-1.5 text-xs text-muted-foreground/60">({groupIssues.length})</span>
+                            </div>
+                          )}
+                          <KanbanColumn
+                            status={value}
+                            label=""
+                            icon={icon}
+                            iconColor={color}
+                            issues={groupIssues}
+                            projectKey={project.key}
+                            onQuickCreate={(title) => handleQuickCreate(value, title)}
+                            onOpenIssue={handleOpenIssue}
+                          />
+                        </div>
+                      ))}
+                    </>
+                  )}
+                </div>
+              );
+            })}
           </div>
 
-          {/* Drag overlay — the card that follows the cursor */}
+          {/* Drag overlay */}
           <DragOverlay dropAnimation={{ duration: 150, easing: "cubic-bezier(0.18, 0.67, 0.6, 1.22)" }}>
             {activeIssue && (
               <KanbanCard

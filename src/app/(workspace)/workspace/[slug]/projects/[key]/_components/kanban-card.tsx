@@ -55,6 +55,14 @@ export function KanbanCard({ issue, projectKey, isDragging = false, onOpen }: Ka
   const isGhost   = isSortableDragging && !isDragging;
   const overdue   = isOverdue(issue.dueDate, issue.status);
 
+  // Priority border color (subtle left accent)
+  const priorityBorderColor =
+    issue.priority === "URGENT" ? "border-l-destructive"
+    : issue.priority === "HIGH" ? "border-l-orange-500"
+    : issue.priority === "MEDIUM" ? "border-l-yellow-500"
+    : issue.priority === "LOW" ? "border-l-primary"
+    : "border-l-transparent";
+
   return (
     <motion.div
       ref={setNodeRef}
@@ -68,13 +76,22 @@ export function KanbanCard({ issue, projectKey, isDragging = false, onOpen }: Ka
       {...listeners}
       onClick={onOpen}
       className={cn(
-        "group cursor-pointer rounded-lg border border-border bg-card p-3 shadow-sm",
+        "group cursor-pointer rounded-lg border border-l-4 border-border bg-card p-3 shadow-sm",
         "hover:border-primary/40 hover:shadow-md transition-all",
         isDragging && "rotate-1 shadow-xl ring-2 ring-primary/30",
         isGhost && "pointer-events-none",
         overdue && "border-destructive/40",
+        priorityBorderColor,
       )}
     >
+      {/* Epic badge */}
+      {issue.epicTitle && (
+        <div className="mb-2 flex items-center gap-1">
+          <span className="truncate rounded bg-purple-500/10 px-1.5 py-0.5 text-[10px] font-medium text-purple-600 dark:text-purple-400">
+            {issue.epicTitle}
+          </span>
+        </div>
+      )}
       {/* Top row: type icon + key + priority */}
       <div className="mb-2 flex items-center justify-between gap-2">
         <div className="flex items-center gap-1.5">

@@ -34,8 +34,17 @@ export default async function ProjectBoardPage({ params }: ProjectBoardPageProps
     include: {
       assignee: { select: { id: true, name: true, image: true } },
       _count: { select: { comments: true } },
+      parent: { select: { id: true, title: true, type: true } },
     },
   });
+
+  // Build epic lookup from parent issues of type EPIC
+  const epicMap = new Map<string, { id: string; title: string }>();
+  for (const issue of issues) {
+    if (issue.parent && issue.parent.type === "EPIC") {
+      epicMap.set(issue.id, { id: issue.parent.id, title: issue.parent.title });
+    }
+  }
 
   // Workspace members for assignee picker in quick-create
   const members = await prisma.workspaceMember.findMany({
@@ -63,6 +72,8 @@ export default async function ProjectBoardPage({ params }: ProjectBoardPageProps
     assignee: i.assignee,
     commentCount: i._count.comments,
     dueDate: i.dueDate,
+    epicId: epicMap.get(i.id)?.id ?? null,
+    epicTitle: epicMap.get(i.id)?.title ?? null,
   }));
 
   return (
