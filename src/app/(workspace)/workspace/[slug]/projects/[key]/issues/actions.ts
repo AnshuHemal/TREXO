@@ -6,6 +6,7 @@ import {
   notifyAssigned,
   notifyStatusChanged,
   notifyCommentAdded,
+  notifyMentioned,
 } from "@/lib/notifications";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -256,6 +257,9 @@ export async function addComment(
     // Notify reporter + previous commenters
     notifyCommentAdded({ issueId, actorId: user.id }).catch(() => {});
 
+    // Notify @mentioned users
+    notifyMentioned({ html: body, actorId: user.id, issueId }).catch(() => {});
+
     return { success: true, data: { id: comment.id } };
   } catch {
     return { success: false, error: "Failed to add comment." };
@@ -374,6 +378,16 @@ export async function editComment(
       where: { id: commentId },
       data: { body },
     });
+
+    // Re-notify any newly @mentioned users on edit
+    const comment = await prisma.comment.findUnique({
+      where: { id: commentId },
+      select: { issueId: true },
+    });
+    if (comment) {
+      notifyMentioned({ html: body, actorId: user.id, issueId: comment.issueId }).catch(() => {});
+    }
+
     return { success: true };
   } catch {
     return { success: false, error: "Failed to edit comment." };

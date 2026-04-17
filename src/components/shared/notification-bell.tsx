@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import {
   Bell, CheckCheck, GitBranch, MessageSquare,
-  UserCheck, ArrowRightLeft, X,
+  UserCheck, ArrowRightLeft, X, AtSign,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -49,6 +49,7 @@ function getNotificationText(type: string, actorName: string): string {
     case "assigned":       return `${actorName} assigned you to an issue`;
     case "status_changed": return `${actorName} changed the status of your issue`;
     case "comment_added":  return `${actorName} commented on an issue`;
+    case "mentioned":      return `${actorName} mentioned you in a comment`;
     default:               return `${actorName} updated an issue`;
   }
 }
@@ -59,6 +60,7 @@ function NotificationIcon({ type }: { type: string }) {
     case "assigned":       return <UserCheck className={cn(cls, "text-primary")} />;
     case "status_changed": return <ArrowRightLeft className={cn(cls, "text-yellow-500")} />;
     case "comment_added":  return <MessageSquare className={cn(cls, "text-primary")} />;
+    case "mentioned":      return <AtSign className={cn(cls, "text-purple-500")} />;
     default:               return <GitBranch className={cn(cls, "text-muted-foreground")} />;
   }
 }

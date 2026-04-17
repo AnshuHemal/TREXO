@@ -6,6 +6,7 @@ import Placeholder from "@tiptap/extension-placeholder";
 import Underline from "@tiptap/extension-underline";
 import TaskList from "@tiptap/extension-task-list";
 import TaskItem from "@tiptap/extension-task-item";
+import Mention from "@tiptap/extension-mention";
 import {
   Bold,
   Italic,
@@ -20,6 +21,10 @@ import {
   Minus,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import {
+  buildMentionSuggestion,
+  type MentionMember,
+} from "./mention-suggestion";
 
 // ─── Toolbar button ───────────────────────────────────────────────────────────
 
@@ -68,6 +73,8 @@ interface RichTextEditorProps {
   /** Show toolbar. Default: true when editable */
   showToolbar?: boolean;
   minHeight?: string;
+  /** When provided, enables @mention support */
+  members?: MentionMember[];
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -81,6 +88,7 @@ export function RichTextEditor({
   className,
   showToolbar,
   minHeight = "120px",
+  members,
 }: RichTextEditorProps) {
   const showBar = showToolbar ?? editable;
 
@@ -95,6 +103,21 @@ export function RichTextEditor({
       Placeholder.configure({ placeholder }),
       TaskList,
       TaskItem.configure({ nested: true }),
+      // Mention extension — only active when members are provided
+      ...(members && members.length > 0
+        ? [
+            Mention.configure({
+              HTMLAttributes: {
+                class:
+                  "mention inline-flex items-center rounded-md bg-primary/10 px-1.5 py-0.5 text-xs font-semibold text-primary cursor-default",
+              },
+              renderLabel({ node }) {
+                return `@${node.attrs.label ?? node.attrs.id}`;
+              },
+              suggestion: buildMentionSuggestion(members),
+            }),
+          ]
+        : []),
     ],
     content: content ?? "",
     editable,
@@ -214,6 +237,16 @@ export function RichTextEditor({
           >
             <Minus className="size-3.5" />
           </ToolbarButton>
+
+          {/* Mention hint — only shown when mentions are enabled */}
+          {members && members.length > 0 && (
+            <>
+              <div className="mx-1 h-4 w-px bg-border" />
+              <span className="px-1 text-[10px] text-muted-foreground select-none">
+                @ to mention
+              </span>
+            </>
+          )}
         </div>
       )}
 

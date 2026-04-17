@@ -1,17 +1,7 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-
-/**
- * Notification helper — fire-and-forget notification creation.
- *
- * All functions are intentionally non-throwing: notification failures
- * must never break the primary action that triggered them.
- *
- * Call with `.catch(() => {})` at the call-site for extra safety.
- */
-
-// ─── createNotification ───────────────────────────────────────────────────────
+import { parseMentionIds } from "@/lib/mentions";
 
 export async function createNotification({
   userId,
@@ -110,4 +100,29 @@ export async function notifyCommentAdded({
   } catch {
     // Non-critical
   }
+}
+
+// ─── notifyMentioned ──────────────────────────────────────────────────────────
+
+/**
+ * Notify all users mentioned in a comment body (parsed from HTML).
+ * Deduplicates recipients and excludes the actor.
+ */
+export async function notifyMentioned({
+  html,
+  actorId,
+  issueId,
+}: {
+  html: string;
+  actorId: string;
+  issueId: string;
+}): Promise<void> {
+  const mentionedIds = parseMentionIds(html);
+  if (mentionedIds.length === 0) return;
+
+  await Promise.all(
+    mentionedIds.map((userId) =>
+      createNotification({ userId, actorId, type: "mentioned", issueId }),
+    ),
+  );
 }

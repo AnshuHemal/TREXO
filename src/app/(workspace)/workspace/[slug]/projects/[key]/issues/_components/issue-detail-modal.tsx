@@ -183,11 +183,13 @@ function ActivityEntry({ activity }: { activity: ActivityItem }) {
 function CommentEntry({
   comment,
   currentUserId,
+  members,
   onEdit,
   onDelete,
 }: {
   comment: CommentItem;
   currentUserId: string;
+  members: Member[];
   onEdit: (id: string, body: string) => void;
   onDelete: (id: string) => void;
 }) {
@@ -254,6 +256,7 @@ function CommentEntry({
               onChange={setEditBody}
               placeholder="Edit comment…"
               minHeight="60px"
+              members={members}
             />
             <div className="flex items-center gap-2">
               <Button size="sm" className="h-7 px-2.5 text-xs" onClick={handleSaveEdit} disabled={isPending || !editBody.trim()}>
@@ -631,6 +634,7 @@ export function IssueDetailModal({
                           <CommentEntry
                             comment={entry.data}
                             currentUserId={currentUserId}
+                            members={members}
                             onEdit={handleEditComment}
                             onDelete={handleDeleteComment}
                           />
@@ -654,9 +658,10 @@ export function IssueDetailModal({
                   <RichTextEditor
                     content={commentBody}
                     onChange={setCommentBody}
-                    placeholder="Add a comment…"
+                    placeholder="Add a comment… (@ to mention)"
                     minHeight="60px"
                     showToolbar={false}
+                    members={members}
                   />
                   <div className="flex items-center justify-end gap-2">
                     <Button
