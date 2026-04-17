@@ -158,11 +158,10 @@ export function CreateProjectDialog({
         )}
       </DialogTrigger>
 
-      <DialogContent className="sm:max-w-md" asChild>
+      <DialogContent className="sm:max-w-md">
         <motion.div
-          initial={{ scale: 0.95, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          exit={{ scale: 0.95, opacity: 0 }}
+          initial={{ scale: 0.97, opacity: 0, y: 4 }}
+          animate={{ scale: 1, opacity: 1, y: 0 }}
           transition={{ duration: 0.18, ease: [0.25, 0.1, 0.25, 1] }}
         >
           <DialogHeader>
