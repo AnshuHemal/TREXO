@@ -33,6 +33,11 @@ export async function GET(
           actor: { select: { id: true, name: true, image: true } },
         },
       },
+      labels: {
+        include: {
+          label: { select: { id: true, name: true, color: true } },
+        },
+      },
     },
   });
 

@@ -11,6 +11,7 @@ import {
   Plus,
   ChevronsUpDown,
   Check,
+  Tag,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -244,6 +245,20 @@ export function WorkspaceSidebar({
         >
           <Settings className="size-4 shrink-0" />
           Settings
+        </Link>
+
+        {/* Labels link */}
+        <Link
+          href={`${baseSlug}/settings/labels`}
+          className={cn(
+            "flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-sm font-medium transition-colors",
+            isActive(`${baseSlug}/settings/labels`)
+              ? "bg-accent text-accent-foreground"
+              : "text-sidebar-foreground/70 hover:bg-accent hover:text-accent-foreground",
+          )}
+        >
+          <Tag className="size-4 shrink-0" />
+          Labels
         </Link>
 
         {/* User info + sign out */}

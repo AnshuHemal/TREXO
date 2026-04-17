@@ -36,7 +36,9 @@ import { cn } from "@/lib/utils";
 import {
   updateIssue, deleteIssue,
   addComment, editComment, deleteComment,
+  addLabelToIssue, removeLabelFromIssue,
 } from "../actions";
+import { LabelPicker, type LabelOption } from "@/components/shared/label-picker";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -84,12 +86,14 @@ export interface IssueDetail {
   updatedAt: Date;
   comments: CommentItem[];
   activities: ActivityItem[];
+  labels?: { label: LabelOption }[];
 }
 
 interface IssueDetailModalProps {
   issue: IssueDetail;
   projectKey: string;
   members: Member[];
+  allLabels?: LabelOption[];
   currentUserId: string;
   currentUserName?: string;
   currentUserImage?: string | null;
@@ -265,6 +269,7 @@ export function IssueDetailModal({
   issue: initialIssue,
   projectKey,
   members,
+  allLabels = [],
   currentUserId,
   currentUserName,
   currentUserImage,
@@ -278,6 +283,9 @@ export function IssueDetailModal({
   const [commentBody, setCommentBody] = useState("");
   const [comments, setComments] = useState<CommentItem[]>(issue.comments);
   const [activities] = useState<ActivityItem[]>(issue.activities);
+  const [selectedLabels, setSelectedLabels] = useState<LabelOption[]>(
+    (issue.labels ?? []).map((il) => il.label),
+  );
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const [isSubmittingComment, startCommentTransition] = useTransition();
@@ -662,6 +670,30 @@ export function IssueDetailModal({
                   ))}
                 </SelectContent>
               </Select>
+            </SidebarField>
+
+            <Separator />
+
+            <SidebarField label="Labels">
+              <LabelPicker
+                issueId={issue.id}
+                allLabels={allLabels}
+                selectedLabels={selectedLabels}
+                onAdd={async (labelId) => {
+                  const result = await addLabelToIssue(issue.id, labelId);
+                  if (result.success) {
+                    const label = allLabels.find((l) => l.id === labelId);
+                    if (label) setSelectedLabels((prev) => [...prev, label]);
+                  }
+                }}
+                onRemove={async (labelId) => {
+                  const result = await removeLabelFromIssue(issue.id, labelId);
+                  if (result.success) {
+                    setSelectedLabels((prev) => prev.filter((l) => l.id !== labelId));
+                  }
+                }}
+                disabled={isPending}
+              />
             </SidebarField>
 
             <Separator />

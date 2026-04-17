@@ -379,3 +379,33 @@ export async function editComment(
     return { success: false, error: "Failed to edit comment." };
   }
 }
+
+// ─── Label actions ────────────────────────────────────────────────────────────
+
+export async function addLabelToIssue(
+  issueId: string,
+  labelId: string,
+): Promise<ActionResult> {
+  await requireUser();
+  try {
+    await prisma.issueLabel.create({ data: { issueId, labelId } });
+    return { success: true };
+  } catch {
+    return { success: false, error: "Failed to add label." };
+  }
+}
+
+export async function removeLabelFromIssue(
+  issueId: string,
+  labelId: string,
+): Promise<ActionResult> {
+  await requireUser();
+  try {
+    await prisma.issueLabel.delete({
+      where: { issueId_labelId: { issueId, labelId } },
+    });
+    return { success: true };
+  } catch {
+    return { success: false, error: "Failed to remove label." };
+  }
+}

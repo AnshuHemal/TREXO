@@ -4,18 +4,16 @@ import Link from "next/link";
 import { Users, FolderKanban, ArrowRight } from "lucide-react";
 import { requireUser } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
-import { FadeIn, StaggerChildren, fadeUpVariants } from "@/components/motion/fade-in";
-import { motion } from "motion/react";
+import { FadeIn } from "@/components/motion/fade-in";
 import { WorkspaceTopbar } from "./_components/workspace-topbar";
+import { ProjectGrid } from "./_components/project-grid";
 import { CreateProjectDialog } from "./projects/_components/create-project-dialog";
 
 interface WorkspacePageProps {
   params: Promise<{ slug: string }>;
 }
 
-export async function generateMetadata({
-  params,
-}: WorkspacePageProps): Promise<Metadata> {
+export async function generateMetadata({ params }: WorkspacePageProps): Promise<Metadata> {
   const { slug } = await params;
   const workspace = await prisma.workspace.findUnique({
     where: { slug },
@@ -29,29 +27,19 @@ export default async function WorkspacePage({ params }: WorkspacePageProps) {
   const user = await requireUser();
 
   const membership = await prisma.workspaceMember.findFirst({
-    where: {
-      userId: user.id,
-      workspace: { slug },
-    },
+    where: { userId: user.id, workspace: { slug } },
     include: {
       workspace: {
-        include: {
-          _count: {
-            select: { members: true, projects: true },
-          },
-        },
+        include: { _count: { select: { members: true, projects: true } } },
       },
     },
   });
 
-  if (!membership) {
-    notFound();
-  }
+  if (!membership) notFound();
 
   const { workspace } = membership;
   const canCreate = membership.role === "OWNER" || membership.role === "ADMIN";
 
-  // Fetch up to 6 recent projects for the home page
   const recentProjects = await prisma.project.findMany({
     where: { workspaceId: workspace.id },
     orderBy: { createdAt: "desc" },
@@ -66,18 +54,8 @@ export default async function WorkspacePage({ params }: WorkspacePageProps) {
   });
 
   const stats = [
-    {
-      label: "Members",
-      value: workspace._count.members,
-      icon: Users,
-      description: "People in this workspace",
-    },
-    {
-      label: "Projects",
-      value: workspace._count.projects,
-      icon: FolderKanban,
-      description: "Active projects",
-    },
+    { label: "Members",  value: workspace._count.members,  icon: Users,        description: "People in this workspace" },
+    { label: "Projects", value: workspace._count.projects, icon: FolderKanban, description: "Active projects" },
   ];
 
   return (
@@ -99,28 +77,19 @@ export default async function WorkspacePage({ params }: WorkspacePageProps) {
           </p>
         </FadeIn>
 
-        {/* Stats grid */}
+        {/* Stats */}
         <FadeIn delay={0.1}>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {stats.map(({ label, value, icon: Icon, description }) => (
-              <div
-                key={label}
-                className="rounded-xl border border-border bg-card p-5"
-              >
+              <div key={label} className="rounded-xl border border-border bg-card p-5">
                 <div className="flex items-center justify-between">
-                  <p className="text-sm font-medium text-muted-foreground">
-                    {label}
-                  </p>
+                  <p className="text-sm font-medium text-muted-foreground">{label}</p>
                   <div className="flex size-9 items-center justify-center rounded-lg bg-primary/10">
                     <Icon className="size-4 text-primary" />
                   </div>
                 </div>
-                <p className="mt-3 text-3xl font-bold tracking-tight text-foreground">
-                  {value}
-                </p>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  {description}
-                </p>
+                <p className="mt-3 text-3xl font-bold tracking-tight text-foreground">{value}</p>
+                <p className="mt-1 text-xs text-muted-foreground">{description}</p>
               </div>
             ))}
           </div>
@@ -129,15 +98,10 @@ export default async function WorkspacePage({ params }: WorkspacePageProps) {
         {/* Projects section */}
         <FadeIn delay={0.2} className="mt-8">
           <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-base font-semibold text-foreground">
-              Recent Projects
-            </h2>
+            <h2 className="text-base font-semibold text-foreground">Recent Projects</h2>
             <div className="flex items-center gap-2">
               {canCreate && (
-                <CreateProjectDialog
-                  workspaceId={workspace.id}
-                  workspaceSlug={workspace.slug}
-                />
+                <CreateProjectDialog workspaceId={workspace.id} workspaceSlug={workspace.slug} />
               )}
               <Link
                 href={`/workspace/${slug}/projects`}
@@ -149,66 +113,13 @@ export default async function WorkspacePage({ params }: WorkspacePageProps) {
             </div>
           </div>
 
-          {recentProjects.length === 0 ? (
-            <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border bg-card py-12 text-center">
-              <div className="flex size-12 items-center justify-center rounded-xl bg-primary/10">
-                <FolderKanban className="size-6 text-primary" />
-              </div>
-              <h3 className="mt-3 text-sm font-semibold text-foreground">
-                No projects yet
-              </h3>
-              <p className="mt-1 max-w-xs text-xs text-muted-foreground">
-                Create your first project to start tracking issues and sprints.
-              </p>
-              {canCreate && (
-                <div className="mt-4">
-                  <CreateProjectDialog
-                    workspaceId={workspace.id}
-                    workspaceSlug={workspace.slug}
-                  />
-                </div>
-              )}
-            </div>
-          ) : (
-            <StaggerChildren className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {recentProjects.map((project) => (
-                <motion.div key={project.id} variants={fadeUpVariants}>
-                  <Link
-                    href={`/workspace/${slug}/projects/${project.key}`}
-                    className="group block rounded-xl border border-border bg-card p-5 hover:border-primary/40 transition-colors cursor-pointer"
-                  >
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-sm font-bold text-primary">
-                        {project.key.slice(0, 2)}
-                      </div>
-                      <span className="rounded-md bg-muted px-2 py-0.5 text-xs font-mono font-medium text-muted-foreground">
-                        {project.key}
-                      </span>
-                    </div>
-                    <h3 className="mt-3 font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-1">
-                      {project.name}
-                    </h3>
-                    {project.description ? (
-                      <p className="mt-1 text-sm text-muted-foreground line-clamp-2">
-                        {project.description}
-                      </p>
-                    ) : (
-                      <p className="mt-1 text-sm text-muted-foreground/50 italic">
-                        No description
-                      </p>
-                    )}
-                    <div className="mt-4 flex items-center gap-1.5 text-xs text-muted-foreground">
-                      <FolderKanban className="size-3.5" />
-                      <span>
-                        {project._count.issues}{" "}
-                        {project._count.issues === 1 ? "issue" : "issues"}
-                      </span>
-                    </div>
-                  </Link>
-                </motion.div>
-              ))}
-            </StaggerChildren>
-          )}
+          {/* ProjectGrid is a client component — motion.div lives there */}
+          <ProjectGrid
+            projects={recentProjects}
+            workspaceId={workspace.id}
+            workspaceSlug={workspace.slug}
+            canCreate={canCreate}
+          />
         </FadeIn>
       </main>
     </div>
