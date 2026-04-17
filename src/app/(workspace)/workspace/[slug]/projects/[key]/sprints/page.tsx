@@ -69,6 +69,7 @@ export default async function SprintsPage({ params }: SprintsPageProps) {
       type: i.type,
       status: i.status,
       priority: i.priority,
+      estimate: i.estimate,
       assignee: i.assignee,
     })),
   }));

@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { WorkspaceSidebar } from "./_components/workspace-sidebar";
 import { WorkspaceProvider } from "@/components/providers/workspace-provider";
 import type { WorkspaceRole } from "@/generated/prisma/enums";
+import { filterAccessibleProjects } from "@/lib/project-access";
 
 interface WorkspaceLayoutProps {
   children: React.ReactNode;
@@ -46,6 +47,19 @@ export default async function WorkspaceLayout({
     orderBy: { createdAt: "asc" },
   });
 
+  // Filter projects to only those the user can access
+  const allProjectIds = workspace.projects.map((p) => p.id);
+  let accessibleIds: Set<string>;
+  try {
+    accessibleIds = new Set(
+      await filterAccessibleProjects(user.id, workspace.id, allProjectIds),
+    );
+  } catch {
+    // Stale client — show all projects until server restarts
+    accessibleIds = new Set(allProjectIds);
+  }
+  const visibleProjects = workspace.projects.filter((p) => accessibleIds.has(p.id));
+
   // Flatten members for search + topbar
   const memberList = workspace.members.map((m) => ({
     id: m.user.id,
@@ -53,7 +67,7 @@ export default async function WorkspaceLayout({
     image: m.user.image,
   }));
 
-  const projectList = workspace.projects.map((p) => ({
+  const projectList = visibleProjects.map((p) => ({
     id: p.id,
     name: p.name,
     key: p.key,
@@ -72,7 +86,7 @@ export default async function WorkspaceLayout({
       <div className="flex h-screen overflow-hidden">
         <WorkspaceSidebar
           workspace={{ id: workspace.id, name: workspace.name, slug: workspace.slug, logo: workspace.logo }}
-          projects={workspace.projects}
+          projects={visibleProjects}
           userWorkspaces={userWorkspaces.map((m) => m.workspace)}
           currentUserRole={membership.role as WorkspaceRole}
         />

@@ -91,7 +91,7 @@ export function BoardFilterBar({
 
       {/* Swimlane */}
       <Select value={swimlane} onValueChange={(v) => onSwimlane(v as SwimlaneMode)}>
-        <SelectTrigger className={cn("h-7 w-36 text-xs", swimlane !== "none" && "border-primary text-primary")}>
+        <SelectTrigger className={cn("h-7 w-auto min-w-[9rem] text-xs", swimlane !== "none" && "border-primary text-primary")}>
           <Layers className="mr-1.5 size-3.5" />
           <SelectValue />
         </SelectTrigger>

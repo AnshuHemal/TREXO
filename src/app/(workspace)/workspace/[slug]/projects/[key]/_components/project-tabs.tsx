@@ -14,11 +14,12 @@ export function ProjectTabs({ slug, projectKey }: ProjectTabsProps) {
   const base = `/workspace/${slug}/projects/${projectKey}`;
 
   const tabs = [
-    { label: "Board", href: base, exact: true },
-    { label: "Backlog", href: `${base}/backlog`, exact: false },
-    { label: "Sprints", href: `${base}/sprints`, exact: false },
-    { label: "Roadmap", href: `${base}/roadmap`, exact: false },
-    { label: "Settings", href: `${base}/settings`, exact: false },
+    { label: "Board",    href: base,                  exact: true  },
+    { label: "Backlog",  href: `${base}/backlog`,      exact: false },
+    { label: "Sprints",  href: `${base}/sprints`,      exact: false },
+    { label: "Roadmap",  href: `${base}/roadmap`,      exact: false },
+    { label: "Settings", href: `${base}/settings`,     exact: true  },
+    { label: "Access",   href: `${base}/settings/access`, exact: false },
   ];
 
   function isActive(href: string, exact: boolean) {

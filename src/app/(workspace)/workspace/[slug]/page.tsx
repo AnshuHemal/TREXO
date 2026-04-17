@@ -13,6 +13,7 @@ import { MyIssuesWidget } from "./_components/dashboard/my-issues-widget";
 import { ActivityFeed } from "./_components/dashboard/activity-feed";
 import { StatusChart } from "./_components/dashboard/status-chart";
 import { RecentIssuesWidget } from "./_components/dashboard/recent-issues-widget";
+import { VelocityChart } from "./_components/dashboard/velocity-chart";
 
 interface WorkspacePageProps {
   params: Promise<{ slug: string }>;
@@ -55,6 +56,7 @@ export default async function WorkspacePage({ params }: WorkspacePageProps) {
     statusCounts,
     recentlyUpdated,
     totalIssues,
+    completedSprints,
   ] = await Promise.all([
 
     // Recent projects (up to 6)
@@ -74,7 +76,7 @@ export default async function WorkspacePage({ params }: WorkspacePageProps) {
       include: {
         project: { select: { name: true, key: true } },
         _count: { select: { issues: true } },
-        issues: { select: { status: true } },
+        issues: { select: { status: true, estimate: true } },
       },
       orderBy: { startDate: "desc" },
     }),
@@ -145,6 +147,21 @@ export default async function WorkspacePage({ params }: WorkspacePageProps) {
     prisma.issue.count({
       where: { project: { workspaceId: workspace.id } },
     }),
+
+    // Velocity: last 6 completed sprints with story points
+    prisma.sprint.findMany({
+      where: {
+        status: "COMPLETED",
+        project: { workspaceId: workspace.id },
+      },
+      orderBy: { endDate: "desc" },
+      take: 6,
+      select: {
+        id: true,
+        name: true,
+        issues: { select: { status: true, estimate: true } },
+      },
+    }),
   ]);
 
   // ── Shape data for widgets ─────────────────────────────────────────────────
@@ -162,6 +179,10 @@ export default async function WorkspacePage({ params }: WorkspacePageProps) {
         issueCounts: {
           total: activeSprint.issues.length,
           done: activeSprint.issues.filter((i) => i.status === "DONE" || i.status === "CANCELLED").length,
+          totalPoints: activeSprint.issues.reduce((s, i) => s + (i.estimate ?? 0), 0),
+          donePoints: activeSprint.issues
+            .filter((i) => i.status === "DONE" || i.status === "CANCELLED")
+            .reduce((s, i) => s + (i.estimate ?? 0), 0),
         },
       }
     : null;
@@ -189,6 +210,14 @@ export default async function WorkspacePage({ params }: WorkspacePageProps) {
   const statusData = statusCounts.map((s) => ({
     status: s.status,
     count: s._count.status,
+  }));
+
+  const velocityData = [...completedSprints].reverse().map((s) => ({
+    sprintName: s.name,
+    committed: s.issues.reduce((sum, i) => sum + (i.estimate ?? 0), 0),
+    completed: s.issues
+      .filter((i) => i.status === "DONE" || i.status === "CANCELLED")
+      .reduce((sum, i) => sum + (i.estimate ?? 0), 0),
   }));
 
   const recentIssuesList = recentlyUpdated.map((i) => ({
@@ -260,6 +289,7 @@ export default async function WorkspacePage({ params }: WorkspacePageProps) {
           {/* Right column — 1/3 width */}
           <div className="flex flex-col gap-5">
             <StatusChart data={statusData} totalIssues={totalIssues} />
+            <VelocityChart data={velocityData} />
             <ActivityFeed activities={activityList} />
           </div>
 

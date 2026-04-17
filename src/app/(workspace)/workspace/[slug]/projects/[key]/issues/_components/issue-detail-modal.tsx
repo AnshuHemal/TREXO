@@ -4,7 +4,7 @@ import { useState, useTransition, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import {
   X, Trash2, Loader2, XCircle, Send, MessageSquare,
-  Pencil, Check, Clock, CalendarDays,
+  Pencil, Check, Clock, CalendarDays, Zap,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -88,6 +88,7 @@ export interface IssueDetail {
   assignee: { id: string; name: string; image: string | null } | null;
   reporter: { id: string; name: string; image: string | null };
   dueDate?: Date | null;
+  estimate?: number | null;
   createdAt: Date;
   updatedAt: Date;
   comments: CommentItem[];
@@ -140,6 +141,54 @@ function formatRelative(date: Date) {
   const days = Math.floor(hrs / 24);
   if (days < 7) return `${days}d ago`;
   return formatDate(date);
+}
+
+// ─── Estimate field ───────────────────────────────────────────────────────────
+
+const ESTIMATE_OPTIONS = [
+  { value: 1,  label: "1",  size: "XS" },
+  { value: 2,  label: "2",  size: "S"  },
+  { value: 3,  label: "3",  size: "M"  },
+  { value: 5,  label: "5",  size: "L"  },
+  { value: 8,  label: "8",  size: "XL" },
+  { value: 13, label: "13", size: "XXL"},
+];
+
+function EstimateField({
+  value,
+  onChange,
+  disabled,
+}: {
+  value: number | null;
+  onChange: (v: number | null) => void;
+  disabled?: boolean;
+}) {
+  return (
+    <div className="flex flex-wrap gap-1.5">
+      {ESTIMATE_OPTIONS.map((opt) => {
+        const isSelected = value === opt.value;
+        return (
+          <button
+            key={opt.value}
+            type="button"
+            disabled={disabled}
+            onClick={() => onChange(isSelected ? null : opt.value)}
+            className={cn(
+              "flex items-center gap-1 rounded-md border px-2 py-1 text-xs font-medium transition-all",
+              isSelected
+                ? "border-primary bg-primary/10 text-primary"
+                : "border-border bg-muted/40 text-muted-foreground hover:border-primary/40 hover:text-foreground",
+              disabled && "pointer-events-none opacity-50",
+            )}
+          >
+            <Zap className="size-2.5" />
+            {opt.label}
+            <span className="text-[9px] opacity-60">{opt.size}</span>
+          </button>
+        );
+      })}
+    </div>
+  );
 }
 
 // ─── Sidebar field ────────────────────────────────────────────────────────────
@@ -305,6 +354,7 @@ export function IssueDetailModal({
     (issue.labels ?? []).map((il) => il.label),
   );
   const [dueDate, setDueDate] = useState<Date | null>(issue.dueDate ?? null);
+  const [estimate, setEstimate] = useState<number | null>(issue.estimate ?? null);
   const [subTasks, setSubTasks] = useState<SubTaskItem[]>(issue.subTasks ?? []);
   const [links] = useState<IssueLinkItem[]>(() => {
     // Normalise links from API response (outgoing + flipped incoming)
@@ -867,6 +917,21 @@ export function IssueDetailModal({
                   Overdue
                 </span>
               )}
+            </SidebarField>
+
+            <Separator />
+
+            <SidebarField label="Estimate">
+              <EstimateField
+                value={estimate}
+                disabled={isPending}
+                onChange={(val) => {
+                  setEstimate(val);
+                  startTransition(async () => {
+                    await updateIssue(issue.id, { estimate: val });
+                  });
+                }}
+              />
             </SidebarField>
 
             <Separator />

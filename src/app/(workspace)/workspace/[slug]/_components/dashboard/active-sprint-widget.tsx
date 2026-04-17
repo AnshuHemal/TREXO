@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { motion } from "motion/react";
-import { Timer, ArrowRight, CalendarDays } from "lucide-react";
+import { Timer, ArrowRight, CalendarDays, Zap } from "lucide-react";
 import { FadeIn } from "@/components/motion/fade-in";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -10,6 +10,8 @@ import { FadeIn } from "@/components/motion/fade-in";
 interface SprintIssueCount {
   total: number;
   done: number;
+  totalPoints: number;
+  donePoints: number;
 }
 
 interface ActiveSprintData {
@@ -58,7 +60,7 @@ export function ActiveSprintWidget({ sprint }: ActiveSprintWidgetProps) {
     );
   }
 
-  const { total, done } = sprint.issueCounts;
+  const { total, done, totalPoints, donePoints } = sprint.issueCounts;
   const pct     = total > 0 ? Math.round((done / total) * 100) : 0;
   const days    = daysRemaining(sprint.endDate);
   const isUrgent = days !== null && days <= 2;
@@ -104,6 +106,15 @@ export function ActiveSprintWidget({ sprint }: ActiveSprintWidgetProps) {
               transition={{ duration: 0.6, ease: "easeOut", delay: 0.2 }}
             />
           </div>
+          {totalPoints > 0 && (
+            <div className="flex items-center justify-between text-xs">
+              <span className="flex items-center gap-1 text-muted-foreground">
+                <Zap className="size-3" />
+                {donePoints}/{totalPoints} points
+              </span>
+              <span className="text-muted-foreground">{totalPoints - donePoints} remaining</span>
+            </div>
+          )}
         </div>
 
         {/* Dates */}

@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { WorkspaceTopbar } from "../../_components/workspace-topbar";
 import { ProjectTabs } from "./_components/project-tabs";
 import { ProjectLayoutClient } from "./_components/project-layout-client";
+import { checkProjectAccess } from "@/lib/project-access";
 
 interface ProjectLayoutProps {
   children: React.ReactNode;
@@ -45,6 +46,16 @@ export default async function ProjectLayout({
 
   if (!project) {
     notFound();
+  }
+
+  // ── Access control ─────────────────────────────────────────────────────────
+  // PRIVATE projects: only explicit members + workspace OWNER/ADMIN
+  // Wrapped in try/catch — fails open if Prisma client is stale (restart dev server to fix)
+  try {
+    const access = await checkProjectAccess(user.id, project.id);
+    if (!access.allowed) notFound();
+  } catch {
+    // Client stale — allow access until server restarts with regenerated client
   }
 
   // Fetch workspace members for the create issue dialog

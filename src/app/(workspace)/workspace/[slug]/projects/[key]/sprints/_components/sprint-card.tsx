@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import {
   Play, CheckCircle2, Trash2, ChevronDown, ChevronRight,
-  Calendar, Target, Loader2, XCircle, Plus, X,
+  Calendar, Target, Loader2, XCircle, Plus, X, Zap,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -34,6 +34,7 @@ export interface SprintIssue {
   type: string;
   status: string;
   priority: string;
+  estimate?: number | null;
   assignee: { id: string; name: string; image: string | null } | null;
 }
 
@@ -104,6 +105,12 @@ export function SprintCard({
   const progress = sprint.issues.length > 0
     ? Math.round((doneCount / sprint.issues.length) * 100)
     : 0;
+
+  // Story points
+  const totalPoints = sprint.issues.reduce((sum, i) => sum + (i.estimate ?? 0), 0);
+  const donePoints  = sprint.issues
+    .filter((i) => i.status === "DONE" || i.status === "CANCELLED")
+    .reduce((sum, i) => sum + (i.estimate ?? 0), 0);
 
   // ── Start sprint ─────────────────────────────────────────────────────────────
 
@@ -195,11 +202,17 @@ export function SprintCard({
           </div>
         )}
 
-        {/* Issue count + progress */}
+        {/* Issue count + progress + points */}
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
           <span>{sprint.issues.length} {sprint.issues.length === 1 ? "issue" : "issues"}</span>
           {sprint.issues.length > 0 && (
             <span className="text-primary font-medium">{progress}%</span>
+          )}
+          {totalPoints > 0 && (
+            <span className="flex items-center gap-0.5 rounded-full bg-primary/10 px-1.5 py-0.5 text-[10px] font-medium text-primary">
+              <Zap className="size-2.5" />
+              {donePoints}/{totalPoints} pts
+            </span>
           )}
         </div>
 
@@ -326,6 +339,11 @@ export function SprintCard({
                             <AvatarImage src={issue.assignee.image ?? undefined} />
                             <AvatarFallback className="text-[9px]">{getInitials(issue.assignee.name)}</AvatarFallback>
                           </Avatar>
+                        )}
+                        {issue.estimate != null && (
+                          <span className="flex shrink-0 items-center gap-0.5 rounded bg-muted px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground">
+                            <Zap className="size-2.5" />{issue.estimate}
+                          </span>
                         )}
                         {sprint.status !== "COMPLETED" && (
                           <button

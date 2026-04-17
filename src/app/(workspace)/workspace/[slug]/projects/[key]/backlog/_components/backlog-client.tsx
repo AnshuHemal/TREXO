@@ -572,7 +572,7 @@ export function BacklogClient({
 
           {/* Group by */}
           <Select value={groupBy} onValueChange={(v) => setGroupBy(v as GroupBy)}>
-            <SelectTrigger className={cn("h-8 w-36 text-xs", groupBy !== "none" && "border-primary text-primary")}>
+            <SelectTrigger className={cn("h-8 w-auto min-w-[10rem] text-xs", groupBy !== "none" && "border-primary text-primary")}>
               <Layers className="mr-1.5 size-3.5" />
               <SelectValue />
             </SelectTrigger>

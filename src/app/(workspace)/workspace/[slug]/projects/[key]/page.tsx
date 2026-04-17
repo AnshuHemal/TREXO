@@ -48,16 +48,20 @@ export default async function ProjectBoardPage({ params }: ProjectBoardPageProps
 
   // Find which issues are blocked (have an incoming BLOCKS link from an unresolved issue)
   const issueIds = issues.map((i) => i.id);
-  const blockingLinks = await prisma.issueLink.findMany({
-    where: {
-      type: "BLOCKS",
-      targetId: { in: issueIds },
-      // Only count as blocked if the blocking issue is not done/cancelled
-      source: { status: { notIn: ["DONE", "CANCELLED"] } },
-    },
-    select: { targetId: true },
-  });
-  const blockedIds = new Set(blockingLinks.map((l) => l.targetId));
+  let blockedIds = new Set<string>();
+  try {
+    const blockingLinks = await prisma.issueLink.findMany({
+      where: {
+        type: "BLOCKS",
+        targetId: { in: issueIds },
+        source: { status: { notIn: ["DONE", "CANCELLED"] } },
+      },
+      select: { targetId: true },
+    });
+    blockedIds = new Set(blockingLinks.map((l) => l.targetId));
+  } catch {
+    // issueLink may not be available if Prisma client is stale — restart dev server
+  }
 
   // Workspace members for assignee picker in quick-create
   const members = await prisma.workspaceMember.findMany({

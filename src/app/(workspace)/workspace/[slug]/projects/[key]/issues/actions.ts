@@ -40,6 +40,7 @@ export interface UpdateIssueInput {
   assigneeId?: string | null;
   description?: string | null;
   dueDate?: Date | null;
+  estimate?: number | null;
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -163,6 +164,7 @@ export async function updateIssue(
         ...(input.assigneeId !== undefined && { assigneeId: input.assigneeId }),
         ...(input.description !== undefined && { description: input.description }),
         ...(input.dueDate !== undefined && { dueDate: input.dueDate }),
+        ...(input.estimate !== undefined && { estimate: input.estimate }),
       },
     });
 
