@@ -6,10 +6,10 @@ import { requireUser } from "@/lib/session";
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 export interface NotificationPrefs {
-  assigned:      boolean;
-  mentioned:     boolean;
+  assigned: boolean;
+  mentioned: boolean;
   statusChanged: boolean;
-  commentAdded:  boolean;
+  commentAdded: boolean;
 }
 
 export interface ActionResult<T = void> {
@@ -18,17 +18,12 @@ export interface ActionResult<T = void> {
   error?: string;
 }
 
-// ─── Default prefs ────────────────────────────────────────────────────────────
-
-export const DEFAULT_PREFS: NotificationPrefs = {
-  assigned:      true,
-  mentioned:     true,
-  statusChanged: true,
-  commentAdded:  true,
-};
-
 // ─── getNotificationPrefs ─────────────────────────────────────────────────────
 
+/**
+ * Returns the user's notification preferences.
+ * If no record exists yet, returns the defaults (all enabled).
+ */
 export async function getNotificationPrefs(): Promise<ActionResult<NotificationPrefs>> {
   const user = await requireUser();
 
@@ -37,17 +32,14 @@ export async function getNotificationPrefs(): Promise<ActionResult<NotificationP
       where: { userId: user.id },
     });
 
-    // Return defaults if no record exists yet
     return {
       success: true,
-      data: prefs
-        ? {
-            assigned:      prefs.assigned,
-            mentioned:     prefs.mentioned,
-            statusChanged: prefs.statusChanged,
-            commentAdded:  prefs.commentAdded,
-          }
-        : DEFAULT_PREFS,
+      data: {
+        assigned:      prefs?.assigned      ?? true,
+        mentioned:     prefs?.mentioned     ?? true,
+        statusChanged: prefs?.statusChanged ?? true,
+        commentAdded:  prefs?.commentAdded  ?? true,
+      },
     };
   } catch {
     return { success: false, error: "Failed to load preferences." };
@@ -56,6 +48,9 @@ export async function getNotificationPrefs(): Promise<ActionResult<NotificationP
 
 // ─── saveNotificationPrefs ────────────────────────────────────────────────────
 
+/**
+ * Upserts the user's notification preferences.
+ */
 export async function saveNotificationPrefs(
   prefs: NotificationPrefs,
 ): Promise<ActionResult> {
@@ -64,19 +59,8 @@ export async function saveNotificationPrefs(
   try {
     await prisma.notificationPreference.upsert({
       where: { userId: user.id },
-      create: {
-        userId:        user.id,
-        assigned:      prefs.assigned,
-        mentioned:     prefs.mentioned,
-        statusChanged: prefs.statusChanged,
-        commentAdded:  prefs.commentAdded,
-      },
-      update: {
-        assigned:      prefs.assigned,
-        mentioned:     prefs.mentioned,
-        statusChanged: prefs.statusChanged,
-        commentAdded:  prefs.commentAdded,
-      },
+      create: { userId: user.id, ...prefs },
+      update: prefs,
     });
 
     return { success: true };

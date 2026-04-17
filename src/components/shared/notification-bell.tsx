@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import {
   Bell, CheckCheck, GitBranch, MessageSquare,
-  UserCheck, ArrowRightLeft, X, AtSign,
+  UserCheck, ArrowRightLeft, X, AtSign, Settings2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -267,13 +267,23 @@ export function NotificationBell() {
             </div>
 
             {/* Footer */}
-            {notifications.length > 0 && (
-              <div className="border-t border-border px-4 py-2.5 text-center">
+            <div className="flex items-center justify-between border-t border-border px-4 py-2.5">
+              {notifications.length > 0 ? (
                 <p className="text-xs text-muted-foreground">
-                  Showing last {notifications.length} notifications
+                  {notifications.length} notification{notifications.length !== 1 ? "s" : ""}
                 </p>
-              </div>
-            )}
+              ) : (
+                <span />
+              )}
+              <button
+                type="button"
+                onClick={() => { setOpen(false); window.location.href = "/settings/notifications"; }}
+                className="flex items-center gap-1.5 text-xs text-muted-foreground transition-colors hover:text-foreground"
+              >
+                <Settings2 className="size-3.5" />
+                Manage preferences
+              </button>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

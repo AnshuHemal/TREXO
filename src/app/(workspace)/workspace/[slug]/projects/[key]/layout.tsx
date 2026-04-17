@@ -61,6 +61,26 @@ export default async function ProjectLayout({
     image: m.user.image,
   }));
 
+  // Fetch workspace templates for the create issue dialog
+  let templates: { id: string; name: string; description: string | null; type: string; priority: string; titlePrefix: string | null }[] = [];
+  try {
+    templates = await prisma.issueTemplate.findMany({
+      where: { workspaceId: workspace.id },
+      orderBy: { createdAt: "asc" },
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        type: true,
+        priority: true,
+        titlePrefix: true,
+      },
+    });
+  } catch {
+    // issueTemplate may not exist yet if Prisma client hasn't been regenerated
+    templates = [];
+  }
+
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
       <WorkspaceTopbar
@@ -74,6 +94,7 @@ export default async function ProjectLayout({
         projectId={project.id}
         projectKey={project.key}
         members={memberList}
+        templates={templates}
       >
         <div className="flex flex-1 flex-col overflow-y-auto">
           {children}

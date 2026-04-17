@@ -12,6 +12,7 @@ import {
   ChevronsUpDown,
   Check,
   Tag,
+  LayoutTemplate,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -238,7 +239,7 @@ export function WorkspaceSidebar({
           href={`${baseSlug}/settings`}
           className={cn(
             "flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-sm font-medium transition-colors",
-            isActive(`${baseSlug}/settings`)
+            isActive(`${baseSlug}/settings`, true)
               ? "bg-accent text-accent-foreground"
               : "text-sidebar-foreground/70 hover:bg-accent hover:text-accent-foreground",
           )}
@@ -259,6 +260,20 @@ export function WorkspaceSidebar({
         >
           <Tag className="size-4 shrink-0" />
           Labels
+        </Link>
+
+        {/* Templates link */}
+        <Link
+          href={`${baseSlug}/settings/templates`}
+          className={cn(
+            "flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-sm font-medium transition-colors",
+            isActive(`${baseSlug}/settings/templates`)
+              ? "bg-accent text-accent-foreground"
+              : "text-sidebar-foreground/70 hover:bg-accent hover:text-accent-foreground",
+          )}
+        >
+          <LayoutTemplate className="size-4 shrink-0" />
+          Templates
         </Link>
 
         {/* User info + sign out */}

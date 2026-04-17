@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Plus, Loader2, XCircle } from "lucide-react";
+import { Plus, Loader2, XCircle, LayoutTemplate, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -21,6 +21,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import { ISSUE_TYPES, ISSUE_STATUSES, ISSUE_PRIORITIES } from "@/lib/issue-config";
 import { createIssue } from "../actions";
@@ -34,11 +42,21 @@ interface Member {
   image: string | null;
 }
 
+export interface IssueTemplateOption {
+  id: string;
+  name: string;
+  description: string | null;
+  type: string;
+  priority: string;
+  titlePrefix: string | null;
+}
+
 interface CreateIssueDialogProps {
   projectId: string;
   projectKey: string;
   workspaceSlug: string;
   members: Member[];
+  templates?: IssueTemplateOption[];
   defaultStatus?: string;
   trigger?: React.ReactNode;
   onCreated?: (issueId: string) => void;
@@ -62,6 +80,7 @@ export function CreateIssueDialog({
   projectKey,
   workspaceSlug: _workspaceSlug,
   members,
+  templates = [],
   defaultStatus = "BACKLOG",
   trigger,
   onCreated,
@@ -82,6 +101,14 @@ export function CreateIssueDialog({
   const isControlled = controlledOpen !== undefined;
   const open = isControlled ? controlledOpen : internalOpen;
   const setOpen = isControlled ? controlledOnOpenChange! : setInternalOpen;
+
+  function applyTemplate(tpl: IssueTemplateOption) {
+    setType(tpl.type);
+    setPriority(tpl.priority);
+    if (tpl.titlePrefix && !title.startsWith(tpl.titlePrefix)) {
+      setTitle(tpl.titlePrefix + " ");
+    }
+  }
 
   function reset() {
     setTitle("");
@@ -155,6 +182,37 @@ export function CreateIssueDialog({
           </DialogHeader>
 
           <form onSubmit={handleSubmit} className="mt-4 flex flex-col gap-4">
+            {/* Template picker */}
+            {templates.length > 0 && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm" className="w-full justify-between text-muted-foreground">
+                    <span className="flex items-center gap-2">
+                      <LayoutTemplate className="size-3.5" />
+                      Use a template
+                    </span>
+                    <ChevronDown className="size-3.5" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-64" align="start">
+                  <DropdownMenuLabel className="text-xs text-muted-foreground">Workspace templates</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  {templates.map((tpl) => (
+                    <DropdownMenuItem
+                      key={tpl.id}
+                      onClick={() => applyTemplate(tpl)}
+                      className="flex flex-col items-start gap-0.5 py-2"
+                    >
+                      <span className="text-sm font-medium">{tpl.name}</span>
+                      {tpl.description && (
+                        <span className="line-clamp-1 text-xs text-muted-foreground">{tpl.description}</span>
+                      )}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
+
             {/* Title */}
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="issue-title">Title</Label>

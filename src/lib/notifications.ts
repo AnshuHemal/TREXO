@@ -3,18 +3,35 @@
 import { prisma } from "@/lib/prisma";
 import { parseMentionIds } from "@/lib/mentions";
 
-// ─── prefKey ──────────────────────────────────────────────────────────────────
+// ─── Preference check ─────────────────────────────────────────────────────────
 
-/** Maps a notification type string to the corresponding preference column. */
-function prefKey(
-  type: string,
-): "assigned" | "mentioned" | "statusChanged" | "commentAdded" | null {
-  switch (type) {
-    case "assigned":       return "assigned";
-    case "mentioned":      return "mentioned";
-    case "status_changed": return "statusChanged";
-    case "comment_added":  return "commentAdded";
-    default:               return null;
+/**
+ * Returns true if the user wants to receive this notification type.
+ * Defaults to true if no preference record exists (opt-in by default).
+ */
+async function userWantsNotification(userId: string, type: string): Promise<boolean> {
+  try {
+    const prefs = await prisma.notificationPreference.findUnique({
+      where: { userId },
+      select: {
+        assigned:      true,
+        mentioned:     true,
+        statusChanged: true,
+        commentAdded:  true,
+      },
+    });
+
+    if (!prefs) return true; // no record = all enabled (default)
+
+    switch (type) {
+      case "assigned":       return prefs.assigned;
+      case "mentioned":      return prefs.mentioned;
+      case "status_changed": return prefs.statusChanged;
+      case "comment_added":  return prefs.commentAdded;
+      default:               return true;
+    }
+  } catch {
+    return true; // fail open — never silently drop notifications on DB error
   }
 }
 
@@ -35,19 +52,8 @@ export async function createNotification({
   if (userId === actorId) return;
 
   // Check user's notification preferences
-  const col = prefKey(type);
-  if (col) {
-    try {
-      const pref = await prisma.notificationPreference.findUnique({
-        where: { userId },
-        select: { [col]: true },
-      });
-      // If a preference record exists and the toggle is off, skip
-      if (pref && pref[col] === false) return;
-    } catch {
-      // If pref check fails, fall through and create the notification anyway
-    }
-  }
+  const wantsIt = await userWantsNotification(userId, type);
+  if (!wantsIt) return;
 
   try {
     await prisma.notification.create({

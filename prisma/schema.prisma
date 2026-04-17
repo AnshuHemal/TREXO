@@ -101,6 +101,7 @@ model Workspace {
 
   members  WorkspaceMember[]
   projects Project[]
+  templates IssueTemplate[]
 
   @@map("workspaces")
 }
@@ -299,7 +300,7 @@ model Activity {
 model Notification {
   id        String   @id @default(cuid())
   userId    String
-  type      String   // "assigned" | "status_changed" | "comment_added"
+  type      String   // "assigned" | "status_changed" | "comment_added" | "mentioned"
   issueId   String?
   actorId   String
   read      Boolean  @default(false)
@@ -350,4 +351,23 @@ enum LinkType {
   BLOCKED_BY
   DUPLICATES
   RELATES_TO
+}
+
+// ── IssueTemplate ─────────────────────────────────────────────────────────────
+
+model IssueTemplate {
+  id          String   @id @default(cuid())
+  workspaceId String
+  name        String
+  description String?
+  type        IssueType     @default(TASK)
+  priority    IssuePriority @default(MEDIUM)
+  titlePrefix String?       // e.g. "[BUG] " — prepended to the title field
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@unique([workspaceId, name])
+  @@map("issue_templates")
 }

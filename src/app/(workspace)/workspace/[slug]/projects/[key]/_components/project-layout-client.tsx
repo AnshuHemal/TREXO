@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { ProjectShortcutsProvider } from "./project-shortcuts-provider";
-import { CreateIssueDialog } from "../issues/_components/create-issue-dialog";
+import { CreateIssueDialog, type IssueTemplateOption } from "../issues/_components/create-issue-dialog";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -19,6 +19,7 @@ interface ProjectLayoutClientProps {
   projectId: string;
   projectKey: string;
   members: Member[];
+  templates?: IssueTemplateOption[];
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -29,6 +30,7 @@ export function ProjectLayoutClient({
   projectId,
   projectKey,
   members,
+  templates = [],
 }: ProjectLayoutClientProps) {
   const [createOpen, setCreateOpen] = useState(false);
 
@@ -46,6 +48,7 @@ export function ProjectLayoutClient({
         projectKey={projectKey}
         workspaceSlug={workspaceSlug}
         members={members}
+        templates={templates}
         open={createOpen}
         onOpenChange={setCreateOpen}
       />
