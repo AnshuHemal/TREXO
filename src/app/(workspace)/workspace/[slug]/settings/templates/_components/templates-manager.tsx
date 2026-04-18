@@ -4,7 +4,8 @@ import { useState, useTransition } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import {
   Plus, Pencil, Trash2, Loader2, XCircle,
-  FileText, ChevronDown, Check, LayoutTemplate,
+  FileText, ChevronDown, LayoutTemplate,
+  Bug, Sparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,7 +19,6 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader,
   AlertDialogTitle, AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { ISSUE_TYPES, ISSUE_PRIORITIES, getPriorityConfig, getTypeConfig } from "@/lib/issue-config";
 import {
@@ -34,28 +34,147 @@ interface TemplatesManagerProps {
   canManage: boolean;
 }
 
-// ─── Empty state ──────────────────────────────────────────────────────────────
+// ─── Built-in starter templates ───────────────────────────────────────────────
 
-function EmptyState({ onAdd }: { onAdd: () => void }) {
+const STARTER_TEMPLATES: (TemplateInput & { icon: React.ElementType; iconColor: string; hint: string })[] = [
+  {
+    name: "Bug Report",
+    type: "BUG",
+    priority: "HIGH",
+    titlePrefix: "[BUG]",
+    icon: Bug,
+    iconColor: "text-destructive",
+    hint: "Steps to reproduce, expected vs actual behavior",
+    description: `## 🐛 Bug Description
+A clear and concise description of the bug.
+
+## Steps to Reproduce
+1. Go to '...'
+2. Click on '...'
+3. Scroll down to '...'
+4. See error
+
+## Expected Behavior
+What you expected to happen.
+
+## Actual Behavior
+What actually happened.
+
+## Environment
+- OS: [e.g. macOS 14, Windows 11]
+- Browser: [e.g. Chrome 120, Safari 17]
+- Version: [e.g. 1.2.3]
+
+## Screenshots
+If applicable, add screenshots to help explain the problem.
+
+## Additional Context
+Any other context about the problem.`,
+  },
+  {
+    name: "Feature Request",
+    type: "STORY",
+    priority: "MEDIUM",
+    titlePrefix: "[FEAT]",
+    icon: Sparkles,
+    iconColor: "text-primary",
+    hint: "User story, acceptance criteria, notes",
+    description: `## 🚀 Feature Description
+A clear and concise description of the feature.
+
+## User Story
+As a [type of user], I want [some goal] so that [some reason].
+
+## Acceptance Criteria
+- [ ] Criterion 1
+- [ ] Criterion 2
+- [ ] Criterion 3
+
+## Design Notes
+Any design considerations or mockup links.
+
+## Technical Notes
+Any technical considerations or constraints.
+
+## Out of Scope
+What this feature explicitly does NOT include.`,
+  },
+  {
+    name: "Task",
+    type: "TASK",
+    priority: "MEDIUM",
+    titlePrefix: null,
+    icon: FileText,
+    iconColor: "text-primary",
+    hint: "General task with context and checklist",
+    description: `## 📋 Overview
+Brief description of what needs to be done.
+
+## Context
+Why this task is needed and any relevant background.
+
+## Checklist
+- [ ] Step 1
+- [ ] Step 2
+- [ ] Step 3
+
+## Definition of Done
+- [ ] Code reviewed
+- [ ] Tests passing
+- [ ] Documentation updated`,
+  },
+];
+
+// ─── Starter templates panel ──────────────────────────────────────────────────
+
+function StarterTemplates({
+  onUse,
+}: {
+  onUse: (input: TemplateInput) => void;
+}) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 8 }}
+      initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
-      className="flex flex-col items-center justify-center gap-4 rounded-xl border border-dashed border-border py-16 text-center"
+      transition={{ duration: 0.2 }}
+      className="rounded-xl border border-border bg-card p-5"
     >
-      <div className="flex size-14 items-center justify-center rounded-xl bg-muted">
-        <LayoutTemplate className="size-7 text-muted-foreground" />
+      <div className="mb-4 flex items-center gap-2">
+        <div className="flex size-7 items-center justify-center rounded-lg bg-primary/10">
+          <Sparkles className="size-4 text-primary" />
+        </div>
+        <div>
+          <p className="text-sm font-semibold text-foreground">Starter templates</p>
+          <p className="text-xs text-muted-foreground">Add a pre-built template to get started quickly</p>
+        </div>
       </div>
-      <div>
-        <p className="text-sm font-medium text-foreground">No templates yet</p>
-        <p className="mt-1 text-xs text-muted-foreground">
-          Create templates to speed up issue creation for your team.
-        </p>
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+        {STARTER_TEMPLATES.map((tpl) => {
+          const Icon = tpl.icon;
+          return (
+            <motion.button
+              key={tpl.name}
+              type="button"
+              whileHover={{ scale: 1.01 }}
+              whileTap={{ scale: 0.99 }}
+              onClick={() => onUse(tpl)}
+              className="flex flex-col gap-2 rounded-xl border border-border bg-muted/30 p-3.5 text-left transition-colors hover:border-primary/40 hover:bg-accent/30"
+            >
+              <div className="flex items-center gap-2">
+                <div className="flex size-7 items-center justify-center rounded-lg bg-background border border-border">
+                  <Icon className={cn("size-4", tpl.iconColor)} />
+                </div>
+                <span className="text-sm font-semibold text-foreground">{tpl.name}</span>
+              </div>
+              <p className="text-[11px] text-muted-foreground">{tpl.hint}</p>
+              <span className="flex items-center gap-1 text-[10px] font-medium text-primary">
+                <Plus className="size-3" />
+                Add template
+              </span>
+            </motion.button>
+          );
+        })}
       </div>
-      <Button size="sm" onClick={onAdd}>
-        <Plus className="mr-1.5 size-4" />
-        Create first template
-      </Button>
     </motion.div>
   );
 }
@@ -64,7 +183,7 @@ function EmptyState({ onAdd }: { onAdd: () => void }) {
 
 interface TemplateFormProps {
   initial?: TemplateItem;
-  onSave: (input: TemplateInput) => Promise<void>;
+  onSave: (input: TemplateInput) => void;
   onCancel: () => void;
   isPending: boolean;
   fieldErrors: Record<string, string>;
@@ -78,9 +197,9 @@ function TemplateForm({ initial, onSave, onCancel, isPending, fieldErrors, serve
   const [priority, setPriority]       = useState(initial?.priority ?? "MEDIUM");
   const [titlePrefix, setTitlePrefix] = useState(initial?.titlePrefix ?? "");
 
-  async function handleSubmit(e: React.FormEvent) {
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    await onSave({ name, description: description || null, type, priority, titlePrefix: titlePrefix || null });
+    onSave({ name, description: description || null, type, priority, titlePrefix: titlePrefix || null });
   }
 
   return (
@@ -352,10 +471,13 @@ export function TemplatesManager({ workspaceId, initialTemplates, canManage }: T
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [serverError, setServerError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  // Pre-fill form from a starter template
+  const [starterInput, setStarterInput] = useState<TemplateInput | null>(null);
 
   function resetForm() {
     setFieldErrors({});
     setServerError(null);
+    setStarterInput(null);
   }
 
   // ── Create ────────────────────────────────────────────────────────────────
@@ -401,6 +523,14 @@ export function TemplatesManager({ workspaceId, initialTemplates, canManage }: T
     });
   }
 
+  // ── Use starter template ──────────────────────────────────────────────────
+
+  function handleUseStarter(input: TemplateInput) {
+    setStarterInput(input);
+    setIsCreating(true);
+    resetForm();
+  }
+
   return (
     <div className="flex flex-col gap-4">
       {/* Header row */}
@@ -418,10 +548,24 @@ export function TemplatesManager({ workspaceId, initialTemplates, canManage }: T
         )}
       </div>
 
+      {/* Starter templates — shown when no templates exist */}
+      {canManage && templates.length === 0 && !isCreating && (
+        <StarterTemplates onUse={handleUseStarter} />
+      )}
+
       {/* Create form */}
       <AnimatePresence>
         {isCreating && (
           <TemplateForm
+            initial={starterInput ? {
+              id: "",
+              name: starterInput.name,
+              description: starterInput.description ?? null,
+              type: starterInput.type,
+              priority: starterInput.priority,
+              titlePrefix: starterInput.titlePrefix ?? null,
+              createdAt: new Date(),
+            } : undefined}
             onSave={handleCreate}
             onCancel={() => { setIsCreating(false); resetForm(); }}
             isPending={isPending}
@@ -432,9 +576,7 @@ export function TemplatesManager({ workspaceId, initialTemplates, canManage }: T
       </AnimatePresence>
 
       {/* Template list */}
-      {templates.length === 0 && !isCreating ? (
-        <EmptyState onAdd={() => { setIsCreating(true); resetForm(); }} />
-      ) : (
+      {templates.length === 0 && !isCreating ? null : (
         <div className="flex flex-col gap-3">
           <AnimatePresence mode="popLayout">
             {templates.map((template) => (

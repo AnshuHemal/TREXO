@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "motion/react";
 import {
   MessageSquare, Search, CalendarDays, ArrowUpDown, X,
   ChevronDown, Plus, Check, Loader2, Layers, Eye, EyeOff,
-  SquareCheck, Square, SlidersHorizontal, Zap,
+  SquareCheck, Square, SlidersHorizontal, Zap, ShieldAlert,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -48,6 +48,7 @@ interface IssueRow {
   sprintId?: string | null;
   epicId?: string | null;
   epicTitle?: string | null;
+  isBlocked?: boolean;
 }
 
 interface SprintOption {
@@ -150,7 +151,9 @@ function IssueRowItem({
         "group flex cursor-pointer items-center gap-3 rounded-lg border px-4 py-2.5 transition-colors",
         selected
           ? "border-primary/40 bg-primary/5"
-          : "border-border bg-card hover:border-primary/30 hover:bg-accent/30",
+          : issue.isBlocked
+            ? "border-destructive/30 bg-destructive/2 hover:border-destructive/50 hover:bg-destructive/4"
+            : "border-border bg-card hover:border-primary/30 hover:bg-accent/30",
       )}
     >
       <button
@@ -203,6 +206,14 @@ function IssueRowItem({
         <StatusIcon className={cn("size-3.5", status.color)} />
         <span className="hidden text-xs text-muted-foreground sm:block">{status.label}</span>
       </div>
+
+      {/* Blocked badge */}
+      {issue.isBlocked && (
+        <span className="hidden shrink-0 items-center gap-1 rounded-full bg-destructive/10 px-2 py-0.5 text-[10px] font-medium text-destructive sm:flex">
+          <ShieldAlert className="size-2.5" />
+          Blocked
+        </span>
+      )}
 
       {issue.commentCount > 0 && (
         <div className="flex shrink-0 items-center gap-1 text-xs text-muted-foreground" onClick={onClick}>

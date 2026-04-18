@@ -24,6 +24,7 @@ import { useRealtimeIssues } from "@/hooks/use-realtime-issues";
 import { useWorkspaceSafe } from "@/components/providers/workspace-provider";
 import { ReconnectBanner } from "@/components/shared/realtime-indicator";
 import type { BoardIssue } from "../../_components/kanban-board";
+import { getBoardColumns, type WorkflowConfig, DEFAULT_WORKFLOW_CONFIG } from "@/lib/workflow";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -49,6 +50,7 @@ interface SprintBoardClientProps {
   members: Member[];
   epics?: { id: string; key: number; title: string }[];
   otherSprints: { id: string; name: string }[];
+  workflowConfig?: WorkflowConfig;
   currentUserId: string;
   currentUserName?: string;
   currentUserImage?: string | null;
@@ -83,6 +85,7 @@ export function SprintBoardClient({
   members,
   epics = [],
   otherSprints,
+  workflowConfig = DEFAULT_WORKFLOW_CONFIG,
   currentUserId,
   currentUserName,
   currentUserImage,
@@ -347,7 +350,7 @@ export function SprintBoardClient({
           onDragEnd={handleDragEnd}
         >
           <div className="flex h-full gap-3 p-4">
-            {ISSUE_STATUSES.map(({ value, label, icon, color }) => {
+            {getBoardColumns(workflowConfig).map(({ value, label, icon, color }) => {
               const colIssues = columnIssues(value);
               const groups    = getSwimlaneGroups(colIssues);
 

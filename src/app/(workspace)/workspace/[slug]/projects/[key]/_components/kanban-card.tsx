@@ -80,8 +80,12 @@ export function KanbanCard({ issue, projectKey, isDragging = false, onOpen }: Ka
         "hover:border-primary/40 hover:shadow-md transition-all",
         isDragging && "rotate-1 shadow-xl ring-2 ring-primary/30",
         isGhost && "pointer-events-none",
-        overdue && "border-destructive/40",
-        priorityBorderColor,
+        // Blocked takes priority over overdue for border color
+        issue.isBlocked
+          ? "border-l-destructive bg-destructive/2"
+          : overdue
+            ? "border-destructive/40"
+            : priorityBorderColor,
       )}
     >
       {/* Epic badge */}

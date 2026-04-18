@@ -49,6 +49,23 @@ export default async function BacklogPage({ params }: BacklogPageProps) {
     }
   }
 
+  // Find blocked issues (have an incoming BLOCKS link from an unresolved issue)
+  const issueIds = issues.map((i) => i.id);
+  let blockedIds = new Set<string>();
+  try {
+    const blockingLinks = await prisma.issueLink.findMany({
+      where: {
+        type: "BLOCKS",
+        targetId: { in: issueIds },
+        source: { status: { notIn: ["DONE", "CANCELLED"] } },
+      },
+      select: { targetId: true },
+    });
+    blockedIds = new Set(blockingLinks.map((l) => l.targetId));
+  } catch {
+    // stale client — ignore
+  }
+
   // Fetch workspace members for assignee picker
   const members = await prisma.workspaceMember.findMany({
     where: { workspaceId: workspace.id },
@@ -115,6 +132,7 @@ export default async function BacklogPage({ params }: BacklogPageProps) {
     sprintId: i.sprintId,
     epicId:    epicMap.get(i.id)?.id    ?? null,
     epicTitle: epicMap.get(i.id)?.title ?? null,
+    isBlocked: blockedIds.has(i.id),
   }));
 
   const savedFilterList = savedFilters.map((f) => ({

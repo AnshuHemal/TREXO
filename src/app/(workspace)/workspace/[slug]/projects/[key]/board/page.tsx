@@ -3,6 +3,7 @@ import { requireUser } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { SprintBoardClient } from "./_components/sprint-board-client";
 import { NoActiveSprint } from "./_components/no-active-sprint";
+import { parseWorkflowConfig } from "@/lib/workflow";
 
 interface SprintBoardPageProps {
   params: Promise<{ slug: string; key: string }>;
@@ -23,10 +24,12 @@ export default async function SprintBoardPage({ params }: SprintBoardPageProps) 
 
   const project = await prisma.project.findFirst({
     where: { workspaceId: workspace.id, key: key.toUpperCase() },
-    select: { id: true, name: true, key: true },
+    select: { id: true, name: true, key: true, workflowConfig: true },
   });
 
   if (!project) notFound();
+
+  const workflowConfig = parseWorkflowConfig(project.workflowConfig);
 
   // ── Active sprint ─────────────────────────────────────────────────────────────
   const activeSprint = await prisma.sprint.findFirst({
@@ -156,6 +159,7 @@ export default async function SprintBoardPage({ params }: SprintBoardPageProps) 
       members={memberList}
       epics={epics}
       otherSprints={otherSprints}
+      workflowConfig={workflowConfig}
       currentUserId={user.id}
       currentUserName={user.name}
       currentUserImage={user.image}

@@ -3,15 +3,18 @@
 import { useState, useTransition, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import {
-  Link2, Plus, X, ChevronDown, Search,
-  Loader2, ShieldAlert, Copy, GitMerge, ArrowRight,
+  Link2, Plus, X, Search, Loader2,
+  ShieldAlert, Copy, GitMerge, ArrowRight,
+  ExternalLink, ChevronDown,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
+} from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { getStatusConfig, getPriorityConfig, getTypeConfig } from "@/lib/issue-config";
 import {
@@ -24,11 +27,46 @@ import {
 
 // ─── Link type config ─────────────────────────────────────────────────────────
 
-const LINK_TYPES: { value: LinkType; label: string; icon: React.ElementType; color: string }[] = [
-  { value: "BLOCKS",     label: "blocks",      icon: ShieldAlert, color: "text-destructive" },
-  { value: "BLOCKED_BY", label: "is blocked by", icon: ShieldAlert, color: "text-destructive" },
-  { value: "DUPLICATES", label: "duplicates",  icon: Copy,        color: "text-yellow-500" },
-  { value: "RELATES_TO", label: "relates to",  icon: GitMerge,    color: "text-primary" },
+const LINK_TYPES: {
+  value: LinkType;
+  label: string;
+  verb: string;
+  icon: React.ElementType;
+  color: string;
+  bg: string;
+}[] = [
+  {
+    value: "BLOCKS",
+    label: "Blocks",
+    verb: "blocks",
+    icon: ShieldAlert,
+    color: "text-destructive",
+    bg: "bg-destructive/10",
+  },
+  {
+    value: "BLOCKED_BY",
+    label: "Blocked by",
+    verb: "is blocked by",
+    icon: ShieldAlert,
+    color: "text-destructive",
+    bg: "bg-destructive/10",
+  },
+  {
+    value: "DUPLICATES",
+    label: "Duplicates",
+    verb: "duplicates",
+    icon: Copy,
+    color: "text-amber-500",
+    bg: "bg-amber-500/10",
+  },
+  {
+    value: "RELATES_TO",
+    label: "Relates to",
+    verb: "relates to",
+    icon: GitMerge,
+    color: "text-primary",
+    bg: "bg-primary/10",
+  },
 ];
 
 function getLinkTypeConfig(type: LinkType) {
@@ -44,12 +82,21 @@ interface IssueLinksProps {
   onOpenIssue?: (issueId: string) => void;
 }
 
-// ─── Component ────────────────────────────────────────────────────────────────
+// ─── Add Link Dialog ──────────────────────────────────────────────────────────
 
-export function IssueLinks({ issueId, projectId, initialLinks, onOpenIssue }: IssueLinksProps) {
-  const [links, setLinks]           = useState<IssueLinkItem[]>(initialLinks);
-  const [isExpanded, setIsExpanded] = useState(true);
-  const [isAdding, setIsAdding]     = useState(false);
+function AddLinkDialog({
+  open,
+  onOpenChange,
+  issueId,
+  projectId,
+  onAdded,
+}: {
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  issueId: string;
+  projectId: string;
+  onAdded: (link: IssueLinkItem) => void;
+}) {
   const [linkType, setLinkType]     = useState<LinkType>("RELATES_TO");
   const [query, setQuery]           = useState("");
   const [results, setResults]       = useState<IssueLinkItem["issue"][]>([]);
@@ -58,7 +105,12 @@ export function IssueLinks({ issueId, projectId, initialLinks, onOpenIssue }: Is
   const [isPending, startTransition] = useTransition();
   const searchTimer                 = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // ── Search ────────────────────────────────────────────────────────────────
+  function handleClose() {
+    setQuery("");
+    setResults([]);
+    setError(null);
+    onOpenChange(false);
+  }
 
   const handleSearch = useCallback((q: string) => {
     setQuery(q);
@@ -70,39 +122,255 @@ export function IssueLinks({ issueId, projectId, initialLinks, onOpenIssue }: Is
       const result = await searchIssuesForLink(issueId, projectId, q);
       setIsSearching(false);
       if (result.success) setResults(result.data ?? []);
-    }, 250);
+    }, 200);
   }, [issueId, projectId]);
-
-  // ── Add link ──────────────────────────────────────────────────────────────
 
   function handleAddLink(targetIssue: IssueLinkItem["issue"]) {
     startTransition(async () => {
       setError(null);
       const result = await createIssueLink(issueId, targetIssue.id, linkType);
       if (!result.success) { setError(result.error ?? "Failed to add link."); return; }
-
-      setLinks((prev) => [
-        ...prev,
-        { id: result.data!.id, type: linkType, issue: targetIssue },
-      ]);
-      setIsAdding(false);
-      setQuery("");
-      setResults([]);
+      onAdded({ id: result.data!.id, type: linkType, issue: targetIssue });
+      handleClose();
     });
   }
 
-  // ── Remove link ───────────────────────────────────────────────────────────
+  const selectedTypeConfig = getLinkTypeConfig(linkType);
+  const SelectedIcon = selectedTypeConfig.icon;
 
-  function handleRemoveLink(linkId: string) {
-    startTransition(async () => {
-      const result = await deleteIssueLink(linkId);
-      if (!result.success) { setError(result.error ?? "Failed to remove link."); return; }
-      setLinks((prev) => prev.filter((l) => l.id !== linkId));
-    });
-  }
+  return (
+    <Dialog open={open} onOpenChange={handleClose}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <div className="flex size-8 items-center justify-center rounded-lg bg-primary/10">
+              <Link2 className="size-4 text-primary" />
+            </div>
+            Add linked issue
+          </DialogTitle>
+          <DialogDescription>
+            Link this issue to another to track dependencies and relationships.
+          </DialogDescription>
+        </DialogHeader>
 
-  // ── Group links by type ───────────────────────────────────────────────────
+        <div className="flex flex-col gap-4 py-1">
+          {/* Link type */}
+          <div className="flex flex-col gap-1.5">
+            <label className="text-xs font-medium text-muted-foreground">Relationship type</label>
+            <Select value={linkType} onValueChange={(v) => setLinkType(v as LinkType)}>
+              <SelectTrigger className="h-9">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {LINK_TYPES.map(({ value, label, icon: Icon, color }) => (
+                  <SelectItem key={value} value={value}>
+                    <span className="flex items-center gap-2">
+                      <Icon className={cn("size-3.5", color)} />
+                      {label}
+                    </span>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
 
+            {/* Relationship preview */}
+            <div className={cn(
+              "flex items-center gap-2 rounded-lg px-3 py-2 text-xs",
+              selectedTypeConfig.bg,
+            )}>
+              <SelectedIcon className={cn("size-3.5 shrink-0", selectedTypeConfig.color)} />
+              <span className="text-muted-foreground">
+                This issue <span className={cn("font-semibold", selectedTypeConfig.color)}>
+                  {selectedTypeConfig.verb}
+                </span> the selected issue
+              </span>
+            </div>
+          </div>
+
+          {/* Search */}
+          <div className="flex flex-col gap-1.5">
+            <label className="text-xs font-medium text-muted-foreground">Search issues</label>
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                autoFocus
+                placeholder="Search by title or key (e.g. TRX-42)…"
+                value={query}
+                onChange={(e) => handleSearch(e.target.value)}
+                className="h-9 pl-9 pr-9"
+              />
+              {isSearching && (
+                <Loader2 className="absolute right-3 top-1/2 size-3.5 -translate-y-1/2 animate-spin text-muted-foreground" />
+              )}
+            </div>
+
+            {/* Results */}
+            <AnimatePresence>
+              {results.length > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, y: -4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -4 }}
+                  transition={{ duration: 0.15 }}
+                  className="flex max-h-52 flex-col overflow-y-auto rounded-xl border border-border bg-card shadow-lg"
+                >
+                  {results.map((issue, i) => {
+                    const status   = getStatusConfig(issue.status);
+                    const priority = getPriorityConfig(issue.priority);
+                    const type     = getTypeConfig(issue.type);
+                    const StatusIcon   = status.icon;
+                    const PriorityIcon = priority.icon;
+                    const TypeIcon     = type.icon;
+
+                    return (
+                      <motion.button
+                        key={issue.id}
+                        type="button"
+                        initial={{ opacity: 0, x: -4 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.1, delay: i * 0.03 }}
+                        onClick={() => handleAddLink(issue)}
+                        disabled={isPending}
+                        className="flex items-center gap-2.5 px-3 py-2.5 text-left transition-colors hover:bg-accent/60 disabled:opacity-50 first:rounded-t-xl last:rounded-b-xl border-b border-border/50 last:border-0"
+                      >
+                        <div className="flex shrink-0 items-center gap-1">
+                          <PriorityIcon className={cn("size-3.5", priority.color)} />
+                          <TypeIcon className={cn("size-3.5", type.color)} />
+                        </div>
+                        <span className="w-14 shrink-0 font-mono text-[11px] text-muted-foreground">
+                          {issue.project.key}-{issue.key}
+                        </span>
+                        <span className="flex-1 truncate text-sm text-foreground">
+                          {issue.title}
+                        </span>
+                        <StatusIcon className={cn("size-3.5 shrink-0", status.color)} />
+                      </motion.button>
+                    );
+                  })}
+                </motion.div>
+              )}
+
+              {query.trim() && !isSearching && results.length === 0 && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="flex flex-col items-center gap-1.5 rounded-xl border border-dashed border-border py-6 text-center"
+                >
+                  <Search className="size-5 text-muted-foreground/40" />
+                  <p className="text-xs text-muted-foreground">No issues found for &ldquo;{query}&rdquo;</p>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {error && (
+              <motion.p
+                initial={{ opacity: 0, y: -4 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="text-xs text-destructive"
+              >
+                {error}
+              </motion.p>
+            )}
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// ─── Linked issue row ─────────────────────────────────────────────────────────
+
+function LinkedIssueRow({
+  link,
+  onRemove,
+  onOpen,
+  isPending,
+}: {
+  link: IssueLinkItem;
+  onRemove: (id: string) => void;
+  onOpen?: (id: string) => void;
+  isPending: boolean;
+}) {
+  const status   = getStatusConfig(link.issue.status);
+  const priority = getPriorityConfig(link.issue.priority);
+  const type     = getTypeConfig(link.issue.type);
+  const StatusIcon   = status.icon;
+  const PriorityIcon = priority.icon;
+  const TypeIcon     = type.icon;
+  const isDone = link.issue.status === "DONE" || link.issue.status === "CANCELLED";
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, x: -4 }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={{ opacity: 0, x: -4, scale: 0.98 }}
+      transition={{ duration: 0.15 }}
+      className="group flex items-center gap-2.5 rounded-lg border border-border bg-card px-3 py-2 transition-colors hover:border-primary/30 hover:bg-accent/20"
+    >
+      {/* Type + priority icons */}
+      <div className="flex shrink-0 items-center gap-1">
+        <PriorityIcon className={cn("size-3.5", priority.color)} />
+        <TypeIcon className={cn("size-3.5", type.color)} />
+      </div>
+
+      {/* Key + title */}
+      <button
+        type="button"
+        onClick={() => onOpen?.(link.issue.id)}
+        className="flex min-w-0 flex-1 items-center gap-2 text-left"
+      >
+        <span className="shrink-0 font-mono text-[11px] text-muted-foreground">
+          {link.issue.project.key}-{link.issue.key}
+        </span>
+        <span className={cn(
+          "flex-1 truncate text-sm font-medium transition-colors",
+          isDone
+            ? "line-through text-muted-foreground"
+            : "text-foreground group-hover:text-primary",
+        )}>
+          {link.issue.title}
+        </span>
+      </button>
+
+      {/* Status */}
+      <div className="flex shrink-0 items-center gap-1 text-xs text-muted-foreground">
+        <StatusIcon className={cn("size-3.5", status.color)} />
+        <span className="hidden sm:block">{status.label}</span>
+      </div>
+
+      {/* Open full page */}
+      <a
+        href={`/workspace/${link.issue.project.key}/issues/${link.issue.key}`}
+        className="shrink-0 text-muted-foreground/40 opacity-0 transition-opacity group-hover:opacity-100 hover:text-muted-foreground"
+        onClick={(e) => e.stopPropagation()}
+        aria-label="Open issue"
+      >
+        <ExternalLink className="size-3.5" />
+      </a>
+
+      {/* Remove */}
+      <button
+        type="button"
+        onClick={() => onRemove(link.id)}
+        disabled={isPending}
+        className="shrink-0 text-muted-foreground/40 opacity-0 transition-all group-hover:opacity-100 hover:text-destructive disabled:opacity-30"
+        aria-label="Remove link"
+      >
+        <X className="size-3.5" />
+      </button>
+    </motion.div>
+  );
+}
+
+// ─── Main component ───────────────────────────────────────────────────────────
+
+export function IssueLinks({ issueId, projectId, initialLinks, onOpenIssue }: IssueLinksProps) {
+  const [links, setLinks]           = useState<IssueLinkItem[]>(initialLinks);
+  const [isExpanded, setIsExpanded] = useState(true);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [isPending, startTransition] = useTransition();
+
+  // Group links by type
   const grouped = LINK_TYPES.reduce<Record<LinkType, IssueLinkItem[]>>(
     (acc, t) => {
       acc[t.value] = links.filter((l) => l.type === t.value);
@@ -111,7 +379,20 @@ export function IssueLinks({ issueId, projectId, initialLinks, onOpenIssue }: Is
     { BLOCKS: [], BLOCKED_BY: [], DUPLICATES: [], RELATES_TO: [] },
   );
 
-  // ── Render ────────────────────────────────────────────────────────────────
+  const hasBlockers = grouped.BLOCKED_BY.length > 0;
+
+  function handleAdded(link: IssueLinkItem) {
+    setLinks((prev) => [...prev, link]);
+  }
+
+  function handleRemove(linkId: string) {
+    startTransition(async () => {
+      const result = await deleteIssueLink(linkId);
+      if (result.success) {
+        setLinks((prev) => prev.filter((l) => l.id !== linkId));
+      }
+    });
+  }
 
   return (
     <div className="flex flex-col gap-2">
@@ -120,9 +401,12 @@ export function IssueLinks({ issueId, projectId, initialLinks, onOpenIssue }: Is
         <button
           type="button"
           onClick={() => setIsExpanded((v) => !v)}
-          className="flex items-center gap-2 text-sm font-semibold text-foreground hover:text-primary transition-colors"
+          className="flex items-center gap-2 text-sm font-semibold text-foreground transition-colors hover:text-primary"
         >
-          <motion.span animate={{ rotate: isExpanded ? 0 : -90 }} transition={{ duration: 0.2 }}>
+          <motion.span
+            animate={{ rotate: isExpanded ? 0 : -90 }}
+            transition={{ duration: 0.2 }}
+          >
             <ChevronDown className="size-4 text-muted-foreground" />
           </motion.span>
           <Link2 className="size-4" />
@@ -132,19 +416,28 @@ export function IssueLinks({ issueId, projectId, initialLinks, onOpenIssue }: Is
               {links.length}
             </span>
           )}
+          {/* Blocker warning */}
+          {hasBlockers && (
+            <span className="flex items-center gap-1 rounded-full bg-destructive/10 px-2 py-0.5 text-[10px] font-semibold text-destructive">
+              <ShieldAlert className="size-3" />
+              Blocked
+            </span>
+          )}
         </button>
 
         <Button
           variant="ghost"
           size="icon"
-          className="size-6 text-muted-foreground hover:text-foreground"
-          onClick={() => { setIsAdding((v) => !v); setError(null); }}
-          aria-label="Add link"
+          className="size-7 text-muted-foreground hover:text-foreground"
+          onClick={() => setDialogOpen(true)}
+          aria-label="Add linked issue"
+          title="Add linked issue"
         >
           <Plus className="size-3.5" />
         </Button>
       </div>
 
+      {/* Collapsible body */}
       <AnimatePresence>
         {isExpanded && (
           <motion.div
@@ -154,195 +447,85 @@ export function IssueLinks({ issueId, projectId, initialLinks, onOpenIssue }: Is
             transition={{ duration: 0.2 }}
             className="overflow-hidden"
           >
-            <div className="flex flex-col gap-3">
+            {links.length === 0 ? (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="flex flex-col items-center gap-2 rounded-xl border border-dashed border-border py-6 text-center"
+              >
+                <Link2 className="size-5 text-muted-foreground/40" />
+                <p className="text-xs text-muted-foreground">No linked issues yet.</p>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-7 gap-1.5 text-xs"
+                  onClick={() => setDialogOpen(true)}
+                >
+                  <Plus className="size-3.5" />
+                  Add link
+                </Button>
+              </motion.div>
+            ) : (
+              <div className="flex flex-col gap-4">
+                <AnimatePresence initial={false}>
+                  {LINK_TYPES.map(({ value, label, icon: Icon, color, bg }) => {
+                    const group = grouped[value];
+                    if (group.length === 0) return null;
 
-              {/* Add link form */}
-              <AnimatePresence>
-                {isAdding && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -6 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -6 }}
-                    transition={{ duration: 0.18 }}
-                    className="rounded-lg border border-border bg-muted/30 p-3"
-                  >
-                    {/* Link type selector */}
-                    <Select value={linkType} onValueChange={(v) => setLinkType(v as LinkType)}>
-                      <SelectTrigger className="mb-2 h-7 text-xs">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {LINK_TYPES.map(({ value, label, icon: Icon, color }) => (
-                          <SelectItem key={value} value={value}>
-                            <span className="flex items-center gap-2 text-xs">
-                              <Icon className={cn("size-3.5", color)} />
-                              {label}
-                            </span>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-
-                    {/* Search input */}
-                    <div className="relative">
-                      <Search className="absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
-                      <Input
-                        autoFocus
-                        placeholder="Search by title or key…"
-                        value={query}
-                        onChange={(e) => handleSearch(e.target.value)}
-                        className="h-7 pl-8 text-xs"
-                      />
-                      {isSearching && (
-                        <Loader2 className="absolute right-2.5 top-1/2 size-3.5 -translate-y-1/2 animate-spin text-muted-foreground" />
-                      )}
-                    </div>
-
-                    {/* Search results */}
-                    <AnimatePresence>
-                      {results.length > 0 && (
-                        <motion.div
-                          initial={{ opacity: 0, y: -4 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0 }}
-                          className="mt-1.5 flex flex-col gap-0.5 rounded-md border border-border bg-popover shadow-md"
-                        >
-                          {results.map((issue) => {
-                            const status   = getStatusConfig(issue.status);
-                            const priority = getPriorityConfig(issue.priority);
-                            const type     = getTypeConfig(issue.type);
-                            const StatusIcon   = status.icon;
-                            const PriorityIcon = priority.icon;
-                            const TypeIcon     = type.icon;
-
-                            return (
-                              <button
-                                key={issue.id}
-                                type="button"
-                                onClick={() => handleAddLink(issue)}
-                                disabled={isPending}
-                                className="flex items-center gap-2 px-3 py-2 text-left text-xs hover:bg-accent transition-colors first:rounded-t-md last:rounded-b-md"
-                              >
-                                <TypeIcon className={cn("size-3.5 shrink-0", type.color)} />
-                                <span className="font-mono text-muted-foreground shrink-0">
-                                  {issue.project.key}-{issue.key}
-                                </span>
-                                <span className="flex-1 truncate text-foreground">{issue.title}</span>
-                                <StatusIcon className={cn("size-3.5 shrink-0", status.color)} />
-                                <PriorityIcon className={cn("size-3.5 shrink-0", priority.color)} />
-                              </button>
-                            );
-                          })}
-                        </motion.div>
-                      )}
-                      {query.trim() && !isSearching && results.length === 0 && (
-                        <motion.p
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          className="mt-1.5 text-center text-xs text-muted-foreground py-2"
-                        >
-                          No issues found
-                        </motion.p>
-                      )}
-                    </AnimatePresence>
-
-                    {/* Error */}
-                    {error && (
-                      <p className="mt-1.5 text-xs text-destructive">{error}</p>
-                    )}
-
-                    <div className="mt-2 flex justify-end">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-6 px-2 text-xs text-muted-foreground"
-                        onClick={() => { setIsAdding(false); setQuery(""); setResults([]); setError(null); }}
+                    return (
+                      <motion.div
+                        key={value}
+                        initial={{ opacity: 0, y: 4 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -4 }}
+                        transition={{ duration: 0.15 }}
+                        className="flex flex-col gap-1.5"
                       >
-                        Cancel
-                      </Button>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+                        {/* Group label */}
+                        <div className="flex items-center gap-1.5">
+                          <div className={cn("flex size-4 items-center justify-center rounded", bg)}>
+                            <Icon className={cn("size-2.5", color)} />
+                          </div>
+                          <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                            {label}
+                          </span>
+                          <span className="text-[10px] text-muted-foreground/60">
+                            ({group.length})
+                          </span>
+                        </div>
 
-              {/* Grouped link list */}
-              {links.length === 0 && !isAdding ? (
-                <p className="text-xs text-muted-foreground">No linked issues.</p>
-              ) : (
-                LINK_TYPES.map(({ value, label, icon: Icon, color }) => {
-                  const group = grouped[value];
-                  if (group.length === 0) return null;
-
-                  return (
-                    <div key={value} className="flex flex-col gap-1">
-                      <div className="flex items-center gap-1.5">
-                        <Icon className={cn("size-3", color)} />
-                        <span className="text-[11px] font-medium text-muted-foreground capitalize">
-                          {label}
-                        </span>
-                      </div>
-
-                      {group.map((link) => {
-                        const status   = getStatusConfig(link.issue.status);
-                        const priority = getPriorityConfig(link.issue.priority);
-                        const type     = getTypeConfig(link.issue.type);
-                        const StatusIcon   = status.icon;
-                        const PriorityIcon = priority.icon;
-                        const TypeIcon     = type.icon;
-                        const isDone = link.issue.status === "DONE" || link.issue.status === "CANCELLED";
-
-                        return (
-                          <motion.div
-                            key={link.id}
-                            initial={{ opacity: 0, x: -4 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            exit={{ opacity: 0, x: -4 }}
-                            transition={{ duration: 0.15 }}
-                            className="group flex items-center gap-2 rounded-md border border-border bg-card px-2.5 py-1.5 hover:border-primary/30 transition-colors"
-                          >
-                            <TypeIcon className={cn("size-3 shrink-0", type.color)} />
-
-                            <button
-                              type="button"
-                              onClick={() => onOpenIssue?.(link.issue.id)}
-                              className="flex flex-1 items-center gap-1.5 min-w-0 text-left"
-                            >
-                              <span className="font-mono text-[10px] text-muted-foreground shrink-0">
-                                {link.issue.project.key}-{link.issue.key}
-                              </span>
-                              <span className={cn(
-                                "flex-1 truncate text-xs font-medium",
-                                isDone ? "line-through text-muted-foreground" : "text-foreground hover:text-primary",
-                              )}>
-                                {link.issue.title}
-                              </span>
-                            </button>
-
-                            <div className="flex shrink-0 items-center gap-1">
-                              <StatusIcon className={cn("size-3", status.color)} />
-                              <PriorityIcon className={cn("size-3", priority.color)} />
-                            </div>
-
-                            <button
-                              type="button"
-                              onClick={() => handleRemoveLink(link.id)}
-                              disabled={isPending}
-                              className="ml-0.5 shrink-0 text-muted-foreground opacity-0 group-hover:opacity-100 hover:text-destructive transition-all"
-                              aria-label="Remove link"
-                            >
-                              <X className="size-3" />
-                            </button>
-                          </motion.div>
-                        );
-                      })}
-                    </div>
-                  );
-                })
-              )}
-            </div>
+                        {/* Issues in group */}
+                        <div className="flex flex-col gap-1">
+                          <AnimatePresence initial={false}>
+                            {group.map((link) => (
+                              <LinkedIssueRow
+                                key={link.id}
+                                link={link}
+                                onRemove={handleRemove}
+                                onOpen={onOpenIssue}
+                                isPending={isPending}
+                              />
+                            ))}
+                          </AnimatePresence>
+                        </div>
+                      </motion.div>
+                    );
+                  })}
+                </AnimatePresence>
+              </div>
+            )}
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Add link dialog */}
+      <AddLinkDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        issueId={issueId}
+        projectId={projectId}
+        onAdded={handleAdded}
+      />
     </div>
   );
 }

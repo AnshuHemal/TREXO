@@ -141,6 +141,10 @@ model Project {
   description String?
   icon        String?
   visibility  ProjectVisibility @default(PUBLIC)
+  /// Per-project workflow config stored as JSON.
+  /// Shape: { statuses: { value, label, order }[], transitions?: { from, to }[] }
+  /// null = use global defaults from issue-config.tsx
+  workflowConfig Json?
   createdAt   DateTime        @default(now())
   updatedAt   DateTime        @updatedAt
 
