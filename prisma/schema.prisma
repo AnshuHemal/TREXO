@@ -22,6 +22,8 @@ model User {
   email         String    @unique
   emailVerified Boolean   @default(false)
   image         String?
+  /// User's preferred color theme. "system" follows OS preference.
+  theme         String    @default("system") // "light" | "dark" | "system"
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
@@ -39,6 +41,7 @@ model User {
   notificationPreference NotificationPreference?
   projectMembers   ProjectMember[]
   savedFilters     SavedFilter[]
+  projectMutes     ProjectNotificationMute[]
 
   @@map("users")
 }
@@ -153,6 +156,7 @@ model Project {
   sprints   Sprint[]
   members   ProjectMember[]
   savedFilters SavedFilter[]
+  notificationMutes ProjectNotificationMute[]
 
   @@unique([workspaceId, key])
   @@map("projects")
@@ -429,4 +433,21 @@ model IssueTemplate {
 
   @@unique([workspaceId, name])
   @@map("issue_templates")
+}
+
+// ── ProjectNotificationMute ───────────────────────────────────────────────────
+// When a record exists for (userId, projectId), the user has muted all
+// notifications from that project.
+
+model ProjectNotificationMute {
+  id        String   @id @default(cuid())
+  userId    String
+  projectId String
+  createdAt DateTime @default(now())
+
+  user    User    @relation(fields: [userId],    references: [id], onDelete: Cascade)
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, projectId])
+  @@map("project_notification_mutes")
 }

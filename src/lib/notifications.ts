@@ -10,8 +10,13 @@ import { broadcast } from "@/lib/sse";
  * Returns true if the user wants to receive this notification type.
  * Defaults to true if no preference record exists (opt-in by default).
  */
-async function userWantsNotification(userId: string, type: string): Promise<boolean> {
+async function userWantsNotification(
+  userId: string,
+  type: string,
+  issueId?: string,
+): Promise<boolean> {
   try {
+    // Check workspace-level preferences
     const prefs = await prisma.notificationPreference.findUnique({
       where: { userId },
       select: {
@@ -22,15 +27,35 @@ async function userWantsNotification(userId: string, type: string): Promise<bool
       },
     });
 
-    if (!prefs) return true; // no record = all enabled (default)
-
-    switch (type) {
-      case "assigned":       return prefs.assigned;
-      case "mentioned":      return prefs.mentioned;
-      case "status_changed": return prefs.statusChanged;
-      case "comment_added":  return prefs.commentAdded;
-      default:               return true;
+    if (prefs) {
+      const wantsByType = (() => {
+        switch (type) {
+          case "assigned":       return prefs.assigned;
+          case "mentioned":      return prefs.mentioned;
+          case "status_changed": return prefs.statusChanged;
+          case "comment_added":  return prefs.commentAdded;
+          default:               return true;
+        }
+      })();
+      if (!wantsByType) return false;
     }
+
+    // Check per-project mute — if the issue belongs to a muted project, skip
+    if (issueId) {
+      const issue = await prisma.issue.findUnique({
+        where: { id: issueId },
+        select: { projectId: true },
+      });
+      if (issue) {
+        const mute = await prisma.projectNotificationMute.findUnique({
+          where: { userId_projectId: { userId, projectId: issue.projectId } },
+          select: { id: true },
+        });
+        if (mute) return false; // project is muted
+      }
+    }
+
+    return true;
   } catch {
     return true; // fail open — never silently drop notifications on DB error
   }
@@ -52,8 +77,8 @@ export async function createNotification({
   // Never notify yourself
   if (userId === actorId) return;
 
-  // Check user's notification preferences
-  const wantsIt = await userWantsNotification(userId, type);
+  // Check user's notification preferences (workspace-level + project mute)
+  const wantsIt = await userWantsNotification(userId, type, issueId);
   if (!wantsIt) return;
 
   try {

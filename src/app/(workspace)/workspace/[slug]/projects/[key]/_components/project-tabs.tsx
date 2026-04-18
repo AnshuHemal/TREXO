@@ -14,14 +14,18 @@ export function ProjectTabs({ slug, projectKey }: ProjectTabsProps) {
   const base = `/workspace/${slug}/projects/${projectKey}`;
 
   const tabs = [
-    { label: "Board",    href: `${base}/board`,              exact: true  },
-    { label: "Backlog",  href: `${base}/backlog`,             exact: false },
-    { label: "Epics",    href: `${base}/epics`,               exact: false },
-    { label: "Sprints",  href: `${base}/sprints`,             exact: false },
-    { label: "Roadmap",  href: `${base}/roadmap`,             exact: false },
-    { label: "Settings", href: `${base}/settings`,            exact: true  },
-    { label: "Workflow", href: `${base}/settings/workflow`,   exact: false },
-    { label: "Access",   href: `${base}/settings/access`,     exact: false },
+    { label: "Board",         href: `${base}/board`,                    exact: true  },
+    { label: "List",          href: `${base}/list`,                     exact: false },
+    { label: "Backlog",       href: `${base}/backlog`,                   exact: false },
+    { label: "Epics",         href: `${base}/epics`,                     exact: false },
+    { label: "Sprints",       href: `${base}/sprints`,                   exact: false },
+    { label: "Analytics",     href: `${base}/analytics`,                 exact: false },
+    { label: "Health",        href: `${base}/health`,                    exact: false },
+    { label: "Roadmap",       href: `${base}/roadmap`,                   exact: false },
+    { label: "Settings",      href: `${base}/settings`,                  exact: true  },
+    { label: "Workflow",      href: `${base}/settings/workflow`,         exact: false },
+    { label: "Access",        href: `${base}/settings/access`,           exact: false },
+    { label: "Notifications", href: `${base}/settings/notifications`,    exact: false },
   ];
 
   function isActive(href: string, exact: boolean) {

@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import { ThemeProvider } from "@/components/providers/theme-provider";
+import { getUserTheme } from "@/lib/theme-actions";
 import { siteConfig } from "@/config/site";
 import "./globals.css";
 
@@ -112,23 +113,25 @@ export const viewport: Viewport = {
 
 // ─── Layout ───────────────────────────────────────────────────────────────────
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Read the user's persisted theme preference from DB.
+  // Falls back to "system" for unauthenticated visitors.
+  const userTheme = await getUserTheme();
+
   return (
     <html
       lang="en"
-      // Suppress hydration warning caused by next-themes injecting the
-      // resolved theme class before React hydrates.
       suppressHydrationWarning
       className={`${inter.variable} ${jetbrainsMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-background text-foreground" suppressHydrationWarning>
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
+          defaultTheme={userTheme}
           enableSystem
           disableTransitionOnChange
           nonce=""

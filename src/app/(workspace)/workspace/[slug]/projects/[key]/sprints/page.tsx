@@ -90,6 +90,7 @@ export default async function SprintsPage({ params }: SprintsPageProps) {
         project={project}
         sprints={sprintList}
         backlogIssues={backlogList}
+        workspaceSlug={workspace.slug}
       />
     </FadeIn>
   );

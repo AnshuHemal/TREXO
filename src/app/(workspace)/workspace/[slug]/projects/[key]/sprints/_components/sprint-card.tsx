@@ -1,10 +1,11 @@
 "use client";
 
+import Link from "next/link";
 import { useState, useTransition } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import {
   Play, CheckCircle2, Trash2, ChevronDown, ChevronRight,
-  Calendar, Target, Loader2, XCircle, Plus, X, Zap,
+  Calendar, Target, Loader2, XCircle, Plus, X, Zap, BarChart3,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -52,6 +53,7 @@ interface SprintCardProps {
   sprint: SprintData;
   projectId: string;
   projectKey: string;
+  workspaceSlug: string;
   otherSprints: { id: string; name: string }[];
   backlogIssues: SprintIssue[];
   index: number;
@@ -84,6 +86,7 @@ export function SprintCard({
   sprint: initialSprint,
   projectId,
   projectKey,
+  workspaceSlug,
   otherSprints,
   backlogIssues,
   index,
@@ -227,6 +230,15 @@ export function SprintCard({
           {sprint.status === "ACTIVE" && (
             <Button size="sm" variant="outline" className="h-7 px-2.5 text-xs" onClick={() => setShowCompleteDialog(true)} disabled={isPending}>
               <CheckCircle2 className="mr-1 size-3.5" />Complete
+            </Button>
+          )}
+
+          {sprint.status === "COMPLETED" && (
+            <Button size="sm" variant="outline" className="h-7 gap-1.5 px-2.5 text-xs" asChild>
+              <Link href={`/workspace/${workspaceSlug}/projects/${projectKey}/sprints/${sprint.id}/report`}>
+                <BarChart3 className="size-3.5" />
+                View report
+              </Link>
             </Button>
           )}
 

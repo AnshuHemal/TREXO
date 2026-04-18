@@ -9,7 +9,7 @@ interface WorkspaceContextValue {
   workspaceSlug: string;
   workspaceName: string;
   projects: { id: string; name: string; key: string }[];
-  members: { id: string; name: string; image: string | null }[];
+  members: { id: string; name: string; image: string | null; email?: string }[];
 }
 
 // ─── Context ──────────────────────────────────────────────────────────────────

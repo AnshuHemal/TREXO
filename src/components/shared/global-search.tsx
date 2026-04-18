@@ -1,35 +1,20 @@
 "use client";
 
-import { useEffect, useState, useCallback, useTransition } from "react";
+import {
+  useEffect, useState, useCallback, useTransition,
+  useRef, useMemo,
+} from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "motion/react";
 import {
-  Search, FolderKanban, Loader2, SlidersHorizontal, X,
+  Search, Loader2, X, Clock, Zap, FolderKanban,
+  Plus, ArrowRight,
+  CheckCircle2, Circle, Eye, XCircle, AlertCircle,
+  ArrowUp, ArrowDown, Minus, Bug, BookOpen, GitBranch,
+  Activity, ChevronRight, Settings, Users,
 } from "lucide-react";
-import {
-  CommandDialog,
-  CommandInput,
-  CommandList,
-  CommandEmpty,
-  CommandGroup,
-  CommandItem,
-  CommandSeparator,
-  CommandShortcut,
-} from "@/components/ui/command";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-  ISSUE_STATUSES, ISSUE_PRIORITIES, ISSUE_TYPES,
-  getStatusConfig, getPriorityConfig, getTypeConfig,
-} from "@/lib/issue-config";
+import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -58,15 +43,39 @@ interface SearchProject {
   _count: { issues: number };
 }
 
-interface SearchResults {
-  issues: SearchIssue[];
-  projects: SearchProject[];
+interface SearchMember {
+  id: string;
+  name: string;
+  image: string | null;
+  email: string;
+}
+
+interface RecentIssue {
+  id: string;
+  key: string;       // e.g. "TRX-42"
+  title: string;
+  status: string;
+  projectKey: string;
+  workspaceSlug: string;
+  viewedAt: number;
+}
+
+interface QuickAction {
+  id: string;
+  label: string;
+  description?: string;
+  icon: React.ElementType;
+  iconColor: string;
+  iconBg: string;
+  shortcut?: string;
+  action: () => void;
 }
 
 interface Member {
   id: string;
   name: string;
   image: string | null;
+  email?: string;
 }
 
 interface GlobalSearchProps {
@@ -76,12 +85,43 @@ interface GlobalSearchProps {
   members?: Member[];
 }
 
+// ─── Constants ────────────────────────────────────────────────────────────────
+
+const RECENT_KEY = "trexo:recent-issues";
+const MAX_RECENT = 5;
+
+// ─── Icon maps ────────────────────────────────────────────────────────────────
+
+const STATUS_ICONS: Record<string, { icon: React.ElementType; color: string; label: string }> = {
+  BACKLOG:     { icon: Circle,       color: "text-muted-foreground", label: "Backlog"     },
+  TODO:        { icon: Circle,       color: "text-foreground/60",    label: "To Do"       },
+  IN_PROGRESS: { icon: Activity,     color: "text-primary",          label: "In Progress" },
+  IN_REVIEW:   { icon: Eye,          color: "text-yellow-500",       label: "In Review"   },
+  DONE:        { icon: CheckCircle2, color: "text-emerald-500",      label: "Done"        },
+  CANCELLED:   { icon: XCircle,      color: "text-muted-foreground", label: "Cancelled"   },
+};
+
+const PRIORITY_ICONS: Record<string, { icon: React.ElementType; color: string }> = {
+  URGENT:      { icon: AlertCircle, color: "text-destructive"      },
+  HIGH:        { icon: ArrowUp,     color: "text-orange-500"       },
+  MEDIUM:      { icon: ArrowRight,  color: "text-yellow-500"       },
+  LOW:         { icon: ArrowDown,   color: "text-primary"          },
+  NO_PRIORITY: { icon: Minus,       color: "text-muted-foreground" },
+};
+
+const TYPE_ICONS: Record<string, { icon: React.ElementType; color: string }> = {
+  TASK:    { icon: CheckCircle2, color: "text-primary"          },
+  BUG:     { icon: Bug,          color: "text-destructive"      },
+  STORY:   { icon: BookOpen,     color: "text-purple-500"       },
+  EPIC:    { icon: Zap,          color: "text-purple-500"       },
+  SUBTASK: { icon: GitBranch,    color: "text-muted-foreground" },
+};
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function getInitials(name: string) {
   const parts = name.trim().split(/\s+/);
-  if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
-  return name.slice(0, 2).toUpperCase();
+  return parts.length >= 2 ? (parts[0][0] + parts[1][0]).toUpperCase() : name.slice(0, 2).toUpperCase();
 }
 
 function isMac() {
@@ -89,7 +129,111 @@ function isMac() {
   return /Mac|iPhone|iPad/.test(navigator.platform);
 }
 
-// ─── Component ────────────────────────────────────────────────────────────────
+function getRecent(): RecentIssue[] {
+  try {
+    return JSON.parse(localStorage.getItem(RECENT_KEY) ?? "[]");
+  } catch {
+    return [];
+  }
+}
+
+export function trackRecentIssue(issue: Omit<RecentIssue, "viewedAt">) {
+  try {
+    const existing = getRecent().filter((r) => r.id !== issue.id);
+    const updated: RecentIssue[] = [
+      { ...issue, viewedAt: Date.now() },
+      ...existing,
+    ].slice(0, MAX_RECENT);
+    localStorage.setItem(RECENT_KEY, JSON.stringify(updated));
+  } catch {
+    // ignore
+  }
+}
+
+// Simple fuzzy match — returns true if all chars of needle appear in order in haystack
+function fuzzyMatch(haystack: string, needle: string): boolean {
+  if (!needle) return true;
+  const h = haystack.toLowerCase();
+  const n = needle.toLowerCase();
+  let hi = 0;
+  for (let ni = 0; ni < n.length; ni++) {
+    const idx = h.indexOf(n[ni], hi);
+    if (idx === -1) return false;
+    hi = idx + 1;
+  }
+  return true;
+}
+
+// Highlight matching chars in a string
+function HighlightMatch({ text, query }: { text: string; query: string }) {
+  if (!query) return <>{text}</>;
+  const q = query.toLowerCase();
+  const result: React.ReactNode[] = [];
+  let i = 0;
+  let qi = 0;
+  while (i < text.length) {
+    if (qi < q.length && text[i].toLowerCase() === q[qi]) {
+      result.push(
+        <span key={i} className="text-primary font-semibold">
+          {text[i]}
+        </span>,
+      );
+      qi++;
+    } else {
+      result.push(text[i]);
+    }
+    i++;
+  }
+  return <>{result}</>;
+}
+
+// ─── Result item ──────────────────────────────────────────────────────────────
+
+function ResultItem({
+  isActive,
+  onClick,
+  onMouseEnter,
+  children,
+}: {
+  isActive: boolean;
+  onClick: () => void;
+  onMouseEnter: () => void;
+  children: React.ReactNode;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (isActive) {
+      ref.current?.scrollIntoView({ block: "nearest" });
+    }
+  }, [isActive]);
+
+  return (
+    <div
+      ref={ref}
+      onClick={onClick}
+      onMouseEnter={onMouseEnter}
+      className={cn(
+        "flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 transition-colors",
+        isActive ? "bg-accent text-accent-foreground" : "hover:bg-accent/50",
+      )}
+    >
+      {children}
+    </div>
+  );
+}
+
+// ─── Section label ────────────────────────────────────────────────────────────
+
+function SectionLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <p className="mb-1 mt-3 px-3 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60 first:mt-0">
+      {children}
+    </p>
+  );
+}
+
+// ─── Main component ───────────────────────────────────────────────────────────
 
 export function GlobalSearch({
   workspaceId,
@@ -100,31 +244,27 @@ export function GlobalSearch({
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
-  const [results, setResults] = useState<SearchResults>({ issues: [], projects: [] });
+  const [results, setResults] = useState<{
+    issues: SearchIssue[];
+    projects: SearchProject[];
+    members: SearchMember[];
+  }>({ issues: [], projects: [], members: [] });
   const [isSearching, startSearchTransition] = useTransition();
-  const [showFilters, setShowFilters] = useState(false);
+  const [recent, setRecent] = useState<RecentIssue[]>([]);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const listRef = useRef<HTMLDivElement>(null);
 
-  // ── Filters ──────────────────────────────────────────────────────────────────
-  const [filterProject,  setFilterProject]  = useState("all");
-  const [filterStatus,   setFilterStatus]   = useState("all");
-  const [filterPriority, setFilterPriority] = useState("all");
-  const [filterAssignee, setFilterAssignee] = useState("all");
+  // ── Load recent on open ───────────────────────────────────────────────────
+  useEffect(() => {
+    if (open) {
+      setRecent(getRecent());
+      setActiveIndex(0);
+      setTimeout(() => inputRef.current?.focus(), 50);
+    }
+  }, [open]);
 
-  const hasActiveFilters =
-    filterProject !== "all" ||
-    filterStatus  !== "all" ||
-    filterPriority !== "all" ||
-    filterAssignee !== "all";
-
-  function clearFilters() {
-    setFilterProject("all");
-    setFilterStatus("all");
-    setFilterPriority("all");
-    setFilterAssignee("all");
-  }
-
-  // ── Keyboard shortcut ─────────────────────────────────────────────────────────
-
+  // ── Keyboard shortcut to open ─────────────────────────────────────────────
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
       if ((e.metaKey || e.ctrlKey) && e.key === "k") {
@@ -136,383 +276,565 @@ export function GlobalSearch({
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, []);
 
-  // ── Debounced search ──────────────────────────────────────────────────────────
+  // ── Quick actions ─────────────────────────────────────────────────────────
+  const quickActions = useMemo((): QuickAction[] => {
+    const base = workspaceSlug ? `/workspace/${workspaceSlug}` : "";
+    const actions: QuickAction[] = [
+      {
+        id: "create-issue",
+        label: "Create issue",
+        description: "Open the create issue dialog",
+        icon: Plus,
+        iconColor: "text-primary",
+        iconBg: "bg-primary/10",
+        shortcut: "C",
+        action: () => {
+          handleClose();
+          // Dispatch C key to trigger project shortcuts provider
+          setTimeout(() => {
+            window.dispatchEvent(new KeyboardEvent("keydown", { key: "c", bubbles: true }));
+          }, 100);
+        },
+      },
+    ];
 
+    if (base) {
+      actions.push(
+        {
+          id: "go-workload",
+          label: "Go to Workload",
+          description: "Team workload overview",
+          icon: Users,
+          iconColor: "text-primary",
+          iconBg: "bg-primary/10",
+          action: () => { handleClose(); router.push(`${base}/workload`); },
+        },
+        {
+          id: "go-activity",
+          label: "Go to Activity",
+          description: "Workspace audit log",
+          icon: Activity,
+          iconColor: "text-primary",
+          iconBg: "bg-primary/10",
+          action: () => { handleClose(); router.push(`${base}/activity`); },
+        },
+        {
+          id: "go-settings",
+          label: "Go to Settings",
+          description: "Workspace settings",
+          icon: Settings,
+          iconColor: "text-muted-foreground",
+          iconBg: "bg-muted/40",
+          action: () => { handleClose(); router.push(`${base}/settings`); },
+        },
+      );
+
+      // Per-project quick actions
+      for (const p of projects.slice(0, 4)) {
+        actions.push({
+          id: `go-project-${p.id}`,
+          label: `Go to ${p.name}`,
+          description: `Open ${p.key} board`,
+          icon: FolderKanban,
+          iconColor: "text-primary",
+          iconBg: "bg-primary/10",
+          action: () => { handleClose(); router.push(`${base}/projects/${p.key}/board`); },
+        });
+      }
+    }
+
+    return actions;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [workspaceSlug, projects]);
+
+  // ── Filtered quick actions ────────────────────────────────────────────────
+  const filteredActions = useMemo(() => {
+    if (!query) return quickActions.slice(0, 4);
+    return quickActions.filter((a) =>
+      fuzzyMatch(a.label, query) || fuzzyMatch(a.description ?? "", query),
+    );
+  }, [query, quickActions]);
+
+  // ── Filtered recent ───────────────────────────────────────────────────────
+  const filteredRecent = useMemo(() => {
+    if (!query) return recent;
+    return recent.filter(
+      (r) => fuzzyMatch(r.title, query) || fuzzyMatch(r.key, query),
+    );
+  }, [query, recent]);
+
+  // ── Debounced API search ──────────────────────────────────────────────────
   const doSearch = useCallback(
     (q: string) => {
+      if (!q || q.length < 2) {
+        setResults({ issues: [], projects: [], members: [] });
+        return;
+      }
       startSearchTransition(async () => {
         const params = new URLSearchParams();
-        if (q)                          params.set("q", q);
-        if (workspaceId)                params.set("workspaceId", workspaceId);
-        if (filterProject !== "all")    params.set("projectId", filterProject);
-        if (filterStatus  !== "all")    params.set("status", filterStatus);
-        if (filterPriority !== "all")   params.set("priority", filterPriority);
-        if (filterAssignee !== "all")   params.set("assigneeId", filterAssignee);
+        params.set("q", q);
+        if (workspaceId) params.set("workspaceId", workspaceId);
 
-        const res = await fetch(`/api/search?${params.toString()}`);
-        if (res.ok) {
-          const data = await res.json();
-          setResults(data);
+        const [searchRes] = await Promise.all([
+          fetch(`/api/search?${params.toString()}`),
+          // Members are filtered client-side (already available in props)
+          Promise.resolve(null),
+        ]);
+
+        if (searchRes.ok) {
+          const data = await searchRes.json();
+          // Also filter members locally
+          const filteredMembers = members
+            .filter(
+              (m) => fuzzyMatch(m.name, q) || fuzzyMatch(m.email ?? "", q),
+            )
+            .slice(0, 5)
+            .map((m) => ({ ...m, email: m.email ?? "" }));
+
+          setResults({
+            issues: data.issues ?? [],
+            projects: data.projects ?? [],
+            members: filteredMembers,
+          });
         }
       });
     },
-    [workspaceId, filterProject, filterStatus, filterPriority, filterAssignee],
+    [workspaceId, members],
   );
 
-  // Debounce query changes
   useEffect(() => {
-    const id = setTimeout(() => doSearch(query), 250);
+    const id = setTimeout(() => doSearch(query), 200);
     return () => clearTimeout(id);
   }, [query, doSearch]);
 
-  // Re-search when filters change
-  useEffect(() => {
-    if (open) doSearch(query);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filterProject, filterStatus, filterPriority, filterAssignee]);
+  // ── Build flat item list for keyboard nav ─────────────────────────────────
+  type NavItem =
+    | { kind: "action";  data: QuickAction }
+    | { kind: "recent";  data: RecentIssue }
+    | { kind: "issue";   data: SearchIssue }
+    | { kind: "project"; data: SearchProject }
+    | { kind: "member";  data: SearchMember };
 
-  // Reset on close
-  function handleOpenChange(next: boolean) {
-    setOpen(next);
-    if (!next) {
-      setQuery("");
-      setResults({ issues: [], projects: [] });
-      setShowFilters(false);
+  const navItems = useMemo((): NavItem[] => {
+    const items: NavItem[] = [];
+    if (!query) {
+      for (const a of filteredActions) items.push({ kind: "action", data: a });
+      for (const r of filteredRecent)  items.push({ kind: "recent", data: r });
+    } else {
+      for (const a of filteredActions)         items.push({ kind: "action",  data: a });
+      for (const i of results.issues)          items.push({ kind: "issue",   data: i });
+      for (const p of results.projects)        items.push({ kind: "project", data: p });
+      for (const m of results.members)         items.push({ kind: "member",  data: m });
+    }
+    return items;
+  }, [query, filteredActions, filteredRecent, results]);
+
+  // Reset active index when items change
+  useEffect(() => { setActiveIndex(0); }, [navItems.length]);
+
+  // ── Keyboard navigation inside palette ───────────────────────────────────
+  function handleKeyDown(e: React.KeyboardEvent) {
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setActiveIndex((i) => Math.min(i + 1, navItems.length - 1));
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setActiveIndex((i) => Math.max(i - 1, 0));
+    } else if (e.key === "Enter") {
+      e.preventDefault();
+      const item = navItems[activeIndex];
+      if (item) activateItem(item);
+    } else if (e.key === "Escape") {
+      handleClose();
     }
   }
 
-  // ── Navigation ────────────────────────────────────────────────────────────────
-
-  function handleSelectIssue(issue: SearchIssue) {
-    handleOpenChange(false);
-    router.push(
-      `/workspace/${issue.project.workspace.slug}/projects/${issue.project.key}/backlog`,
-    );
+  // ── Activate an item ──────────────────────────────────────────────────────
+  function activateItem(item: NavItem) {
+    if (item.kind === "action") {
+      item.data.action();
+    } else if (item.kind === "recent") {
+      handleClose();
+      router.push(
+        `/workspace/${item.data.workspaceSlug}/projects/${item.data.projectKey}/issues/${item.data.key}`,
+      );
+    } else if (item.kind === "issue") {
+      handleClose();
+      trackRecentIssue({
+        id: item.data.id,
+        key: `${item.data.project.key}-${item.data.key}`,
+        title: item.data.title,
+        status: item.data.status,
+        projectKey: item.data.project.key,
+        workspaceSlug: item.data.project.workspace.slug,
+      });
+      router.push(
+        `/workspace/${item.data.project.workspace.slug}/projects/${item.data.project.key}/issues/${item.data.project.key}-${item.data.key}`,
+      );
+    } else if (item.kind === "project") {
+      handleClose();
+      router.push(
+        `/workspace/${item.data.workspace.slug}/projects/${item.data.key}/board`,
+      );
+    } else if (item.kind === "member") {
+      handleClose();
+      if (workspaceSlug) {
+        router.push(`/workspace/${workspaceSlug}/workload`);
+      }
+    }
   }
 
-  function handleSelectProject(project: SearchProject) {
-    handleOpenChange(false);
-    router.push(`/workspace/${project.workspace.slug}/projects/${project.key}`);
+  function handleClose() {
+    setOpen(false);
+    setQuery("");
+    setResults({ issues: [], projects: [], members: [] });
+    setActiveIndex(0);
   }
 
-  const totalResults = results.issues.length + results.projects.length;
-  const showEmpty = !isSearching && (query.length > 0 || hasActiveFilters) && totalResults === 0;
+  // ── Flat index helpers ────────────────────────────────────────────────────
+  let globalIdx = 0;
+  function nextIdx() { return globalIdx++; }
+
+  const hasResults = query.length >= 2 && (
+    results.issues.length > 0 ||
+    results.projects.length > 0 ||
+    results.members.length > 0
+  );
+  const noResults = query.length >= 2 && !isSearching && !hasResults && filteredActions.length === 0;
 
   return (
     <>
-      {/* Trigger button — shown in topbar */}
-      <Button
-        variant="outline"
-        size="sm"
+      {/* ── Trigger button ─────────────────────────────────────────────── */}
+      <button
         onClick={() => setOpen(true)}
-        className="hidden h-8 w-48 items-center justify-between gap-2 rounded-md border border-border bg-muted/40 px-3 text-xs text-muted-foreground hover:bg-muted sm:flex"
-        aria-label="Open search"
+        className="hidden h-8 w-52 items-center justify-between gap-2 rounded-md border border-border bg-muted/40 px-3 text-xs text-muted-foreground transition-colors hover:bg-muted sm:flex"
+        aria-label="Open command palette"
       >
         <span className="flex items-center gap-2">
           <Search className="size-3.5" />
-          Search issues…
+          Search or jump to…
         </span>
         <kbd className="pointer-events-none flex h-5 items-center gap-0.5 rounded border border-border bg-background px-1.5 font-mono text-[10px] font-medium text-muted-foreground">
           {isMac() ? "⌘" : "Ctrl"}K
         </kbd>
-      </Button>
+      </button>
 
       {/* Mobile trigger */}
-      <Button
-        variant="ghost"
-        size="icon"
+      <button
         onClick={() => setOpen(true)}
-        className="flex size-8 sm:hidden"
+        className="flex size-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground sm:hidden"
         aria-label="Open search"
       >
         <Search className="size-4" />
-      </Button>
+      </button>
 
-      {/* Command dialog */}
-      <CommandDialog
-        open={open}
-        onOpenChange={handleOpenChange}
-        title="Search"
-        description="Search issues and projects"
-        showCloseButton={false}
-        className="max-w-2xl"
-      >
-        {/* Search input */}
-        <CommandInput
-          placeholder="Search issues, projects…"
-          value={query}
-          onValueChange={setQuery}
-        />
-
-        {/* Filter bar */}
-        <div className="flex items-center gap-2 border-b border-border px-3 py-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            className={cn(
-              "h-7 gap-1.5 px-2 text-xs",
-              showFilters && "bg-accent text-accent-foreground",
-            )}
-            onClick={() => setShowFilters((v) => !v)}
-          >
-            <SlidersHorizontal className="size-3.5" />
-            Filters
-            {hasActiveFilters && (
-              <span className="flex size-4 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
-                {[filterProject, filterStatus, filterPriority, filterAssignee].filter((f) => f !== "all").length}
-              </span>
-            )}
-          </Button>
-
-          {hasActiveFilters && (
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-7 gap-1 px-2 text-xs text-muted-foreground hover:text-foreground"
-              onClick={clearFilters}
-            >
-              <X className="size-3" />
-              Clear
-            </Button>
-          )}
-
-          {/* Loading indicator */}
-          {isSearching && (
-            <Loader2 className="ml-auto size-3.5 animate-spin text-muted-foreground" />
-          )}
-        </div>
-
-        {/* Filter selects */}
-        <AnimatePresence>
-          {showFilters && (
+      {/* ── Palette overlay ────────────────────────────────────────────── */}
+      <AnimatePresence>
+        {open && (
+          <>
+            {/* Backdrop */}
             <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: "auto", opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
+              key="backdrop"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
               transition={{ duration: 0.15 }}
-              className="overflow-hidden border-b border-border"
+              className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm"
+              onClick={handleClose}
+            />
+
+            {/* Palette */}
+            <motion.div
+              key="palette"
+              initial={{ opacity: 0, scale: 0.96, y: -8 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.96, y: -8 }}
+              transition={{ duration: 0.18, ease: [0.25, 0.1, 0.25, 1] }}
+              className="fixed left-1/2 top-[12vh] z-50 w-full max-w-2xl -translate-x-1/2 overflow-hidden rounded-2xl border border-border bg-background shadow-2xl"
+              onKeyDown={handleKeyDown}
             >
-              <div className="grid grid-cols-2 gap-2 p-3 sm:grid-cols-4">
-                {/* Project filter */}
-                {projects.length > 0 && (
-                  <Select value={filterProject} onValueChange={setFilterProject}>
-                    <SelectTrigger className="h-7 text-xs">
-                      <SelectValue placeholder="Project" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All projects</SelectItem>
-                      {projects.map((p) => (
-                        <SelectItem key={p.id} value={p.id}>
-                          <span className="flex items-center gap-1.5">
-                            <span className="font-mono text-[10px] text-muted-foreground">{p.key}</span>
-                            {p.name}
-                          </span>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+              {/* ── Search input ──────────────────────────────────────── */}
+              <div className="flex items-center gap-3 border-b border-border px-4 py-3.5">
+                {isSearching ? (
+                  <Loader2 className="size-4 shrink-0 animate-spin text-muted-foreground" />
+                ) : (
+                  <Search className="size-4 shrink-0 text-muted-foreground" />
                 )}
-
-                {/* Status filter */}
-                <Select value={filterStatus} onValueChange={setFilterStatus}>
-                  <SelectTrigger className="h-7 text-xs">
-                    <SelectValue placeholder="Status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All statuses</SelectItem>
-                    {ISSUE_STATUSES.map(({ value, label, icon: Icon, color }) => (
-                      <SelectItem key={value} value={value}>
-                        <span className="flex items-center gap-1.5">
-                          <Icon className={cn("size-3.5", color)} />{label}
-                        </span>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-
-                {/* Priority filter */}
-                <Select value={filterPriority} onValueChange={setFilterPriority}>
-                  <SelectTrigger className="h-7 text-xs">
-                    <SelectValue placeholder="Priority" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All priorities</SelectItem>
-                    {ISSUE_PRIORITIES.map(({ value, label, icon: Icon, color }) => (
-                      <SelectItem key={value} value={value}>
-                        <span className="flex items-center gap-1.5">
-                          <Icon className={cn("size-3.5", color)} />{label}
-                        </span>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-
-                {/* Assignee filter */}
-                {members.length > 0 && (
-                  <Select value={filterAssignee} onValueChange={setFilterAssignee}>
-                    <SelectTrigger className="h-7 text-xs">
-                      <SelectValue placeholder="Assignee" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All assignees</SelectItem>
-                      <SelectItem value="unassigned">Unassigned</SelectItem>
-                      {members.map((m) => (
-                        <SelectItem key={m.id} value={m.id}>
-                          <span className="flex items-center gap-1.5">
-                            <Avatar className="size-4">
-                              <AvatarImage src={m.image ?? undefined} />
-                              <AvatarFallback className="text-[8px]">{getInitials(m.name)}</AvatarFallback>
-                            </Avatar>
-                            {m.name}
-                          </span>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                )}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* Results */}
-        <CommandList className="max-h-[420px]">
-          {showEmpty && (
-            <CommandEmpty>
-              <div className="flex flex-col items-center gap-2 py-8">
-                <Search className="size-8 text-muted-foreground/40" />
-                <p className="text-sm text-muted-foreground">No results found.</p>
-                {hasActiveFilters && (
+                <input
+                  ref={inputRef}
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder="Search issues, projects, members… or type a command"
+                  className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none"
+                  autoComplete="off"
+                  spellCheck={false}
+                />
+                {query && (
                   <button
-                    onClick={clearFilters}
-                    className="text-xs text-primary underline-offset-4 hover:underline"
+                    onClick={() => setQuery("")}
+                    className="shrink-0 text-muted-foreground/60 transition-colors hover:text-foreground"
                   >
-                    Clear filters
+                    <X className="size-4" />
                   </button>
                 )}
+                <kbd
+                  onClick={handleClose}
+                  className="hidden shrink-0 cursor-pointer rounded border border-border bg-muted px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground hover:bg-accent sm:block"
+                >
+                  esc
+                </kbd>
               </div>
-            </CommandEmpty>
-          )}
 
-          {!query && !hasActiveFilters && (
-            <div className="flex flex-col items-center gap-2 py-12 text-center">
-              <Search className="size-8 text-muted-foreground/30" />
-              <p className="text-sm text-muted-foreground">
-                Type to search issues and projects
-              </p>
-              <p className="text-xs text-muted-foreground/60">
-                Filter by status, priority, assignee, or project
-              </p>
-            </div>
-          )}
+              {/* ── Results list ──────────────────────────────────────── */}
+              <div
+                ref={listRef}
+                className="max-h-[480px] overflow-y-auto overscroll-contain p-2"
+              >
+                {/* No results */}
+                {noResults && (
+                  <div className="flex flex-col items-center gap-2 py-12 text-center">
+                    <Search className="size-8 text-muted-foreground/30" />
+                    <p className="text-sm font-medium text-foreground">No results for "{query}"</p>
+                    <p className="text-xs text-muted-foreground">Try a different search term</p>
+                  </div>
+                )}
 
-          {/* Projects */}
-          {results.projects.length > 0 && (
-            <>
-              <CommandGroup heading="Projects">
-                {results.projects.map((project) => (
-                  <CommandItem
-                    key={project.id}
-                    value={`project-${project.id}`}
-                    onSelect={() => handleSelectProject(project)}
-                    className="flex items-center gap-3 py-2.5"
-                  >
-                    <div className="flex size-7 shrink-0 items-center justify-center rounded-md bg-primary/10 text-xs font-bold text-primary">
-                      {project.key.charAt(0)}
-                    </div>
-                    <div className="flex flex-1 flex-col gap-0.5 min-w-0">
-                      <span className="truncate text-sm font-medium text-foreground">{project.name}</span>
-                      <span className="text-xs text-muted-foreground">
-                        {project._count.issues} {project._count.issues === 1 ? "issue" : "issues"}
-                      </span>
-                    </div>
-                    <Badge variant="outline" className="font-mono text-[10px]">{project.key}</Badge>
-                  </CommandItem>
-                ))}
-              </CommandGroup>
-              {results.issues.length > 0 && <CommandSeparator />}
-            </>
-          )}
+                {/* ── Quick actions ──────────────────────────────────── */}
+                {filteredActions.length > 0 && (
+                  <div>
+                    <SectionLabel>
+                      {query ? "Actions" : "Quick actions"}
+                    </SectionLabel>
+                    {filteredActions.map((action) => {
+                      const idx = nextIdx();
+                      const Icon = action.icon;
+                      return (
+                        <ResultItem
+                          key={action.id}
+                          isActive={activeIndex === idx}
+                          onClick={() => activateItem({ kind: "action", data: action })}
+                          onMouseEnter={() => setActiveIndex(idx)}
+                        >
+                          <div className={cn(
+                            "flex size-7 shrink-0 items-center justify-center rounded-lg",
+                            action.iconBg,
+                          )}>
+                            <Icon className={cn("size-4", action.iconColor)} />
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <p className="text-sm font-medium text-foreground">
+                              <HighlightMatch text={action.label} query={query} />
+                            </p>
+                            {action.description && (
+                              <p className="text-xs text-muted-foreground">{action.description}</p>
+                            )}
+                          </div>
+                          {action.shortcut && (
+                            <kbd className="shrink-0 rounded border border-border bg-muted px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground">
+                              {action.shortcut}
+                            </kbd>
+                          )}
+                          <ChevronRight className="size-3.5 shrink-0 text-muted-foreground/40" />
+                        </ResultItem>
+                      );
+                    })}
+                  </div>
+                )}
 
-          {/* Issues */}
-          {results.issues.length > 0 && (
-            <CommandGroup heading={`Issues (${results.issues.length})`}>
-              {results.issues.map((issue) => {
-                const status   = getStatusConfig(issue.status);
-                const priority = getPriorityConfig(issue.priority);
-                const type     = getTypeConfig(issue.type);
-                const StatusIcon   = status.icon;
-                const PriorityIcon = priority.icon;
-                const TypeIcon     = type.icon;
+                {/* ── Recent issues (no query) ───────────────────────── */}
+                {!query && filteredRecent.length > 0 && (
+                  <div>
+                    <SectionLabel>Recent</SectionLabel>
+                    {filteredRecent.map((r) => {
+                      const idx = nextIdx();
+                      const statusCfg = STATUS_ICONS[r.status] ?? STATUS_ICONS.TODO;
+                      const StatusIcon = statusCfg.icon;
+                      return (
+                        <ResultItem
+                          key={r.id}
+                          isActive={activeIndex === idx}
+                          onClick={() => activateItem({ kind: "recent", data: r })}
+                          onMouseEnter={() => setActiveIndex(idx)}
+                        >
+                          <Clock className="size-4 shrink-0 text-muted-foreground/50" />
+                          <span className="w-16 shrink-0 font-mono text-xs text-muted-foreground">
+                            {r.key}
+                          </span>
+                          <span className="flex-1 truncate text-sm text-foreground">{r.title}</span>
+                          <StatusIcon className={cn("size-3.5 shrink-0", statusCfg.color)} />
+                        </ResultItem>
+                      );
+                    })}
+                  </div>
+                )}
 
-                return (
-                  <CommandItem
-                    key={issue.id}
-                    value={`issue-${issue.id}-${issue.title}`}
-                    onSelect={() => handleSelectIssue(issue)}
-                    className="flex items-center gap-3 py-2.5"
-                  >
-                    {/* Icons */}
-                    <div className="flex shrink-0 items-center gap-1">
-                      <PriorityIcon className={cn("size-3.5", priority.color)} />
-                      <TypeIcon className={cn("size-3.5", type.color)} />
-                    </div>
+                {/* ── Search results ─────────────────────────────────── */}
+                {query.length >= 2 && (
+                  <>
+                    {/* Issues */}
+                    {results.issues.length > 0 && (
+                      <div>
+                        <SectionLabel>Issues ({results.issues.length})</SectionLabel>
+                        {results.issues.map((issue) => {
+                          const idx = nextIdx();
+                          const statusCfg   = STATUS_ICONS[issue.status]     ?? STATUS_ICONS.TODO;
+                          const priorityCfg = PRIORITY_ICONS[issue.priority] ?? PRIORITY_ICONS.MEDIUM;
+                          const typeCfg     = TYPE_ICONS[issue.type]         ?? TYPE_ICONS.TASK;
+                          const StatusIcon   = statusCfg.icon;
+                          const PriorityIcon = priorityCfg.icon;
+                          const TypeIcon     = typeCfg.icon;
 
-                    {/* Key */}
-                    <span className="w-16 shrink-0 font-mono text-xs text-muted-foreground">
-                      {issue.project.key}-{issue.key}
-                    </span>
-
-                    {/* Title */}
-                    <span className="flex-1 truncate text-sm text-foreground">
-                      {issue.title}
-                    </span>
-
-                    {/* Status */}
-                    <div className="flex shrink-0 items-center gap-1.5">
-                      <StatusIcon className={cn("size-3.5", status.color)} />
-                      <span className="hidden text-xs text-muted-foreground sm:block">{status.label}</span>
-                    </div>
-
-                    {/* Assignee */}
-                    {issue.assignee ? (
-                      <Avatar className="size-5 shrink-0">
-                        <AvatarImage src={issue.assignee.image ?? undefined} />
-                        <AvatarFallback className="text-[9px]">{getInitials(issue.assignee.name)}</AvatarFallback>
-                      </Avatar>
-                    ) : (
-                      <div className="size-5 shrink-0 rounded-full border border-dashed border-border" />
+                          return (
+                            <ResultItem
+                              key={issue.id}
+                              isActive={activeIndex === idx}
+                              onClick={() => activateItem({ kind: "issue", data: issue })}
+                              onMouseEnter={() => setActiveIndex(idx)}
+                            >
+                              <div className="flex shrink-0 items-center gap-1">
+                                <PriorityIcon className={cn("size-3.5", priorityCfg.color)} />
+                                <TypeIcon className={cn("size-3.5", typeCfg.color)} />
+                              </div>
+                              <span className="w-16 shrink-0 font-mono text-xs text-muted-foreground">
+                                {issue.project.key}-{issue.key}
+                              </span>
+                              <span className="flex-1 truncate text-sm text-foreground">
+                                <HighlightMatch text={issue.title} query={query} />
+                              </span>
+                              <div className="flex shrink-0 items-center gap-1.5">
+                                <StatusIcon className={cn("size-3.5", statusCfg.color)} />
+                                <span className="hidden text-xs text-muted-foreground sm:block">
+                                  {statusCfg.label}
+                                </span>
+                              </div>
+                              {issue.assignee ? (
+                                <Avatar className="size-5 shrink-0">
+                                  <AvatarImage src={issue.assignee.image ?? undefined} />
+                                  <AvatarFallback className="text-[9px]">
+                                    {getInitials(issue.assignee.name)}
+                                  </AvatarFallback>
+                                </Avatar>
+                              ) : (
+                                <div className="size-5 shrink-0 rounded-full border border-dashed border-border" />
+                              )}
+                            </ResultItem>
+                          );
+                        })}
+                      </div>
                     )}
-                  </CommandItem>
-                );
-              })}
-            </CommandGroup>
-          )}
-        </CommandList>
 
-        {/* Footer */}
-        <div className="flex items-center justify-between border-t border-border px-3 py-2">
-          <div className="flex items-center gap-3 text-xs text-muted-foreground">
-            <span className="flex items-center gap-1">
-              <kbd className="rounded border border-border bg-muted px-1 font-mono text-[10px]">↑↓</kbd>
-              navigate
-            </span>
-            <span className="flex items-center gap-1">
-              <kbd className="rounded border border-border bg-muted px-1 font-mono text-[10px]">↵</kbd>
-              open
-            </span>
-            <span className="flex items-center gap-1">
-              <kbd className="rounded border border-border bg-muted px-1 font-mono text-[10px]">esc</kbd>
-              close
-            </span>
-          </div>
-          {totalResults > 0 && (
-            <span className="text-xs text-muted-foreground">
-              {totalResults} result{totalResults !== 1 ? "s" : ""}
-            </span>
-          )}
-        </div>
-      </CommandDialog>
+                    {/* Projects */}
+                    {results.projects.length > 0 && (
+                      <div>
+                        <SectionLabel>Projects</SectionLabel>
+                        {results.projects.map((project) => {
+                          const idx = nextIdx();
+                          return (
+                            <ResultItem
+                              key={project.id}
+                              isActive={activeIndex === idx}
+                              onClick={() => activateItem({ kind: "project", data: project })}
+                              onMouseEnter={() => setActiveIndex(idx)}
+                            >
+                              <div className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-xs font-bold text-primary">
+                                {project.key.charAt(0)}
+                              </div>
+                              <div className="min-w-0 flex-1">
+                                <p className="truncate text-sm font-medium text-foreground">
+                                  <HighlightMatch text={project.name} query={query} />
+                                </p>
+                                <p className="text-xs text-muted-foreground">
+                                  {project._count.issues} issues
+                                </p>
+                              </div>
+                              <Badge variant="outline" className="shrink-0 font-mono text-[10px]">
+                                {project.key}
+                              </Badge>
+                            </ResultItem>
+                          );
+                        })}
+                      </div>
+                    )}
+
+                    {/* Members */}
+                    {results.members.length > 0 && (
+                      <div>
+                        <SectionLabel>Members</SectionLabel>
+                        {results.members.map((member) => {
+                          const idx = nextIdx();
+                          return (
+                            <ResultItem
+                              key={member.id}
+                              isActive={activeIndex === idx}
+                              onClick={() => activateItem({ kind: "member", data: member })}
+                              onMouseEnter={() => setActiveIndex(idx)}
+                            >
+                              <Avatar className="size-7 shrink-0">
+                                <AvatarImage src={member.image ?? undefined} />
+                                <AvatarFallback className="text-xs font-semibold">
+                                  {getInitials(member.name)}
+                                </AvatarFallback>
+                              </Avatar>
+                              <div className="min-w-0 flex-1">
+                                <p className="truncate text-sm font-medium text-foreground">
+                                  <HighlightMatch text={member.name} query={query} />
+                                </p>
+                                <p className="text-xs text-muted-foreground truncate">
+                                  {member.email}
+                                </p>
+                              </div>
+                              <span className="shrink-0 text-xs text-muted-foreground">
+                                View workload
+                              </span>
+                              <ArrowRight className="size-3.5 shrink-0 text-muted-foreground/40" />
+                            </ResultItem>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </>
+                )}
+
+                {/* ── Empty state (no query, no recent) ─────────────── */}
+                {!query && filteredRecent.length === 0 && filteredActions.length === 0 && (
+                  <div className="flex flex-col items-center gap-2 py-12 text-center">
+                    <Search className="size-8 text-muted-foreground/30" />
+                    <p className="text-sm text-muted-foreground">
+                      Type to search issues, projects, or members
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* ── Footer ────────────────────────────────────────────── */}
+              <div className="flex items-center justify-between border-t border-border px-4 py-2.5">
+                <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
+                  <span className="flex items-center gap-1">
+                    <kbd className="rounded border border-border bg-muted px-1 font-mono text-[10px]">↑↓</kbd>
+                    navigate
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <kbd className="rounded border border-border bg-muted px-1 font-mono text-[10px]">↵</kbd>
+                    open
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <kbd className="rounded border border-border bg-muted px-1 font-mono text-[10px]">esc</kbd>
+                    close
+                  </span>
+                </div>
+                <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                  {isSearching && (
+                    <Loader2 className="size-3 animate-spin" />
+                  )}
+                  {navItems.length > 0 && (
+                    <span>{navItems.length} result{navItems.length !== 1 ? "s" : ""}</span>
+                  )}
+                </div>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </>
   );
 }

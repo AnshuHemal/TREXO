@@ -13,11 +13,12 @@ interface SprintListProps {
   project: { id: string; name: string; key: string };
   sprints: SprintData[];
   backlogIssues: SprintIssue[];
+  workspaceSlug: string;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export function SprintList({ project, sprints: initialSprints, backlogIssues }: SprintListProps) {
+export function SprintList({ project, sprints: initialSprints, backlogIssues, workspaceSlug }: SprintListProps) {
   const [sprints, setSprints] = useState<SprintData[]>(initialSprints);
 
   function handleSprintCreated(sprintId: string) {
@@ -85,6 +86,7 @@ export function SprintList({ project, sprints: initialSprints, backlogIssues }: 
             sprint={sprint}
             projectId={project.id}
             projectKey={project.key}
+            workspaceSlug={workspaceSlug}
             otherSprints={otherSprints}
             backlogIssues={backlogIssues}
             index={i}

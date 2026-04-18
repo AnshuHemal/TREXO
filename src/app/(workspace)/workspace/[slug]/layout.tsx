@@ -61,11 +61,12 @@ export default async function WorkspaceLayout({
   }
   const visibleProjects = workspace.projects.filter((p) => accessibleIds.has(p.id));
 
-  // Flatten members for search + topbar
+  // Flatten members for search + topbar — include email for command palette
   const memberList = workspace.members.map((m) => ({
     id: m.user.id,
     name: m.user.name,
     image: m.user.image,
+    email: m.user.email,
   }));
 
   const projectList = visibleProjects.map((p) => ({

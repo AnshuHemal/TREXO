@@ -44,6 +44,7 @@ export default async function SettingsLayout({
             </p>
             {[
               { href: "/settings",              label: "Profile" },
+              { href: "/settings/appearance",   label: "Appearance" },
               { href: "/settings/security",     label: "Security" },
               { href: "/settings/notifications", label: "Notifications" },
             ].map(({ href, label }) => (
