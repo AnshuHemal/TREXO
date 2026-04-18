@@ -4,6 +4,7 @@ import { requireUser } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { WorkspaceTopbar } from "../../../../_components/workspace-topbar";
 import { IssueDetailPage } from "./_components/issue-detail-page";
+import type { IssueLinkItem } from "../link-actions";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -142,21 +143,16 @@ export default async function IssuePage({ params }: IssuePageProps) {
   }));
 
   // Normalise links (same logic as the modal)
-  type LinkIssue = {
-    id: string; key: number; title: string;
-    status: string; priority: string; type: string;
-    project: { key: string };
-  };
-  const links: Array<{ id: string; type: string; issue: LinkIssue }> = [];
+  const links: IssueLinkItem[] = [];
   for (const l of issue.outgoingLinks) {
-    links.push({ id: l.id, type: l.type, issue: l.target });
+    links.push({ id: l.id, type: l.type as IssueLinkItem["type"], issue: l.target });
   }
   for (const l of issue.incomingLinks) {
     const flipped =
       l.type === "BLOCKS" ? "BLOCKED_BY"
       : l.type === "BLOCKED_BY" ? "BLOCKS"
       : l.type;
-    links.push({ id: l.id, type: flipped, issue: l.source });
+    links.push({ id: l.id, type: flipped as IssueLinkItem["type"], issue: l.source });
   }
 
   const issueData = {
