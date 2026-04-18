@@ -64,6 +64,16 @@ export default async function BacklogPage({ params }: BacklogPageProps) {
     },
   });
 
+  // Fetch active + planned sprints for sprint planning
+  const sprints = await prisma.sprint.findMany({
+    where: {
+      projectId: project.id,
+      status: { in: ["ACTIVE", "PLANNED"] },
+    },
+    select: { id: true, name: true, status: true },
+    orderBy: [{ status: "asc" }, { createdAt: "asc" }],
+  });
+
   const memberList = members.map((m) => ({
     id: m.user.id,
     name: m.user.name,
@@ -86,6 +96,7 @@ export default async function BacklogPage({ params }: BacklogPageProps) {
     createdAt: i.createdAt,
     updatedAt: i.updatedAt,
     commentCount: i._count.comments,
+    sprintId: i.sprintId,
   }));
 
   const savedFilterList = savedFilters.map((f) => ({
@@ -109,6 +120,7 @@ export default async function BacklogPage({ params }: BacklogPageProps) {
         workspaceSlug={workspace.slug}
         workspaceId={workspace.id}
         savedFilters={savedFilterList}
+        sprints={sprints}
       />
     </FadeIn>
   );

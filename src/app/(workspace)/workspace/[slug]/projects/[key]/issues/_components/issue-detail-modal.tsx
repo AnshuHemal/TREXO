@@ -4,7 +4,7 @@ import { useState, useTransition, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import {
   X, Trash2, Loader2, XCircle, Send, MessageSquare,
-  Pencil, Check, Clock, CalendarDays, Zap,
+  Pencil, Check, Clock, CalendarDays, Zap, ExternalLink,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -113,6 +113,7 @@ interface IssueDetailModalProps {
   currentUserId: string;
   currentUserName?: string;
   currentUserImage?: string | null;
+  workspaceSlug?: string;
   onClose: () => void;
   onDeleted: () => void;
 }
@@ -340,6 +341,7 @@ export function IssueDetailModal({
   currentUserId,
   currentUserName,
   currentUserImage,
+  workspaceSlug,
   onClose,
   onDeleted,
 }: IssueDetailModalProps) {
@@ -574,6 +576,17 @@ export function IssueDetailModal({
             <span className="font-mono text-sm font-medium text-muted-foreground">{issueKey}</span>
           </div>
           <div className="flex items-center gap-1">
+            {workspaceSlug && (
+              <a
+                href={`/workspace/${workspaceSlug}/projects/${projectKey}/issues/${issue.key}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex size-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                title="Open full page"
+              >
+                <ExternalLink className="size-4" />
+              </a>
+            )}
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button variant="ghost" size="icon" className="size-8 text-muted-foreground hover:text-destructive">

@@ -31,6 +31,7 @@ import type { SavedFilterItem, FilterState } from "../saved-filter-actions";
 import { useRealtimeIssues } from "@/hooks/use-realtime-issues";
 import { useWorkspaceSafe } from "@/components/providers/workspace-provider";
 import { RealtimeIndicator, ReconnectBanner, LiveUpdateToast } from "@/components/shared/realtime-indicator";
+import { addIssueToSprint, removeIssueFromSprint } from "../../sprints/actions";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -43,6 +44,13 @@ interface IssueRow {
   reporter: { id: string; name: string; image: string | null };
   description: string | null; dueDate: Date | null;
   createdAt: Date; updatedAt: Date; commentCount: number;
+  sprintId?: string | null;
+}
+
+interface SprintOption {
+  id: string;
+  name: string;
+  status: string;
 }
 
 type SortKey       = "default" | "dueDate" | "priority" | "status" | "createdAt" | "updatedAt";
@@ -63,6 +71,7 @@ interface BacklogClientProps {
   workspaceSlug: string;
   workspaceId: string;
   savedFilters: SavedFilterItem[];
+  sprints?: SprintOption[];
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -103,10 +112,15 @@ function sortGroups(keys: string[], groupBy: GroupBy): string[] {
 
 function IssueRowItem({
   issue, projectKey, index, selected, onSelect, onClick, visibleColumns,
+  sprints, onAddToSprint, onRemoveFromSprint, isSprintPending,
 }: {
   issue: IssueRow; projectKey: string; index: number;
   selected: boolean; onSelect: (id: string, checked: boolean) => void;
   onClick: () => void; visibleColumns: VisibleColumns;
+  sprints?: SprintOption[];
+  onAddToSprint?: (issueId: string, sprintId: string) => void;
+  onRemoveFromSprint?: (issueId: string) => void;
+  isSprintPending?: boolean;
 }) {
   const status   = getStatusConfig(issue.status);
   const priority = getPriorityConfig(issue.priority);
@@ -179,6 +193,61 @@ function IssueRowItem({
         </div>
       )}
 
+      {/* Sprint badge / planning button */}
+      {sprints && sprints.length > 0 && (
+        <div className="shrink-0" onClick={(e) => e.stopPropagation()}>
+          {issue.sprintId ? (
+            <div className="flex items-center gap-1">
+              <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary">
+                {sprints.find((s) => s.id === issue.sprintId)?.name ?? "Sprint"}
+              </span>
+              <button
+                type="button"
+                onClick={() => onRemoveFromSprint?.(issue.id)}
+                disabled={isSprintPending}
+                className="text-muted-foreground hover:text-destructive transition-colors disabled:opacity-50"
+                aria-label="Remove from sprint"
+              >
+                <X className="size-3" />
+              </button>
+            </div>
+          ) : (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  type="button"
+                  className="flex items-center gap-1 rounded-full border border-dashed border-border px-2 py-0.5 text-[10px] text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity hover:border-primary hover:text-primary"
+                  disabled={isSprintPending}
+                >
+                  <Plus className="size-2.5" />
+                  Sprint
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-44">
+                <DropdownMenuLabel className="text-xs text-muted-foreground">Add to sprint</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                {sprints.map((s) => (
+                  <DropdownMenuItem
+                    key={s.id}
+                    onClick={() => onAddToSprint?.(issue.id, s.id)}
+                    className="text-xs"
+                  >
+                    <span className={cn(
+                      "mr-1.5 size-1.5 rounded-full",
+                      s.status === "ACTIVE" ? "bg-primary" : "bg-muted-foreground",
+                    )} />
+                    {s.name}
+                    {s.status === "ACTIVE" && (
+                      <span className="ml-auto text-[10px] text-primary">Active</span>
+                    )}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+        </div>
+      )}
+
       {visibleColumns.assignee && (
         <div className="shrink-0" onClick={onClick}>
           {issue.assignee ? (
@@ -199,13 +268,17 @@ function IssueRowItem({
 
 function GroupSection({
   groupKey, groupBy, issues, projectKey, selectedIds, onSelect, onOpenIssue,
-  visibleColumns, project, groupIndex,
+  visibleColumns, project, groupIndex, sprints, onAddToSprint, onRemoveFromSprint, isSprintPending,
 }: {
   groupKey: string; groupBy: GroupBy; issues: IssueRow[]; projectKey: string;
   selectedIds: Set<string>; onSelect: (id: string, checked: boolean) => void;
   onOpenIssue: (id: string) => void; visibleColumns: VisibleColumns;
   project: { id: string; name: string; key: string };
   groupIndex: number;
+  sprints?: SprintOption[];
+  onAddToSprint?: (issueId: string, sprintId: string) => void;
+  onRemoveFromSprint?: (issueId: string) => void;
+  isSprintPending?: boolean;
 }) {
   const [isExpanded, setIsExpanded] = useState(true);
   const [isCreating, setIsCreating] = useState(false);
@@ -285,6 +358,10 @@ function GroupSection({
                 onSelect={onSelect}
                 onClick={() => onOpenIssue(issue.id)}
                 visibleColumns={visibleColumns}
+                sprints={sprints}
+                onAddToSprint={onAddToSprint}
+                onRemoveFromSprint={onRemoveFromSprint}
+                isSprintPending={isSprintPending}
               />
             ))}
 
@@ -465,6 +542,7 @@ export function BacklogClient({
   project, issues: initialIssues, members, currentUserId,
   currentUserName, currentUserImage, workspaceSlug, workspaceId,
   savedFilters: initialSavedFilters,
+  sprints = [],
 }: BacklogClientProps) {
   const [issues, setIssues]               = useState(initialIssues);
   const [search, setSearch]               = useState("");
@@ -489,6 +567,9 @@ export function BacklogClient({
   const [connStatus, setConnStatus]     = useState<ConnStatus>("connecting");
   const [liveToast, setLiveToast]       = useState<string | null>(null);
   const ctx = useWorkspaceSafe();
+
+  // ── Sprint planning state ─────────────────────────────────────────────────────
+  const [isSprintPending, startSprintTransition] = useTransition();
 
   function showLiveToast(msg: string) {
     setLiveToast(msg);
@@ -628,6 +709,32 @@ export function BacklogClient({
     setGroupBy("none");
     setDueDateFilter("all");
     setActiveFilterId(null);
+  }
+
+  // ── Sprint planning ───────────────────────────────────────────────────────────
+
+  function handleAddToSprint(issueId: string, sprintId: string) {
+    startSprintTransition(async () => {
+      const result = await addIssueToSprint(issueId, sprintId);
+      if (result.success) {
+        setIssues((prev) =>
+          prev.map((i) => i.id === issueId ? { ...i, sprintId } : i),
+        );
+        showLiveToast("Added to sprint");
+      }
+    });
+  }
+
+  function handleRemoveFromSprint(issueId: string) {
+    startSprintTransition(async () => {
+      const result = await removeIssueFromSprint(issueId);
+      if (result.success) {
+        setIssues((prev) =>
+          prev.map((i) => i.id === issueId ? { ...i, sprintId: null } : i),
+        );
+        showLiveToast("Removed from sprint");
+      }
+    });
   }
 
   // ── Current filter state (for saving) ────────────────────────────────────────
@@ -927,6 +1034,10 @@ export function BacklogClient({
                 visibleColumns={visibleColumns}
                 project={project}
                 groupIndex={gi}
+                sprints={sprints}
+                onAddToSprint={handleAddToSprint}
+                onRemoveFromSprint={handleRemoveFromSprint}
+                isSprintPending={isSprintPending}
               />
             ))}
           </div>
