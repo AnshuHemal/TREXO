@@ -67,9 +67,9 @@ export function ShortcutHint({
       <AnimatePresence>
         {visible && (
           <motion.div
-            initial={{ opacity: 0, ...enterVariants[side] }}
+            initial={{ ...enterVariants[side], opacity: 0 }}
             animate={{ opacity: 1, x: 0, y: 0 }}
-            exit={{ opacity: 0, ...enterVariants[side] }}
+            exit={{ ...enterVariants[side], opacity: 0 }}
             transition={{ duration: 0.12, ease: "easeOut" }}
             className={cn(
               "pointer-events-none absolute z-50 flex items-center gap-1.5 whitespace-nowrap",

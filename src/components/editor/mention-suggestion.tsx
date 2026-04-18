@@ -1,6 +1,7 @@
 "use client";
 
 import { ReactRenderer } from "@tiptap/react";
+import type { SuggestionProps } from "@tiptap/suggestion";
 import tippy, { type Instance as TippyInstance } from "tippy.js";
 import {
   forwardRef,
@@ -143,10 +144,10 @@ export function buildMentionSuggestion(members: MentionMember[]) {
       let popup: TippyInstance[];
 
       return {
-        onStart(props: Parameters<NonNullable<ReturnType<typeof buildMentionSuggestion>["render"]>>[0]) {
+        onStart(props: SuggestionProps) {
           component = new ReactRenderer(MentionList, {
             props: {
-              ...props,
+              items: props.items as MentionMember[],
               command: (item: MentionMember) => {
                 props.command({ id: item.id, label: item.name });
               },
@@ -170,9 +171,9 @@ export function buildMentionSuggestion(members: MentionMember[]) {
           });
         },
 
-        onUpdate(props: Parameters<NonNullable<ReturnType<typeof buildMentionSuggestion>["render"]>>[0]) {
+        onUpdate(props: SuggestionProps) {
           component.updateProps({
-            ...props,
+            items: props.items as MentionMember[],
             command: (item: MentionMember) => {
               props.command({ id: item.id, label: item.name });
             },
