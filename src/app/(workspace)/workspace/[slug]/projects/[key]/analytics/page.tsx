@@ -137,7 +137,7 @@ export default async function AnalyticsPage({ params }: AnalyticsPageProps) {
   // ── Build cumulative flow data ────────────────────────────────────────────
   // Build daily snapshots for the last 14 days
   const STATUSES = ["BACKLOG", "TODO", "IN_PROGRESS", "IN_REVIEW", "DONE"];
-  const cfdData: Array<{ date: string } & Record<string, number>> = [];
+  const cfdData: Array<{ date: string; BACKLOG: number; TODO: number; IN_PROGRESS: number; IN_REVIEW: number; DONE: number }> = [];
 
   // Start from current counts and work backwards using activity log
   const currentCounts: Record<string, number> = {};
@@ -192,7 +192,7 @@ export default async function AnalyticsPage({ params }: AnalyticsPageProps) {
           workspaceSlug={workspace.slug}
           velocityData={velocityData}
           burndownData={burndownData}
-          cfdData={cfdData}
+          cfdData={cfdData as Array<{ date: string; BACKLOG: number; TODO: number; IN_PROGRESS: number; IN_REVIEW: number; DONE: number }>}
           activeSprint={activeSprintSummary}
           completedSprintCount={completedSprints.length}
         />

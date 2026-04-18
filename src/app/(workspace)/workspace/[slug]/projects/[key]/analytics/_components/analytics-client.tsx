@@ -54,7 +54,7 @@ interface AnalyticsClientProps {
   workspaceSlug: string;
   velocityData: VelocityPoint[];
   burndownData: BurndownPoint[];
-  cfdData: Array<{ date: string } & Record<string, number>>;
+  cfdData: Array<{ date: string; BACKLOG: number; TODO: number; IN_PROGRESS: number; IN_REVIEW: number; DONE: number }>;
   activeSprint: ActiveSprintSummary | null;
   completedSprintCount: number;
 }
