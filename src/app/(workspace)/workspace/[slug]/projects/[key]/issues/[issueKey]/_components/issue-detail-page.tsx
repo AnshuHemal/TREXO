@@ -32,12 +32,12 @@ import {
   updateIssue, deleteIssue,
   addComment, editComment, deleteComment,
   addLabelToIssue, removeLabelFromIssue,
-} from "../../../actions";
+} from "../../actions";
 import { LabelPicker, type LabelOption } from "@/components/shared/label-picker";
 import { isOverdue, toInputDate, fromInputDate } from "@/lib/due-date";
-import { SubTaskList, type SubTaskItem } from "../../../_components/sub-task-list";
-import { IssueLinks } from "../../../_components/issue-links";
-import type { IssueLinkItem } from "../../../link-actions";
+import { SubTaskList, type SubTaskItem } from "../../_components/sub-task-list";
+import { IssueLinks } from "../../_components/issue-links";
+import type { IssueLinkItem } from "../../link-actions";
 import { FadeIn } from "@/components/motion/fade-in";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
