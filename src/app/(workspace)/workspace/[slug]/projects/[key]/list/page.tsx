@@ -124,8 +124,8 @@ export default async function IssueListPage({ params }: IssueListPageProps) {
         sprints={sprints}
         epics={epics}
         currentUserId={user.id}
-        currentUserName={user.name}
-        currentUserImage={user.image}
+        currentUserName={user.name ?? null}
+        currentUserImage={user.image ?? null}
         workspaceSlug={workspace.slug}
         workspaceId={workspace.id}
       />

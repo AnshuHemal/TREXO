@@ -2,6 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/session";
+import { Prisma } from "@/generated/prisma/client";
 import type { WorkflowConfig } from "@/lib/workflow";
 
 export interface ActionResult<T = void> {
@@ -101,7 +102,7 @@ export async function resetWorkflowConfig(projectId: string): Promise<ActionResu
   try {
     await prisma.project.update({
       where: { id: projectId },
-      data: { workflowConfig: null },
+      data: { workflowConfig: Prisma.JsonNull },
     });
 
     return { success: true };
