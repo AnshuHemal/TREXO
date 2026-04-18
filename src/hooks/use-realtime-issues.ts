@@ -57,7 +57,7 @@ export function useRealtimeIssues({
       // (they already have optimistic updates applied)
       if (event.actorId === currentUserId) return;
 
-      const data = event.data as RealtimeIssueUpdate & {
+      const data = event.data as unknown as RealtimeIssueUpdate & {
         newStatus?: string;
         newPosition?: number;
       };
