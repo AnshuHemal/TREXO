@@ -66,15 +66,16 @@ export function useRealtime({
 
     es.onmessage = (e: MessageEvent) => {
       try {
-        const event = JSON.parse(e.data) as RealtimeEvent & { type: string };
+        const raw = JSON.parse(e.data) as Record<string, unknown>;
+        const eventType = raw.type as string;
 
         // Skip the internal "connected" confirmation message
-        if (event.type === "connected") return;
+        if (eventType === "connected") return;
 
         // Apply type filter if provided
-        if (filter && !filter.includes(event.type as RealtimeEventType)) return;
+        if (filter && !filter.includes(eventType as RealtimeEventType)) return;
 
-        handlerRef.current(event as RealtimeEvent);
+        handlerRef.current(raw as unknown as RealtimeEvent);
       } catch {
         // Malformed event — ignore
       }
