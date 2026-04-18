@@ -5,6 +5,7 @@ import { WorkspaceSidebar } from "./_components/workspace-sidebar";
 import { WorkspaceProvider } from "@/components/providers/workspace-provider";
 import type { WorkspaceRole } from "@/generated/prisma/enums";
 import { filterAccessibleProjects } from "@/lib/project-access";
+import { GlobalShortcutsProvider } from "@/components/shared/global-shortcuts-provider";
 
 interface WorkspaceLayoutProps {
   children: React.ReactNode;
@@ -83,17 +84,19 @@ export default async function WorkspaceLayout({
         members:       memberList,
       }}
     >
-      <div className="flex h-screen overflow-hidden">
-        <WorkspaceSidebar
-          workspace={{ id: workspace.id, name: workspace.name, slug: workspace.slug, logo: workspace.logo }}
-          projects={visibleProjects}
-          userWorkspaces={userWorkspaces.map((m) => m.workspace)}
-          currentUserRole={membership.role as WorkspaceRole}
-        />
-        <div className="flex flex-1 flex-col overflow-hidden">
-          {children}
+      <GlobalShortcutsProvider>
+        <div className="flex h-screen overflow-hidden">
+          <WorkspaceSidebar
+            workspace={{ id: workspace.id, name: workspace.name, slug: workspace.slug, logo: workspace.logo }}
+            projects={visibleProjects}
+            userWorkspaces={userWorkspaces.map((m) => m.workspace)}
+            currentUserRole={membership.role as WorkspaceRole}
+          />
+          <div className="flex flex-1 flex-col overflow-hidden">
+            {children}
+          </div>
         </div>
-      </div>
+      </GlobalShortcutsProvider>
     </WorkspaceProvider>
   );
 }

@@ -458,8 +458,13 @@ export function IssueDetailModal({
   const handleDescriptionSave = useCallback(() => {
     startDescTransition(async () => {
       await updateIssue(issue.id, { description });
+      // Notify any @mentioned users in the description
+      if (description) {
+        const { notifyMentioned } = await import("@/lib/notifications");
+        notifyMentioned({ html: description, actorId: currentUserId, issueId: issue.id }).catch(() => {});
+      }
     });
-  }, [issue.id, description]);
+  }, [issue.id, description, currentUserId]);
 
   // ── Comments ──────────────────────────────────────────────────────────────────
 
@@ -652,8 +657,9 @@ export function IssueDetailModal({
                 content={description}
                 onChange={setDescription}
                 onBlur={handleDescriptionSave}
-                placeholder="Add a description…"
+                placeholder="Add a description… (@ to mention)"
                 minHeight="100px"
+                members={members}
               />
               {isSavingDesc && (
                 <span className="flex items-center gap-1 text-xs text-muted-foreground">

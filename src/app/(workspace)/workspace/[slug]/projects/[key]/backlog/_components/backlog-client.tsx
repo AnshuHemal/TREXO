@@ -32,6 +32,7 @@ import { useRealtimeIssues } from "@/hooks/use-realtime-issues";
 import { useWorkspaceSafe } from "@/components/providers/workspace-provider";
 import { RealtimeIndicator, ReconnectBanner, LiveUpdateToast } from "@/components/shared/realtime-indicator";
 import { addIssueToSprint, removeIssueFromSprint } from "../../sprints/actions";
+import { ShortcutHint } from "@/components/shared/shortcut-hint";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -993,12 +994,14 @@ export function BacklogClient({
           )}
         </div>
 
-        <CreateIssueDialog
-          projectId={project.id}
-          projectKey={project.key}
-          workspaceSlug={workspaceSlug}
-          members={members}
-        />
+        <ShortcutHint shortcut="C" label="Create issue" side="bottom">
+          <CreateIssueDialog
+            projectId={project.id}
+            projectKey={project.key}
+            workspaceSlug={workspaceSlug}
+            members={members}
+          />
+        </ShortcutHint>
 
         {/* Real-time indicator */}
         <RealtimeIndicator status={connStatus} />

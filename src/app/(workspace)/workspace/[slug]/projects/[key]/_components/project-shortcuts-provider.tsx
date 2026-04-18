@@ -16,14 +16,29 @@ interface ProjectShortcutsProviderProps {
 }
 
 // ─── Shortcut definitions (shown in help modal) ───────────────────────────────
+// Order matters — groups appear in this order in the modal.
 
 const SHORTCUT_DEFS = [
-  { keys: "c",   description: "Create issue",       group: "Issues" },
-  { keys: "b",   description: "Go to Backlog",       group: "Navigation" },
-  { keys: "g b", description: "Go to Board",         group: "Navigation" },
-  { keys: "g s", description: "Go to Sprints",       group: "Navigation" },
-  { keys: "g r", description: "Go to Roadmap",       group: "Navigation" },
-  { keys: "?",   description: "Show this help",      group: "General" },
+  // General
+  { keys: "?",   description: "Show keyboard shortcuts",  group: "General"    },
+  { keys: "⌘k",  description: "Open search palette",      group: "General"    },
+
+  // Navigation
+  { keys: "g b", description: "Go to Board",              group: "Navigation" },
+  { keys: "g l", description: "Go to Backlog",            group: "Navigation" },
+  { keys: "g e", description: "Go to Epics",              group: "Navigation" },
+  { keys: "g s", description: "Go to Sprints",            group: "Navigation" },
+  { keys: "g r", description: "Go to Roadmap",            group: "Navigation" },
+
+  // Issues
+  { keys: "c",   description: "Create new issue",         group: "Issues"     },
+
+  // Issue Detail (shown when an issue is open)
+  { keys: "e",   description: "Edit issue title",         group: "Issue Detail" },
+  { keys: "a",   description: "Assign to me",             group: "Issue Detail" },
+  { keys: "s",   description: "Change status",            group: "Issue Detail" },
+  { keys: "p",   description: "Change priority",          group: "Issue Detail" },
+  { keys: "esc", description: "Close modal / dialog",     group: "Issue Detail" },
 ];
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -50,21 +65,28 @@ export function ProjectShortcutsProvider({
   useKeyboardShortcuts([
     {
       keys: "c",
-      description: "Create issue",
+      description: "Create new issue",
       group: "Issues",
       handler: onCreateIssue,
     },
+    // Navigation — two-key sequences
     {
-      keys: "b",
+      keys: "g b",
+      description: "Go to Board",
+      group: "Navigation",
+      handler: () => navigate(`${base}/board`),
+    },
+    {
+      keys: "g l",
       description: "Go to Backlog",
       group: "Navigation",
       handler: () => navigate(`${base}/backlog`),
     },
     {
-      keys: "g b",
-      description: "Go to Board",
+      keys: "g e",
+      description: "Go to Epics",
       group: "Navigation",
-      handler: () => navigate(base),
+      handler: () => navigate(`${base}/epics`),
     },
     {
       keys: "g s",
@@ -78,6 +100,7 @@ export function ProjectShortcutsProvider({
       group: "Navigation",
       handler: () => navigate(`${base}/roadmap`),
     },
+    // Help
     {
       keys: "?",
       description: "Show keyboard shortcuts",

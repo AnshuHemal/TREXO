@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Keyboard } from "lucide-react";
 import { ThemeToggle } from "@/components/shared/theme-toggle";
 import { GlobalSearch } from "@/components/shared/global-search";
 import { NotificationBell } from "@/components/shared/notification-bell";
@@ -87,6 +87,21 @@ export function WorkspaceTopbar({
         />
 
         <div className="h-4 w-px bg-border" aria-hidden />
+
+        {/* Keyboard shortcuts hint */}
+        <Button
+          variant="ghost"
+          size="icon"
+          className="size-8 text-muted-foreground hover:text-foreground"
+          aria-label="Keyboard shortcuts (?)"
+          title="Keyboard shortcuts (?)"
+          onClick={() => {
+            // Dispatch a synthetic ? keydown to trigger the project shortcuts provider
+            window.dispatchEvent(new KeyboardEvent("keydown", { key: "?", bubbles: true }));
+          }}
+        >
+          <Keyboard className="size-4" />
+        </Button>
 
         <NotificationBell />
         <ThemeToggle />
