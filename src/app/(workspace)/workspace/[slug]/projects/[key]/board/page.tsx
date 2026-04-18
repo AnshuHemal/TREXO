@@ -109,6 +109,13 @@ export default async function SprintBoardPage({ params }: SprintBoardPageProps) 
     orderBy: { createdAt: "asc" },
   });
 
+  // ── Epics for filter panel ────────────────────────────────────────────────────
+  const epics = await prisma.issue.findMany({
+    where: { projectId: project.id, type: "EPIC" },
+    select: { id: true, key: true, title: true },
+    orderBy: { key: "asc" },
+  });
+
   const memberList = members.map((m) => ({
     id: m.user.id,
     name: m.user.name,
@@ -147,6 +154,7 @@ export default async function SprintBoardPage({ params }: SprintBoardPageProps) 
       }}
       issues={issueList}
       members={memberList}
+      epics={epics}
       otherSprints={otherSprints}
       currentUserId={user.id}
       currentUserName={user.name}

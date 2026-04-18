@@ -37,8 +37,17 @@ export default async function BacklogPage({ params }: BacklogPageProps) {
       assignee: { select: { id: true, name: true, image: true } },
       reporter: { select: { id: true, name: true, image: true } },
       _count: { select: { comments: true } },
+      parent: { select: { id: true, title: true, type: true } },
     },
   });
+
+  // Build epic map from parent relationships
+  const epicMap = new Map<string, { id: string; title: string }>();
+  for (const issue of issues) {
+    if (issue.parent && issue.parent.type === "EPIC") {
+      epicMap.set(issue.id, { id: issue.parent.id, title: issue.parent.title });
+    }
+  }
 
   // Fetch workspace members for assignee picker
   const members = await prisma.workspaceMember.findMany({
@@ -74,6 +83,13 @@ export default async function BacklogPage({ params }: BacklogPageProps) {
     orderBy: [{ status: "asc" }, { createdAt: "asc" }],
   });
 
+  // Fetch epics for filter + labels
+  const epics = await prisma.issue.findMany({
+    where: { projectId: project.id, type: "EPIC" },
+    select: { id: true, key: true, title: true },
+    orderBy: { key: "asc" },
+  });
+
   const memberList = members.map((m) => ({
     id: m.user.id,
     name: m.user.name,
@@ -97,6 +113,8 @@ export default async function BacklogPage({ params }: BacklogPageProps) {
     updatedAt: i.updatedAt,
     commentCount: i._count.comments,
     sprintId: i.sprintId,
+    epicId:    epicMap.get(i.id)?.id    ?? null,
+    epicTitle: epicMap.get(i.id)?.title ?? null,
   }));
 
   const savedFilterList = savedFilters.map((f) => ({
@@ -121,6 +139,7 @@ export default async function BacklogPage({ params }: BacklogPageProps) {
         workspaceId={workspace.id}
         savedFilters={savedFilterList}
         sprints={sprints}
+        epics={epics}
       />
     </FadeIn>
   );

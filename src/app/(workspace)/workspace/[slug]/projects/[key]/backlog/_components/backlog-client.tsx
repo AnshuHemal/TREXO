@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "motion/react";
 import {
   MessageSquare, Search, CalendarDays, ArrowUpDown, X,
   ChevronDown, Plus, Check, Loader2, Layers, Eye, EyeOff,
-  SquareCheck, Square, SlidersHorizontal,
+  SquareCheck, Square, SlidersHorizontal, Zap,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -45,12 +45,20 @@ interface IssueRow {
   description: string | null; dueDate: Date | null;
   createdAt: Date; updatedAt: Date; commentCount: number;
   sprintId?: string | null;
+  epicId?: string | null;
+  epicTitle?: string | null;
 }
 
 interface SprintOption {
   id: string;
   name: string;
   status: string;
+}
+
+interface EpicOption {
+  id: string;
+  key: number;
+  title: string;
 }
 
 type SortKey       = "default" | "dueDate" | "priority" | "status" | "createdAt" | "updatedAt";
@@ -72,6 +80,7 @@ interface BacklogClientProps {
   workspaceId: string;
   savedFilters: SavedFilterItem[];
   sprints?: SprintOption[];
+  epics?: EpicOption[];
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -168,6 +177,14 @@ function IssueRowItem({
       >
         {issue.title}
       </span>
+
+      {/* Epic label */}
+      {issue.epicTitle && (
+        <span className="hidden shrink-0 items-center gap-1 rounded-full bg-purple-500/10 px-2 py-0.5 text-[10px] font-medium text-purple-600 dark:text-purple-400 sm:flex">
+          <Zap className="size-2.5" />
+          {issue.epicTitle}
+        </span>
+      )}
 
       {visibleColumns.dueDate && issue.dueDate && (
         <div className={cn(
@@ -543,6 +560,7 @@ export function BacklogClient({
   currentUserName, currentUserImage, workspaceSlug, workspaceId,
   savedFilters: initialSavedFilters,
   sprints = [],
+  epics = [],
 }: BacklogClientProps) {
   const [issues, setIssues]               = useState(initialIssues);
   const [search, setSearch]               = useState("");
@@ -570,6 +588,9 @@ export function BacklogClient({
 
   // ── Sprint planning state ─────────────────────────────────────────────────────
   const [isSprintPending, startSprintTransition] = useTransition();
+
+  // ── Epic filter state ─────────────────────────────────────────────────────────
+  const [filterEpic, setFilterEpic] = useState("all");
 
   function showLiveToast(msg: string) {
     setLiveToast(msg);
@@ -640,7 +661,8 @@ export function BacklogClient({
     dueDateFilter !== "all" ||
     sortKey !== "default" ||
     groupBy !== "none" ||
-    search.trim() !== "";
+    search.trim() !== "" ||
+    filterEpic !== "all";
 
   const selectedCount = selectedIds.size;
 
@@ -708,6 +730,7 @@ export function BacklogClient({
     setSortKey("default");
     setGroupBy("none");
     setDueDateFilter("all");
+    setFilterEpic("all");
     setActiveFilterId(null);
   }
 
@@ -761,7 +784,12 @@ export function BacklogClient({
         (dueDateFilter === "due_this_week" && isDueThisWeek(i.dueDate, i.status)) ||
         (dueDateFilter === "no_due_date"   && !i.dueDate);
 
-      return matchesSearch && matchesDueDate;
+      const matchesEpic =
+        filterEpic === "all" ||
+        (filterEpic === "none" && !i.epicId) ||
+        i.epicId === filterEpic;
+
+      return matchesSearch && matchesDueDate && matchesEpic;
     });
 
     if (sortKey === "dueDate") {
@@ -916,6 +944,28 @@ export function BacklogClient({
               ))}
             </DropdownMenuContent>
           </DropdownMenu>
+
+          {/* Epic filter */}
+          {epics.length > 0 && (
+            <Select value={filterEpic} onValueChange={(v) => { setFilterEpic(v); setActiveFilterId(null); }}>
+              <SelectTrigger className={cn("h-8 w-36 text-xs", filterEpic !== "all" && "border-purple-500 text-purple-600 dark:text-purple-400")}>
+                <Zap className="mr-1 size-3 shrink-0 text-purple-500" />
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All epics</SelectItem>
+                <SelectItem value="none">No epic</SelectItem>
+                {epics.map((e) => (
+                  <SelectItem key={e.id} value={e.id}>
+                    <span className="flex items-center gap-1.5 text-xs">
+                      <Zap className="size-3 text-purple-500" />
+                      {project.key}-{e.key} {e.title}
+                    </span>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
 
           {/* Saved views */}
           <SavedFiltersDropdown

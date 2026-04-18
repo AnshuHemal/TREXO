@@ -16,6 +16,7 @@ export function ProjectTabs({ slug, projectKey }: ProjectTabsProps) {
   const tabs = [
     { label: "Board",    href: `${base}/board`,           exact: true  },
     { label: "Backlog",  href: `${base}/backlog`,          exact: false },
+    { label: "Epics",    href: `${base}/epics`,            exact: false },
     { label: "Sprints",  href: `${base}/sprints`,          exact: false },
     { label: "Roadmap",  href: `${base}/roadmap`,          exact: false },
     { label: "Settings", href: `${base}/settings`,         exact: true  },

@@ -47,6 +47,7 @@ interface SprintBoardClientProps {
   };
   issues: BoardIssue[];
   members: Member[];
+  epics?: { id: string; key: number; title: string }[];
   otherSprints: { id: string; name: string }[];
   currentUserId: string;
   currentUserName?: string;
@@ -80,6 +81,7 @@ export function SprintBoardClient({
   sprint: initialSprint,
   issues: initialIssues,
   members,
+  epics = [],
   otherSprints,
   currentUserId,
   currentUserName,
@@ -95,6 +97,7 @@ export function SprintBoardClient({
   // ── Filter + swimlane ─────────────────────────────────────────────────────────
   const [filterAssignee, setFilterAssignee] = useState("all");
   const [filterPriority, setFilterPriority] = useState("all");
+  const [filterEpic, setFilterEpic]         = useState("all");
   const [swimlane, setSwimlane]             = useState<SwimlaneMode>("none");
 
   // ── Real-time ─────────────────────────────────────────────────────────────────
@@ -148,11 +151,12 @@ export function SprintBoardClient({
     },
   });
 
-  const hasActiveFilters = filterAssignee !== "all" || filterPriority !== "all" || swimlane !== "none";
+  const hasActiveFilters = filterAssignee !== "all" || filterPriority !== "all" || filterEpic !== "all" || swimlane !== "none";
 
   function clearFilters() {
     setFilterAssignee("all");
     setFilterPriority("all");
+    setFilterEpic("all");
     setSwimlane("none");
   }
 
@@ -169,11 +173,13 @@ export function SprintBoardClient({
           if (filterAssignee === "unassigned" && i.assigneeId !== null) return false;
           if (filterAssignee !== "all" && filterAssignee !== "unassigned" && i.assigneeId !== filterAssignee) return false;
           if (filterPriority !== "all" && i.priority !== filterPriority) return false;
+          if (filterEpic === "none" && i.epicId) return false;
+          if (filterEpic !== "all" && filterEpic !== "none" && i.epicId !== filterEpic) return false;
           return true;
         })
         .sort((a, b) => a.position - b.position);
     },
-    [issues, filterAssignee, filterPriority],
+    [issues, filterAssignee, filterPriority, filterEpic],
   );
 
   function getSwimlaneGroups(colIssues: BoardIssue[]) {
@@ -316,15 +322,19 @@ export function SprintBoardClient({
       {/* Filter bar */}
       <BoardFilterBar
         members={members}
+        epics={epics}
         filterAssignee={filterAssignee}
         filterPriority={filterPriority}
+        filterEpic={filterEpic}
         swimlane={swimlane}
         onFilterAssignee={setFilterAssignee}
         onFilterPriority={setFilterPriority}
+        onFilterEpic={setFilterEpic}
         onSwimlane={setSwimlane}
         onClear={clearFilters}
         hasActiveFilters={hasActiveFilters}
         realtimeStatus={connStatus}
+        projectKey={project.key}
       />
 
       {/* Board */}

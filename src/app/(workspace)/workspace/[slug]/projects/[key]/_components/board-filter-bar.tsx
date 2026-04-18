@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, AnimatePresence } from "motion/react";
-import { X, SlidersHorizontal, Layers } from "lucide-react";
+import { X, SlidersHorizontal, Layers, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -17,17 +17,23 @@ export type SwimlaneMode = "none" | "assignee" | "priority";
 
 interface Member { id: string; name: string; image: string | null; }
 
+export interface EpicOption { id: string; key: number; title: string; }
+
 interface BoardFilterBarProps {
   members: Member[];
+  epics?: EpicOption[];
   filterAssignee: string;
   filterPriority: string;
+  filterEpic?: string;
   swimlane: SwimlaneMode;
   onFilterAssignee: (v: string) => void;
   onFilterPriority: (v: string) => void;
+  onFilterEpic?: (v: string) => void;
   onSwimlane: (v: SwimlaneMode) => void;
   onClear: () => void;
   hasActiveFilters: boolean;
   realtimeStatus?: "connecting" | "connected" | "disconnected";
+  projectKey?: string;
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -41,9 +47,9 @@ function getInitials(name: string) {
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function BoardFilterBar({
-  members, filterAssignee, filterPriority, swimlane,
-  onFilterAssignee, onFilterPriority, onSwimlane, onClear, hasActiveFilters,
-  realtimeStatus,
+  members, epics = [], filterAssignee, filterPriority, filterEpic = "all",
+  swimlane, onFilterAssignee, onFilterPriority, onFilterEpic, onSwimlane,
+  onClear, hasActiveFilters, realtimeStatus, projectKey,
 }: BoardFilterBarProps) {
   return (
     <motion.div
@@ -91,6 +97,28 @@ export function BoardFilterBar({
           ))}
         </SelectContent>
       </Select>
+
+      {/* Epic filter */}
+      {epics.length > 0 && onFilterEpic && (
+        <Select value={filterEpic} onValueChange={onFilterEpic}>
+          <SelectTrigger className={cn("h-7 w-36 text-xs", filterEpic !== "all" && "border-purple-500 text-purple-600 dark:text-purple-400")}>
+            <Zap className="mr-1 size-3 shrink-0 text-purple-500" />
+            <SelectValue placeholder="Epic" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All epics</SelectItem>
+            <SelectItem value="none">No epic</SelectItem>
+            {epics.map((e) => (
+              <SelectItem key={e.id} value={e.id}>
+                <span className="flex items-center gap-1.5 text-xs">
+                  <Zap className="size-3 text-purple-500" />
+                  {projectKey ? `${projectKey}-${e.key} ` : ""}{e.title}
+                </span>
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      )}
 
       {/* Swimlane */}
       <Select value={swimlane} onValueChange={(v) => onSwimlane(v as SwimlaneMode)}>
