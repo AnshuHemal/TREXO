@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Suspense } from "react";
 import { Separator } from "@/components/ui/separator";
 import { siteConfig } from "@/config/site";
 import { LoginForm } from "./_components/login-form";
@@ -46,7 +47,9 @@ export default function LoginPage() {
 
         {/* Form */}
         <FadeIn delay={0.2}>
-          <LoginForm />
+          <Suspense>
+            <LoginForm />
+          </Suspense>
         </FadeIn>
 
       </div>
