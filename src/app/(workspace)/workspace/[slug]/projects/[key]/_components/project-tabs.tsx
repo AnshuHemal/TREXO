@@ -25,6 +25,7 @@ export function ProjectTabs({ slug, projectKey }: ProjectTabsProps) {
     { label: "Roadmap",       href: `${base}/roadmap`,                   exact: false },
     { label: "Settings",      href: `${base}/settings`,                  exact: true  },
     { label: "Workflow",      href: `${base}/settings/workflow`,         exact: false },
+    { label: "Custom Fields", href: `${base}/settings/custom-fields`,    exact: false },
     { label: "Access",        href: `${base}/settings/access`,           exact: false },
     { label: "Notifications", href: `${base}/settings/notifications`,    exact: false },
   ];

@@ -149,6 +149,9 @@ model Project {
   /// Shape: { statuses: { value, label, order }[], transitions?: { from, to }[] }
   /// null = use global defaults from issue-config.tsx
   workflowConfig Json?
+  /// Per-project custom field definitions stored as JSON.
+  /// Shape: { fields: { id, name, type, options?, required? }[] }
+  customFieldsConfig Json?
   createdAt   DateTime        @default(now())
   updatedAt   DateTime        @updatedAt
 
@@ -229,6 +232,8 @@ model Issue {
   position    Float         @default(0) // LexoRank-style ordering on the board
   dueDate     DateTime?
   estimate    Int?          // story points (1-13 fibonacci or t-shirt: 1=XS,2=S,3=M,5=L,8=XL,13=XXL)
+  /// Custom field values stored as JSON. Shape: { [fieldId]: value }
+  customFields Json?
   assigneeId  String?
   reporterId  String
   createdAt   DateTime      @default(now())

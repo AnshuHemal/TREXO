@@ -89,10 +89,22 @@ export async function GET(
           },
         },
       },
+      // Project for custom field definitions
+      project: {
+        select: { customFieldsConfig: true },
+      },
     },
   });
 
   if (!issue) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-  return NextResponse.json(issue);
+  // Parse custom field definitions from the project
+  const { parseCustomFieldsConfig } = await import("@/lib/custom-fields");
+  const customFieldDefs = parseCustomFieldsConfig(issue.project?.customFieldsConfig).fields;
+
+  return NextResponse.json({
+    ...issue,
+    customFieldDefs,
+    customFields: issue.customFields ?? {},
+  });
 }

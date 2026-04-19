@@ -46,6 +46,7 @@ import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { IssueLinks } from "./issue-links";
 import type { IssueLinkItem } from "../link-actions";
 import { CommentEntry, type CommentItem } from "./comment-entry";
+import { CustomFieldValues } from "./custom-field-values";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -97,6 +98,10 @@ export interface IssueDetail {
   } | null;
   projectId?: string;
   links?: IssueLinkItem[];
+  /** Custom field values stored as JSON */
+  customFields?: Record<string, string | number | null>;
+  /** Custom field definitions from the project */
+  customFieldDefs?: import("@/lib/custom-fields").CustomFieldDef[];
 }
 
 interface IssueDetailModalProps {
@@ -918,6 +923,19 @@ export function IssueDetailModal({
             <SidebarField label="Updated">
               <span className="text-xs text-muted-foreground">{formatDate(issue.updatedAt)}</span>
             </SidebarField>
+
+            {/* Custom fields */}
+            {issue.customFieldDefs && issue.customFieldDefs.length > 0 && (
+              <>
+                <Separator />
+                <CustomFieldValues
+                  issueId={issue.id}
+                  fields={issue.customFieldDefs}
+                  initialValues={issue.customFields ?? {}}
+                  disabled={isPending}
+                />
+              </>
+            )}
 
           </div>
         </div>
