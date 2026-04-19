@@ -88,6 +88,7 @@ interface BacklogClientProps {
   savedFilters: SavedFilterItem[];
   sprints?: SprintOption[];
   epics?: EpicOption[];
+  allLabels?: { id: string; name: string; color: string }[];
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -660,6 +661,7 @@ export function BacklogClient({
   savedFilters: initialSavedFilters,
   sprints = [],
   epics = [],
+  allLabels = [],
 }: BacklogClientProps) {
   const [issues, setIssues]               = useState(initialIssues);
   const [search, setSearch]               = useState("");
@@ -1246,6 +1248,7 @@ export function BacklogClient({
               issue={issueDetail}
               projectKey={project.key}
               members={members}
+              allLabels={allLabels}
               currentUserId={currentUserId}
               currentUserName={currentUserName}
               currentUserImage={currentUserImage}

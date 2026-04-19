@@ -39,6 +39,10 @@ export interface BoardIssue {
   commentCount: number;
   estimate?: number | null;
   dueDate?: Date | null;
+  /** When the issue last moved into its current status — used for aging. */
+  statusChangedAt?: Date | null;
+  /** Labels attached to this issue */
+  labels?: { id: string; name: string; color: string }[];
   // Epic grouping
   epicId?: string | null;
   epicTitle?: string | null;

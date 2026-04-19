@@ -70,6 +70,7 @@ export default async function SprintBoardPage({ params }: SprintBoardPageProps) 
       assignee: { select: { id: true, name: true, image: true } },
       _count: { select: { comments: true } },
       parent: { select: { id: true, title: true, type: true } },
+      labels: { include: { label: { select: { id: true, name: true, color: true } } } },
     },
   });
 
@@ -96,6 +97,26 @@ export default async function SprintBoardPage({ params }: SprintBoardPageProps) 
     blockedIds = new Set(blockingLinks.map((l) => l.targetId));
   } catch {
     // stale client — ignore
+  }
+
+  // ── Status change timestamps (for aging) ──────────────────────────────────────
+  // For each issue, find the most recent status_changed activity.
+  // Falls back to issue.createdAt if no status change activity exists.
+  const statusActivities = await prisma.activity.findMany({
+    where: {
+      issueId: { in: issueIds },
+      type: "status_changed",
+    },
+    select: { issueId: true, createdAt: true },
+    orderBy: { createdAt: "desc" },
+  });
+
+  // Build a map: issueId → most recent status change date
+  const statusChangedAtMap = new Map<string, Date>();
+  for (const act of statusActivities) {
+    if (!statusChangedAtMap.has(act.issueId)) {
+      statusChangedAtMap.set(act.issueId, act.createdAt);
+    }
   }
 
   // ── Workspace members ─────────────────────────────────────────────────────────
@@ -139,12 +160,18 @@ export default async function SprintBoardPage({ params }: SprintBoardPageProps) 
     commentCount: i._count.comments,
     estimate: i.estimate,
     dueDate: i.dueDate,
+    statusChangedAt: statusChangedAtMap.get(i.id) ?? i.createdAt,
+    labels: i.labels.map((il) => il.label),
     epicId: epicMap.get(i.id)?.id ?? null,
     epicTitle: epicMap.get(i.id)?.title ?? null,
     isBlocked: blockedIds.has(i.id),
   }));
 
-  // Sprint stats
+  // ── All workspace labels (for label picker in modal) ─────────────────────────
+  const allLabels = await prisma.label.findMany({
+    orderBy: { name: "asc" },
+    select: { id: true, name: true, color: true },
+  });
   const totalIssues = issueList.length;
   const doneIssues  = issueList.filter((i) => i.status === "DONE" || i.status === "CANCELLED").length;
 
@@ -159,6 +186,7 @@ export default async function SprintBoardPage({ params }: SprintBoardPageProps) 
       issues={issueList}
       members={memberList}
       epics={epics}
+      allLabels={allLabels}
       otherSprints={otherSprints}
       workflowConfig={workflowConfig}
       currentUserId={user.id}

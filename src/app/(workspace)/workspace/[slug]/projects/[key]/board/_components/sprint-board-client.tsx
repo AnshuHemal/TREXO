@@ -64,6 +64,7 @@ interface SprintBoardClientProps {
   issues: BoardIssue[];
   members: Member[];
   epics?: { id: string; key: number; title: string }[];
+  allLabels?: { id: string; name: string; color: string }[];
   otherSprints: { id: string; name: string }[];
   workflowConfig?: WorkflowConfig;
   currentUserId: string;
@@ -99,6 +100,7 @@ export function SprintBoardClient({
   issues: initialIssues,
   members,
   epics = [],
+  allLabels = [],
   otherSprints,
   workflowConfig = DEFAULT_WORKFLOW_CONFIG,
   currentUserId,
@@ -629,6 +631,7 @@ export function SprintBoardClient({
               issue={issueDetail}
               projectKey={project.key}
               members={members}
+              allLabels={allLabels}
               currentUserId={currentUserId}
               currentUserName={currentUserName}
               currentUserImage={currentUserImage}

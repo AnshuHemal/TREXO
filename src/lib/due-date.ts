@@ -74,3 +74,56 @@ export function fromInputDate(value: string): Date | null {
   if (!value) return null;
   return new Date(value + "T00:00:00");
 }
+
+// ─── Issue aging ──────────────────────────────────────────────────────────────
+
+/** Statuses that should never show aging (terminal states). */
+const TERMINAL_STATUSES = new Set(["DONE", "CANCELLED", "BACKLOG"]);
+
+/**
+ * Returns the number of days an issue has been in its current status.
+ * Returns null for terminal statuses (DONE, CANCELLED, BACKLOG).
+ */
+export function getDaysInStatus(
+  statusChangedAt: Date | null | undefined,
+  status: string,
+): number | null {
+  if (!statusChangedAt || TERMINAL_STATUSES.has(status)) return null;
+  const today = new Date();
+  return Math.floor((today.getTime() - new Date(statusChangedAt).getTime()) / 86_400_000);
+}
+
+export type AgingLevel = "none" | "warn" | "critical";
+
+/**
+ * Returns the aging severity level for a card.
+ * - warn:     5–9 days in same status
+ * - critical: 10+ days in same status
+ */
+export function getAgingLevel(
+  statusChangedAt: Date | null | undefined,
+  status: string,
+  warnDays = 5,
+  criticalDays = 10,
+): AgingLevel {
+  const days = getDaysInStatus(statusChangedAt, status);
+  if (days === null) return "none";
+  if (days >= criticalDays) return "critical";
+  if (days >= warnDays) return "warn";
+  return "none";
+}
+
+/**
+ * Returns a human-readable aging label.
+ * e.g. "In Progress for 8 days"
+ */
+export function getAgingLabel(
+  statusChangedAt: Date | null | undefined,
+  status: string,
+): string | null {
+  const days = getDaysInStatus(statusChangedAt, status);
+  if (days === null) return null;
+  if (days === 0) return "Since today";
+  if (days === 1) return "1 day";
+  return `${days} days`;
+}

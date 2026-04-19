@@ -3,10 +3,11 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { motion } from "motion/react";
-import { MessageSquare, CalendarDays, ShieldAlert } from "lucide-react";
+import { MessageSquare, CalendarDays, ShieldAlert, Clock } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getPriorityConfig, getTypeConfig } from "@/lib/issue-config";
-import { isOverdue, isDueThisWeek, getDueDateLabel } from "@/lib/due-date";
+import { isOverdue, isDueThisWeek, getDueDateLabel, getAgingLevel, getAgingLabel } from "@/lib/due-date";
+import { LabelBadge } from "@/components/shared/label-picker";
 import { cn } from "@/lib/utils";
 import type { BoardIssue } from "./kanban-board";
 
@@ -57,6 +58,10 @@ export function KanbanCard({ issue, projectKey, isDragging = false, onOpen }: Ka
   const dueSoon   = !overdue && isDueThisWeek(issue.dueDate, issue.status);
   const dueDateLabel = getDueDateLabel(issue.dueDate, issue.status);
 
+  // Aging
+  const agingLevel = getAgingLevel(issue.statusChangedAt, issue.status);
+  const agingLabel = getAgingLabel(issue.statusChangedAt, issue.status);
+
   // Priority border color (subtle left accent)
   const priorityBorderColor =
     issue.priority === "URGENT" ? "border-l-destructive"
@@ -89,7 +94,11 @@ export function KanbanCard({ issue, projectKey, isDragging = false, onOpen }: Ka
             ? "border-l-destructive bg-destructive/2"
             : dueSoon
               ? "border-l-amber-500"
-              : priorityBorderColor,
+              : agingLevel === "critical"
+                ? "border-l-red-500 bg-red-500/3"
+                : agingLevel === "warn"
+                  ? "border-l-amber-500 bg-amber-500/3"
+                  : priorityBorderColor,
       )}
     >
       {/* Epic badge */}
@@ -132,20 +141,53 @@ export function KanbanCard({ issue, projectKey, isDragging = false, onOpen }: Ka
       </div>
 
       {/* Title */}
-      <p className="mb-3 line-clamp-2 text-sm font-medium leading-snug text-foreground group-hover:text-primary transition-colors">
+      <p className="mb-2 line-clamp-2 text-sm font-medium leading-snug text-foreground group-hover:text-primary transition-colors">
         {issue.title}
       </p>
 
-      {/* Bottom row: comment count + assignee */}
-      <div className="flex items-center justify-between">
-        {issue.commentCount > 0 ? (
-          <div className="flex items-center gap-1 text-xs text-muted-foreground">
-            <MessageSquare className="size-3" />
-            {issue.commentCount}
-          </div>
-        ) : (
-          <span />
-        )}
+      {/* Labels */}
+      {issue.labels && issue.labels.length > 0 && (
+        <div className="mb-2.5 flex flex-wrap gap-1">
+          {issue.labels.slice(0, 3).map((label) => (
+            <LabelBadge key={label.id} label={label} size="xs" />
+          ))}
+          {issue.labels.length > 3 && (
+            <span className="rounded-full border border-border px-1.5 py-0.5 text-[10px] text-muted-foreground">
+              +{issue.labels.length - 3}
+            </span>
+          )}
+        </div>
+      )}
+
+      {/* Bottom row: aging + comment count + assignee */}
+      <div className="flex items-center justify-between gap-1">
+        <div className="flex items-center gap-1.5">
+          {/* Aging indicator */}
+          {agingLevel !== "none" && agingLabel && (
+            <motion.span
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className={cn(
+                "flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[10px] font-semibold",
+                agingLevel === "critical"
+                  ? "bg-red-500/10 text-red-600 dark:text-red-400"
+                  : "bg-amber-500/10 text-amber-600 dark:text-amber-400",
+              )}
+              title={`In ${issue.status.replace("_", " ").toLowerCase()} for ${agingLabel}`}
+            >
+              <Clock className="size-2.5" />
+              {agingLabel}
+            </motion.span>
+          )}
+
+          {/* Comment count */}
+          {issue.commentCount > 0 && (
+            <div className="flex items-center gap-1 text-xs text-muted-foreground">
+              <MessageSquare className="size-3" />
+              {issue.commentCount}
+            </div>
+          )}
+        </div>
 
         {issue.assignee ? (
           <Avatar className="size-5">

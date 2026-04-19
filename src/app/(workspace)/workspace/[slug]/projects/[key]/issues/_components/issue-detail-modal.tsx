@@ -28,6 +28,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { RichTextEditor } from "@/components/editor/rich-text-editor";
+import { MentionTitleInput } from "@/components/editor/mention-title-input";
 import {
   ISSUE_TYPES, ISSUE_STATUSES, ISSUE_PRIORITIES,
   formatActivityType, formatActivityValue,
@@ -345,6 +346,18 @@ export function IssueDetailModal({
       setIssue((prev) => ({ ...prev, title: titleDraft.trim() }));
       setIsEditingTitle(false);
       setError(null);
+      // Notify @mentioned users in the title
+      const mentions = titleDraft.match(/@([\w\s]+?)(?=\s@|\s*$|[^a-zA-Z\s])/g);
+      if (mentions && mentions.length > 0) {
+        const { notifyMentioned } = await import("@/lib/notifications");
+        const mentionHtml = members
+          .filter((m) => mentions.some((mn) => mn.slice(1).trim() === m.name))
+          .map((m) => `<span data-type="mention" data-id="${m.id}">@${m.name}</span>`)
+          .join(" ");
+        if (mentionHtml) {
+          notifyMentioned({ html: mentionHtml, actorId: currentUserId, issueId: issue.id }).catch(() => {});
+        }
+      }
     });
   }
 
@@ -549,22 +562,21 @@ export function IssueDetailModal({
             {/* Title */}
             <div>
               {isEditingTitle ? (
-                <Input
+                <MentionTitleInput
                   value={titleDraft}
-                  onChange={(e) => setTitleDraft(e.target.value)}
-                  onBlur={handleTitleSave}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") handleTitleSave();
-                    if (e.key === "Escape") { setTitleDraft(issue.title); setIsEditingTitle(false); }
-                  }}
-                  autoFocus
-                  className="text-lg font-semibold"
+                  onChange={setTitleDraft}
+                  onSave={handleTitleSave}
+                  onCancel={() => { setTitleDraft(issue.title); setIsEditingTitle(false); }}
+                  members={members}
+                  placeholder="Issue title…"
                   disabled={isPending}
+                  autoFocus
                 />
               ) : (
                 <h1
                   className="cursor-text rounded px-1 -mx-1 py-0.5 text-xl font-semibold text-foreground transition-colors hover:bg-accent/50"
                   onClick={() => { setTitleDraft(issue.title); setIsEditingTitle(true); }}
+                  title="Click to edit (or press E)"
                 >
                   {issue.title}
                 </h1>

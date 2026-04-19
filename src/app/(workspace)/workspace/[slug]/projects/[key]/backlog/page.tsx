@@ -107,6 +107,12 @@ export default async function BacklogPage({ params }: BacklogPageProps) {
     orderBy: { key: "asc" },
   });
 
+  // All workspace labels for the label picker in the modal
+  const allLabels = await prisma.label.findMany({
+    orderBy: { name: "asc" },
+    select: { id: true, name: true, color: true },
+  });
+
   const memberList = members.map((m) => ({
     id: m.user.id,
     name: m.user.name,
@@ -158,6 +164,7 @@ export default async function BacklogPage({ params }: BacklogPageProps) {
         savedFilters={savedFilterList}
         sprints={sprints}
         epics={epics}
+        allLabels={allLabels}
       />
     </FadeIn>
   );
