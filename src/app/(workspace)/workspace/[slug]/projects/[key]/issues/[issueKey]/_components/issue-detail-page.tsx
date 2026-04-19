@@ -34,7 +34,7 @@ import {
   addLabelToIssue, removeLabelFromIssue,
 } from "../../actions";
 import { LabelPicker, type LabelOption } from "@/components/shared/label-picker";
-import { isOverdue, toInputDate, fromInputDate } from "@/lib/due-date";
+import { isOverdue, toInputDate, fromInputDate, getDueDateLabel, isDueThisWeek } from "@/lib/due-date";
 import { SubTaskList, type SubTaskItem } from "../../_components/sub-task-list";
 import { IssueLinks } from "../../_components/issue-links";
 import type { IssueLinkItem } from "../../link-actions";
@@ -401,7 +401,7 @@ export function IssueDetailPage({
 
             {/* Issue key + type badge */}
             <FadeIn delay={0.04}>
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 {(() => {
                   const typeConf = ISSUE_TYPES.find((t) => t.value === issue.type);
                   if (!typeConf) return null;
@@ -414,6 +414,29 @@ export function IssueDetailPage({
                   );
                 })()}
                 <span className="font-mono text-sm text-muted-foreground">{issueKey}</span>
+
+                {/* Overdue / due-soon badge in header */}
+                {dueDate && !["DONE", "CANCELLED"].includes(issue.status) && (() => {
+                  const label = getDueDateLabel(dueDate, issue.status);
+                  const overdueBadge = isOverdue(dueDate, issue.status);
+                  const dueSoonBadge = !overdueBadge && isDueThisWeek(dueDate, issue.status);
+                  if (!label || (!overdueBadge && !dueSoonBadge)) return null;
+                  return (
+                    <motion.span
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      className={cn(
+                        "flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold",
+                        overdueBadge
+                          ? "bg-destructive/10 text-destructive"
+                          : "bg-amber-500/10 text-amber-600 dark:text-amber-400",
+                      )}
+                    >
+                      <CalendarDays className="size-3.5" />
+                      {label}
+                    </motion.span>
+                  );
+                })()}
               </div>
             </FadeIn>
 
@@ -740,9 +763,24 @@ export function IssueDetailPage({
                   )}
                 </div>
                 {dueDate && isOverdue(dueDate, issue.status) && (
-                  <span className="flex items-center gap-1 text-xs text-destructive">
-                    <CalendarDays className="size-3" />Overdue
-                  </span>
+                  <motion.span
+                    initial={{ opacity: 0, y: -4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="flex items-center gap-1 text-xs font-semibold text-destructive"
+                  >
+                    <CalendarDays className="size-3" />
+                    {getDueDateLabel(dueDate, issue.status)}
+                  </motion.span>
+                )}
+                {dueDate && !isOverdue(dueDate, issue.status) && isDueThisWeek(dueDate, issue.status) && (
+                  <motion.span
+                    initial={{ opacity: 0, y: -4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="flex items-center gap-1 text-xs font-semibold text-amber-600 dark:text-amber-400"
+                  >
+                    <CalendarDays className="size-3" />
+                    {getDueDateLabel(dueDate, issue.status)}
+                  </motion.span>
                 )}
               </SidebarField>
 

@@ -14,7 +14,7 @@ import {
 } from "@dnd-kit/core";
 import { AnimatePresence, motion } from "motion/react";
 import {
-  X, Loader2, Trash2,
+  X, Loader2, Trash2, BarChart3,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -33,6 +33,7 @@ import { KanbanCard } from "../../_components/kanban-card";
 import { IssueDetailModal, type IssueDetail } from "../../issues/_components/issue-detail-modal";
 import { BoardFilterBar, type SwimlaneMode } from "../../_components/board-filter-bar";
 import { SprintHeader } from "./sprint-header";
+import { CapacityPanel } from "./capacity-panel";
 import { useRealtimeIssues } from "@/hooks/use-realtime-issues";
 import { useWorkspaceSafe } from "@/components/providers/workspace-provider";
 import { ReconnectBanner } from "@/components/shared/realtime-indicator";
@@ -172,6 +173,9 @@ export function SprintBoardClient({
   const [filterPriority, setFilterPriority] = useState("all");
   const [filterEpic, setFilterEpic]         = useState("all");
   const [swimlane, setSwimlane]             = useState<SwimlaneMode>("none");
+
+  // ── Capacity panel ────────────────────────────────────────────────────────────
+  const [showCapacity, setShowCapacity] = useState(false);
 
   // ── Real-time ─────────────────────────────────────────────────────────────────
   type ConnStatus = "connecting" | "connected" | "disconnected";
@@ -408,10 +412,13 @@ export function SprintBoardClient({
         hasActiveFilters={hasActiveFilters}
         realtimeStatus={connStatus}
         projectKey={project.key}
+        showCapacity={showCapacity}
+        onToggleCapacity={() => setShowCapacity((v) => !v)}
       />
 
-      {/* Board */}
-      <div className="flex flex-1 overflow-x-auto overflow-y-hidden">
+      {/* Board + capacity panel */}
+      <div className="flex flex-1 overflow-hidden">
+        <div className="flex flex-1 overflow-x-auto overflow-y-hidden">
         <DndContext
           sensors={sensors}
           collisionDetection={closestCorners}
@@ -485,6 +492,22 @@ export function SprintBoardClient({
           </DragOverlay>
         </DndContext>
       </div>
+
+        {/* Capacity panel */}
+        <AnimatePresence>
+          {showCapacity && (
+            <motion.div
+              initial={{ opacity: 0, width: 0 }}
+              animate={{ opacity: 1, width: "auto" }}
+              exit={{ opacity: 0, width: 0 }}
+              transition={{ duration: 0.22, ease: [0.25, 0.1, 0.25, 1] }}
+              className="overflow-hidden"
+            >
+              <CapacityPanel issues={issues} members={members} />
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>{/* end board + capacity row */}
 
       {/* Floating bulk action bar */}
       <AnimatePresence>

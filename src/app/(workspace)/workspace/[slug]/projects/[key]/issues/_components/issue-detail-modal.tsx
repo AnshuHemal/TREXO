@@ -39,7 +39,7 @@ import {
   addLabelToIssue, removeLabelFromIssue,
 } from "../actions";
 import { LabelPicker, type LabelOption } from "@/components/shared/label-picker";
-import { isOverdue, toInputDate, fromInputDate } from "@/lib/due-date";
+import { isOverdue, toInputDate, fromInputDate, getDueDateLabel, isDueThisWeek } from "@/lib/due-date";
 import { SubTaskList, type SubTaskItem } from "./sub-task-list";
 import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { IssueLinks } from "./issue-links";
@@ -512,6 +512,34 @@ export function IssueDetailModal({
           </div>
         </div>
 
+        {/* ── Overdue / due-soon banner ────────────────────────────────── */}
+        <AnimatePresence>
+          {dueDate && !["DONE", "CANCELLED"].includes(issue.status) && (() => {
+            const label = getDueDateLabel(dueDate, issue.status);
+            const overdueBanner = isOverdue(dueDate, issue.status);
+            const dueSoonBanner = !overdueBanner && isDueThisWeek(dueDate, issue.status);
+            if (!overdueBanner && !dueSoonBanner) return null;
+            return (
+              <motion.div
+                key="due-banner"
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.2 }}
+                className={cn(
+                  "flex items-center gap-2 border-b px-6 py-2 text-xs font-medium",
+                  overdueBanner
+                    ? "border-destructive/20 bg-destructive/5 text-destructive"
+                    : "border-amber-500/20 bg-amber-500/5 text-amber-600 dark:text-amber-400",
+                )}
+              >
+                <CalendarDays className="size-3.5 shrink-0" />
+                {label}
+              </motion.div>
+            );
+          })()}
+        </AnimatePresence>
+
         {/* ── Body ────────────────────────────────────────────────────────── */}
         <div className="flex flex-1 overflow-hidden">
 
@@ -823,10 +851,24 @@ export function IssueDetailModal({
                 )}
               </div>
               {dueDate && isOverdue(dueDate, issue.status) && (
-                <span className="flex items-center gap-1 text-xs text-destructive">
+                <motion.span
+                  initial={{ opacity: 0, y: -4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="flex items-center gap-1 text-xs font-semibold text-destructive"
+                >
                   <CalendarDays className="size-3" />
-                  Overdue
-                </span>
+                  {getDueDateLabel(dueDate, issue.status)}
+                </motion.span>
+              )}
+              {dueDate && !isOverdue(dueDate, issue.status) && isDueThisWeek(dueDate, issue.status) && (
+                <motion.span
+                  initial={{ opacity: 0, y: -4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="flex items-center gap-1 text-xs font-semibold text-amber-600 dark:text-amber-400"
+                >
+                  <CalendarDays className="size-3" />
+                  {getDueDateLabel(dueDate, issue.status)}
+                </motion.span>
               )}
             </SidebarField>
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, AnimatePresence } from "motion/react";
-import { X, SlidersHorizontal, Layers, Zap } from "lucide-react";
+import { X, SlidersHorizontal, Layers, Zap, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -34,6 +34,8 @@ interface BoardFilterBarProps {
   hasActiveFilters: boolean;
   realtimeStatus?: "connecting" | "connected" | "disconnected";
   projectKey?: string;
+  showCapacity?: boolean;
+  onToggleCapacity?: () => void;
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -50,6 +52,7 @@ export function BoardFilterBar({
   members, epics = [], filterAssignee, filterPriority, filterEpic = "all",
   swimlane, onFilterAssignee, onFilterPriority, onFilterEpic, onSwimlane,
   onClear, hasActiveFilters, realtimeStatus, projectKey,
+  showCapacity, onToggleCapacity,
 }: BoardFilterBarProps) {
   return (
     <motion.div
@@ -146,8 +149,29 @@ export function BoardFilterBar({
 
       {/* Real-time indicator */}
       {realtimeStatus && (
-        <div className="ml-auto">
+        <div className={cn("flex items-center gap-2", !onToggleCapacity && "ml-auto")}>
           <RealtimeIndicator status={realtimeStatus} />
+        </div>
+      )}
+
+      {/* Capacity toggle */}
+      {onToggleCapacity && (
+        <div className={cn(!realtimeStatus && "ml-auto")}>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onToggleCapacity}
+            className={cn(
+              "h-7 gap-1.5 px-2.5 text-xs font-medium transition-all",
+              showCapacity
+                ? "bg-primary/10 text-primary hover:bg-primary/15"
+                : "text-muted-foreground hover:text-foreground",
+            )}
+            title="Toggle capacity panel"
+          >
+            <BarChart3 className="size-3.5" />
+            Capacity
+          </Button>
         </div>
       )}
     </motion.div>

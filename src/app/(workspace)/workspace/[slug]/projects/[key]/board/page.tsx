@@ -137,6 +137,7 @@ export default async function SprintBoardPage({ params }: SprintBoardPageProps) 
     assigneeId: i.assigneeId,
     assignee: i.assignee,
     commentCount: i._count.comments,
+    estimate: i.estimate,
     dueDate: i.dueDate,
     epicId: epicMap.get(i.id)?.id ?? null,
     epicTitle: epicMap.get(i.id)?.title ?? null,

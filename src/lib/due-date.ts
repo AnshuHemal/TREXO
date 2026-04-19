@@ -23,6 +23,36 @@ export function isDueThisWeek(dueDate: Date | null | undefined, status: string):
   return d >= today && d <= weekEnd;
 }
 
+/**
+ * Returns the number of days until (positive) or since (negative) the due date.
+ * Returns null if no due date.
+ */
+export function getDaysUntilDue(dueDate: Date | null | undefined): number | null {
+  if (!dueDate) return null;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const d = new Date(dueDate);
+  d.setHours(0, 0, 0, 0);
+  return Math.round((d.getTime() - today.getTime()) / 86_400_000);
+}
+
+/**
+ * Returns a human-readable due date label with urgency context.
+ * e.g. "Due today", "Due tomorrow", "3 days overdue", "Due in 5 days"
+ */
+export function getDueDateLabel(dueDate: Date | null | undefined, status: string): string | null {
+  if (!dueDate) return null;
+  if (DONE_STATUSES.has(status)) return null;
+  const days = getDaysUntilDue(dueDate);
+  if (days === null) return null;
+  if (days === 0) return "Due today";
+  if (days === 1) return "Due tomorrow";
+  if (days === -1) return "1 day overdue";
+  if (days < 0) return `${Math.abs(days)} days overdue`;
+  if (days <= 7) return `Due in ${days} days`;
+  return formatDueDate(dueDate);
+}
+
 /** Formats a due date for display. */
 export function formatDueDate(dueDate: Date | null | undefined): string {
   if (!dueDate) return "";

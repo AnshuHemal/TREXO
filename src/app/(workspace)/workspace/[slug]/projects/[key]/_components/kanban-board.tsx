@@ -37,6 +37,7 @@ export interface BoardIssue {
   assigneeId: string | null;
   assignee: { id: string; name: string; image: string | null } | null;
   commentCount: number;
+  estimate?: number | null;
   dueDate?: Date | null;
   // Epic grouping
   epicId?: string | null;

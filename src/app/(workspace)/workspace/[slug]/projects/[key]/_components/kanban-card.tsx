@@ -6,7 +6,7 @@ import { motion } from "motion/react";
 import { MessageSquare, CalendarDays, ShieldAlert } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getPriorityConfig, getTypeConfig } from "@/lib/issue-config";
-import { isOverdue } from "@/lib/due-date";
+import { isOverdue, isDueThisWeek, getDueDateLabel } from "@/lib/due-date";
 import { cn } from "@/lib/utils";
 import type { BoardIssue } from "./kanban-board";
 
@@ -54,6 +54,8 @@ export function KanbanCard({ issue, projectKey, isDragging = false, onOpen }: Ka
 
   const isGhost   = isSortableDragging && !isDragging;
   const overdue   = isOverdue(issue.dueDate, issue.status);
+  const dueSoon   = !overdue && isDueThisWeek(issue.dueDate, issue.status);
+  const dueDateLabel = getDueDateLabel(issue.dueDate, issue.status);
 
   // Priority border color (subtle left accent)
   const priorityBorderColor =
@@ -84,8 +86,10 @@ export function KanbanCard({ issue, projectKey, isDragging = false, onOpen }: Ka
         issue.isBlocked
           ? "border-l-destructive bg-destructive/2"
           : overdue
-            ? "border-destructive/40"
-            : priorityBorderColor,
+            ? "border-l-destructive bg-destructive/2"
+            : dueSoon
+              ? "border-l-amber-500"
+              : priorityBorderColor,
       )}
     >
       {/* Epic badge */}
@@ -106,9 +110,15 @@ export function KanbanCard({ issue, projectKey, isDragging = false, onOpen }: Ka
         </div>
         <div className="flex items-center gap-1.5">
           {overdue && (
-            <span className="flex items-center gap-0.5 rounded-full bg-destructive/10 px-1.5 py-0.5 text-[10px] font-medium text-destructive">
+            <span className="flex items-center gap-0.5 rounded-full bg-destructive/10 px-1.5 py-0.5 text-[10px] font-semibold text-destructive">
               <CalendarDays className="size-2.5" />
-              Overdue
+              {dueDateLabel ?? "Overdue"}
+            </span>
+          )}
+          {!overdue && dueSoon && dueDateLabel && (
+            <span className="flex items-center gap-0.5 rounded-full bg-amber-500/10 px-1.5 py-0.5 text-[10px] font-semibold text-amber-600 dark:text-amber-400">
+              <CalendarDays className="size-2.5" />
+              {dueDateLabel}
             </span>
           )}
           {issue.isBlocked && (
