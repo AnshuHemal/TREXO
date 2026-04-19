@@ -25,6 +25,12 @@ export async function GET(
         orderBy: { createdAt: "asc" },
         include: {
           author: { select: { id: true, name: true, image: true } },
+          reactions: {
+            select: {
+              id: true, emoji: true,
+              user: { select: { id: true, name: true } },
+            },
+          },
         },
       },
       activities: {

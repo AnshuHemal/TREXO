@@ -436,6 +436,38 @@ export async function editComment(
   }
 }
 
+// ─── toggleCommentReaction ────────────────────────────────────────────────────
+
+export async function toggleCommentReaction(
+  commentId: string,
+  emoji: string,
+): Promise<ActionResult<{ added: boolean }>> {
+  const user = await requireUser();
+
+  const ALLOWED = ["👍", "✅", "🎉", "❤️", "🚀", "👀"];
+  if (!ALLOWED.includes(emoji)) {
+    return { success: false, error: "Invalid emoji." };
+  }
+
+  try {
+    const existing = await prisma.commentReaction.findUnique({
+      where: { commentId_userId_emoji: { commentId, userId: user.id, emoji } },
+    });
+
+    if (existing) {
+      await prisma.commentReaction.delete({ where: { id: existing.id } });
+      return { success: true, data: { added: false } };
+    } else {
+      await prisma.commentReaction.create({
+        data: { commentId, userId: user.id, emoji },
+      });
+      return { success: true, data: { added: true } };
+    }
+  } catch {
+    return { success: false, error: "Failed to update reaction." };
+  }
+}
+
 // ─── Label actions ────────────────────────────────────────────────────────────
 
 export async function addLabelToIssue(
@@ -566,5 +598,79 @@ export async function bulkUpdateIssues(
     return { success: true, data: { updatedCount: result.count } };
   } catch {
     return { success: false, error: "Failed to update issues. Please try again." };
+  }
+}
+
+// ─── bulkDeleteIssues ─────────────────────────────────────────────────────────
+
+/**
+ * Permanently deletes multiple issues.
+ * Only OWNER or ADMIN can bulk-delete.
+ */
+export async function bulkDeleteIssues(
+  issueIds: string[],
+): Promise<ActionResult<{ deletedCount: number }>> {
+  const user = await requireUser();
+
+  if (issueIds.length === 0) {
+    return { success: false, error: "No issues selected." };
+  }
+
+  // Verify the user has permission (OWNER or ADMIN in the workspace)
+  const firstIssue = await prisma.issue.findFirst({
+    where: { id: { in: issueIds } },
+    select: { project: { select: { workspaceId: true } } },
+  });
+
+  if (!firstIssue) return { success: false, error: "Issues not found." };
+
+  const membership = await prisma.workspaceMember.findFirst({
+    where: {
+      workspaceId: firstIssue.project.workspaceId,
+      userId: user.id,
+      role: { in: ["OWNER", "ADMIN"] },
+    },
+    select: { id: true },
+  });
+
+  if (!membership) {
+    return { success: false, error: "Only workspace admins can bulk delete issues." };
+  }
+
+  try {
+    const result = await prisma.issue.deleteMany({
+      where: { id: { in: issueIds } },
+    });
+
+    return { success: true, data: { deletedCount: result.count } };
+  } catch {
+    return { success: false, error: "Failed to delete issues. Please try again." };
+  }
+}
+
+// ─── bulkMoveToSprint ─────────────────────────────────────────────────────────
+
+/**
+ * Moves multiple issues to a sprint (or removes them from any sprint if sprintId is null).
+ */
+export async function bulkMoveToSprint(
+  issueIds: string[],
+  sprintId: string | null,
+): Promise<ActionResult<{ updatedCount: number }>> {
+  await requireUser();
+
+  if (issueIds.length === 0) {
+    return { success: false, error: "No issues selected." };
+  }
+
+  try {
+    const result = await prisma.issue.updateMany({
+      where: { id: { in: issueIds } },
+      data: { sprintId },
+    });
+
+    return { success: true, data: { updatedCount: result.count } };
+  } catch {
+    return { success: false, error: "Failed to move issues to sprint." };
   }
 }

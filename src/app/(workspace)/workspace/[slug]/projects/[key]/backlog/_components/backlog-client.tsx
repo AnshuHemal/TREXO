@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "motion/react";
 import {
   MessageSquare, Search, CalendarDays, ArrowUpDown, X,
   ChevronDown, Plus, Check, Loader2, Layers, Eye, EyeOff,
-  SquareCheck, Square, SlidersHorizontal, Zap, ShieldAlert,
+  SquareCheck, Square, SlidersHorizontal, Zap, ShieldAlert, Trash2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,12 +18,17 @@ import {
   DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
+  AlertDialog, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader,
+  AlertDialogTitle, AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import {
   getStatusConfig, getPriorityConfig, getTypeConfig,
   ISSUE_STATUSES, ISSUE_PRIORITIES,
 } from "@/lib/issue-config";
 import { isOverdue, isDueThisWeek, formatDueDate } from "@/lib/due-date";
 import { cn } from "@/lib/utils";
-import { createIssue, bulkUpdateIssues } from "../../issues/actions";
+import { createIssue, bulkUpdateIssues, bulkDeleteIssues, bulkMoveToSprint } from "../../issues/actions";
 import { CreateIssueDialog } from "../../issues/_components/create-issue-dialog";
 import { IssueDetailModal, type IssueDetail } from "../../issues/_components/issue-detail-modal";
 import { SavedFiltersDropdown } from "./saved-filters-dropdown";
@@ -448,23 +453,39 @@ function GroupSection({
 // ─── Bulk action bar ──────────────────────────────────────────────────────────
 
 function BulkActionBar({
-  selectedCount, onClear, onBulkUpdate, members, isPending,
+  selectedCount, onClear, onBulkUpdate, onBulkSprint, onBulkDelete,
+  members, sprints, isPending,
 }: {
-  selectedCount: number; onClear: () => void;
+  selectedCount: number;
+  onClear: () => void;
   onBulkUpdate: (field: string, value: string | null) => void;
-  members: Member[]; isPending: boolean;
+  onBulkSprint: (sprintId: string | null) => void;
+  onBulkDelete: () => void;
+  members: Member[];
+  sprints: SprintOption[];
+  isPending: boolean;
 }) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: 8 }}
-      transition={{ duration: 0.2 }}
-      className="flex items-center gap-2 rounded-lg border border-primary/40 bg-card px-4 py-2.5 shadow-md"
+      initial={{ opacity: 0, y: 10, scale: 0.98 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, y: 10, scale: 0.98 }}
+      transition={{ duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
+      className="flex flex-wrap items-center gap-2 rounded-xl border border-primary/30 bg-card px-4 py-2.5 shadow-lg shadow-primary/5"
     >
-      <span className="text-sm font-medium text-foreground">{selectedCount} selected</span>
-      <div className="mx-2 h-4 w-px bg-border" />
+      {/* Count badge */}
+      <div className="flex items-center gap-2">
+        <span className="flex h-6 min-w-6 items-center justify-center rounded-full bg-primary px-2 text-xs font-bold text-primary-foreground">
+          {selectedCount}
+        </span>
+        <span className="text-sm font-medium text-foreground">
+          {selectedCount === 1 ? "issue" : "issues"} selected
+        </span>
+      </div>
 
+      <div className="h-4 w-px bg-border" />
+
+      {/* Status */}
       <Select onValueChange={(v) => onBulkUpdate("status", v)} disabled={isPending}>
         <SelectTrigger className="h-7 w-32 text-xs">
           <SelectValue placeholder="Set status" />
@@ -480,6 +501,7 @@ function BulkActionBar({
         </SelectContent>
       </Select>
 
+      {/* Priority */}
       <Select onValueChange={(v) => onBulkUpdate("priority", v)} disabled={isPending}>
         <SelectTrigger className="h-7 w-32 text-xs">
           <SelectValue placeholder="Set priority" />
@@ -495,6 +517,7 @@ function BulkActionBar({
         </SelectContent>
       </Select>
 
+      {/* Assignee */}
       <Select onValueChange={(v) => onBulkUpdate("assigneeId", v === "none" ? null : v)} disabled={isPending}>
         <SelectTrigger className="h-7 w-36 text-xs">
           <SelectValue placeholder="Assign to…" />
@@ -515,11 +538,75 @@ function BulkActionBar({
         </SelectContent>
       </Select>
 
+      {/* Move to sprint */}
+      {sprints.length > 0 && (
+        <Select onValueChange={(v) => onBulkSprint(v === "backlog" ? null : v)} disabled={isPending}>
+          <SelectTrigger className="h-7 w-36 text-xs">
+            <SelectValue placeholder="Move to sprint…" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="backlog">
+              <span className="text-xs text-muted-foreground">Remove from sprint</span>
+            </SelectItem>
+            {sprints.map((s) => (
+              <SelectItem key={s.id} value={s.id}>
+                <span className="flex items-center gap-2 text-xs">
+                  <span className={cn(
+                    "size-1.5 rounded-full",
+                    s.status === "ACTIVE" ? "bg-primary" : "bg-muted-foreground",
+                  )} />
+                  {s.name}
+                  {s.status === "ACTIVE" && (
+                    <span className="ml-auto text-[10px] text-primary">Active</span>
+                  )}
+                </span>
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      )}
+
       {isPending && <Loader2 className="size-4 animate-spin text-muted-foreground" />}
 
-      <div className="ml-auto">
-        <Button variant="ghost" size="sm" className="h-7 gap-1 px-2 text-xs" onClick={onClear}>
-          <X className="size-3.5" />Clear
+      <div className="ml-auto flex items-center gap-1.5">
+        {/* Bulk delete */}
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 gap-1.5 px-2 text-xs text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+              disabled={isPending}
+            >
+              <Trash2 className="size-3.5" />
+              Delete
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete {selectedCount} {selectedCount === 1 ? "issue" : "issues"}?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This will permanently delete the selected {selectedCount === 1 ? "issue" : "issues"} and all their comments. This cannot be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <Button variant="destructive" onClick={onBulkDelete} disabled={isPending}>
+                {isPending ? <Loader2 className="size-4 animate-spin" /> : `Delete ${selectedCount} ${selectedCount === 1 ? "issue" : "issues"}`}
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
+        {/* Clear selection */}
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-7 gap-1 px-2 text-xs text-muted-foreground hover:text-foreground"
+          onClick={onClear}
+        >
+          <X className="size-3.5" />
+          Clear
         </Button>
       </div>
     </motion.div>
@@ -716,6 +803,35 @@ export function BacklogClient({
             : i,
         ));
         clearSelection();
+      }
+    });
+  }
+
+  // ── Bulk move to sprint ───────────────────────────────────────────────────────
+
+  function handleBulkSprint(sprintId: string | null) {
+    startBulkTransition(async () => {
+      const result = await bulkMoveToSprint(Array.from(selectedIds), sprintId);
+      if (result.success) {
+        setIssues((prev) => prev.map((i) =>
+          selectedIds.has(i.id) ? { ...i, sprintId } : i,
+        ));
+        clearSelection();
+        showLiveToast(sprintId ? "Moved to sprint" : "Removed from sprint");
+      }
+    });
+  }
+
+  // ── Bulk delete ───────────────────────────────────────────────────────────────
+
+  function handleBulkDelete() {
+    startBulkTransition(async () => {
+      const ids = Array.from(selectedIds);
+      const result = await bulkDeleteIssues(ids);
+      if (result.success) {
+        setIssues((prev) => prev.filter((i) => !selectedIds.has(i.id)));
+        clearSelection();
+        showLiveToast(`Deleted ${result.data?.deletedCount ?? ids.length} issues`);
       }
     });
   }
@@ -1053,7 +1169,10 @@ export function BacklogClient({
                 selectedCount={selectedCount}
                 onClear={clearSelection}
                 onBulkUpdate={handleBulkUpdate}
+                onBulkSprint={handleBulkSprint}
+                onBulkDelete={handleBulkDelete}
                 members={members}
+                sprints={sprints}
                 isPending={isBulkPending}
               />
             </div>

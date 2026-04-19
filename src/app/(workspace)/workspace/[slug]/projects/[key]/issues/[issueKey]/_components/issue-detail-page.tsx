@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "motion/react";
 import {
   ArrowLeft, Trash2, Loader2, XCircle, Send, MessageSquare,
-  Pencil, Check, Clock, CalendarDays, Zap, ExternalLink,
+  Clock, CalendarDays, Zap, ExternalLink,
   ChevronRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -39,15 +39,11 @@ import { SubTaskList, type SubTaskItem } from "../../_components/sub-task-list";
 import { IssueLinks } from "../../_components/issue-links";
 import type { IssueLinkItem } from "../../link-actions";
 import { FadeIn } from "@/components/motion/fade-in";
+import { CommentEntry, type CommentItem } from "../../_components/comment-entry";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 interface Member { id: string; name: string; email: string; image: string | null; }
-
-interface CommentItem {
-  id: string; body: string; createdAt: Date; updatedAt?: Date;
-  author: { id: string; name: string; image: string | null };
-}
 
 interface ActivityItem {
   id: string; type: string; fromValue: string | null; toValue: string | null;
@@ -186,82 +182,6 @@ function ActivityEntry({ activity }: { activity: ActivityItem }) {
         <span className="ml-auto shrink-0 text-[11px] text-muted-foreground/60">
           {formatRelative(activity.createdAt)}
         </span>
-      </div>
-    </div>
-  );
-}
-
-// ─── Comment entry ────────────────────────────────────────────────────────────
-
-function CommentEntry({
-  comment, currentUserId, members, onEdit, onDelete,
-}: {
-  comment: CommentItem; currentUserId: string; members: Member[];
-  onEdit: (id: string, body: string) => void;
-  onDelete: (id: string) => void;
-}) {
-  const [isEditing, setIsEditing] = useState(false);
-  const [editBody, setEditBody]   = useState(comment.body);
-  const isOwn = comment.author.id === currentUserId;
-
-  return (
-    <div className="flex items-start gap-2.5">
-      <Avatar className="mt-0.5 size-7 shrink-0">
-        <AvatarImage src={comment.author.image ?? undefined} />
-        <AvatarFallback className="text-[10px]">{getInitials(comment.author.name)}</AvatarFallback>
-      </Avatar>
-      <div className="flex flex-1 flex-col gap-1.5 min-w-0">
-        <div className="flex items-center gap-2">
-          <span className="text-xs font-semibold text-foreground">{comment.author.name}</span>
-          <span className="text-[11px] text-muted-foreground/60">{formatRelative(comment.createdAt)}</span>
-          {comment.updatedAt && comment.updatedAt !== comment.createdAt && (
-            <span className="text-[10px] text-muted-foreground/40">(edited)</span>
-          )}
-          {isOwn && !isEditing && (
-            <div className="ml-auto flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-              <button
-                onClick={() => { setEditBody(comment.body); setIsEditing(true); }}
-                className="rounded p-1 text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
-              >
-                <Pencil className="size-3" />
-              </button>
-              <button
-                onClick={() => onDelete(comment.id)}
-                className="rounded p-1 text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
-              >
-                <Trash2 className="size-3" />
-              </button>
-            </div>
-          )}
-        </div>
-        {isEditing ? (
-          <div className="flex flex-col gap-2">
-            <RichTextEditor
-              content={editBody}
-              onChange={setEditBody}
-              placeholder="Edit comment…"
-              minHeight="60px"
-              showToolbar={false}
-              members={members}
-            />
-            <div className="flex items-center gap-2">
-              <Button size="sm" className="h-7 px-2.5 text-xs gap-1.5"
-                onClick={() => { onEdit(comment.id, editBody); setIsEditing(false); }}
-                disabled={!editBody.trim()}>
-                <Check className="size-3" />Save
-              </Button>
-              <Button size="sm" variant="ghost" className="h-7 px-2.5 text-xs"
-                onClick={() => { setIsEditing(false); setEditBody(comment.body); }}>
-                Cancel
-              </Button>
-            </div>
-          </div>
-        ) : (
-          <div
-            className="prose prose-sm dark:prose-invert max-w-none text-sm text-foreground"
-            dangerouslySetInnerHTML={{ __html: comment.body }}
-          />
-        )}
       </div>
     </div>
   );

@@ -4,7 +4,7 @@ import { useState, useTransition, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import {
   X, Trash2, Loader2, XCircle, Send, MessageSquare,
-  Pencil, Check, Clock, CalendarDays, Zap, ExternalLink,
+  Clock, CalendarDays, Zap, ExternalLink,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -44,6 +44,7 @@ import { SubTaskList, type SubTaskItem } from "./sub-task-list";
 import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { IssueLinks } from "./issue-links";
 import type { IssueLinkItem } from "../link-actions";
+import { CommentEntry, type CommentItem } from "./comment-entry";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -52,14 +53,6 @@ interface Member {
   name: string;
   email: string;
   image: string | null;
-}
-
-interface CommentItem {
-  id: string;
-  body: string;
-  createdAt: Date;
-  updatedAt?: Date;
-  author: { id: string; name: string; image: string | null };
 }
 
 interface ActivityItem {
@@ -228,106 +221,6 @@ function ActivityEntry({ activity }: { activity: ActivityItem }) {
         <span className="text-xs">{formatRelative(activity.createdAt)}</span>
       </div>
     </div>
-  );
-}
-
-// ─── Comment entry ────────────────────────────────────────────────────────────
-
-function CommentEntry({
-  comment,
-  currentUserId,
-  members,
-  onEdit,
-  onDelete,
-}: {
-  comment: CommentItem;
-  currentUserId: string;
-  members: Member[];
-  onEdit: (id: string, body: string) => void;
-  onDelete: (id: string) => void;
-}) {
-  const [isEditing, setIsEditing] = useState(false);
-  const [editBody, setEditBody] = useState(comment.body);
-  const [isPending, startTransition] = useTransition();
-  const isOwn = comment.author.id === currentUserId;
-
-  function handleSaveEdit() {
-    if (!editBody.trim()) return;
-    startTransition(async () => {
-      onEdit(comment.id, editBody);
-      setIsEditing(false);
-    });
-  }
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 4 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="flex items-start gap-2.5"
-    >
-      <Avatar className="mt-1 size-6 shrink-0">
-        <AvatarImage src={comment.author.image ?? undefined} />
-        <AvatarFallback className="text-[10px]">{getInitials(comment.author.name)}</AvatarFallback>
-      </Avatar>
-
-      <div className="flex flex-1 flex-col gap-1.5">
-        {/* Header */}
-        <div className="flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2 text-sm">
-            <span className="font-medium text-foreground">{comment.author.name}</span>
-            <span className="text-xs text-muted-foreground">{formatRelative(comment.createdAt)}</span>
-            {comment.updatedAt && new Date(comment.updatedAt).getTime() !== new Date(comment.createdAt).getTime() && (
-              <span className="text-xs text-muted-foreground">(edited)</span>
-            )}
-          </div>
-
-          {isOwn && !isEditing && (
-            <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
-              <Button
-                variant="ghost" size="icon"
-                className="size-6 text-muted-foreground hover:text-foreground"
-                onClick={() => { setEditBody(comment.body); setIsEditing(true); }}
-              >
-                <Pencil className="size-3" />
-              </Button>
-              <Button
-                variant="ghost" size="icon"
-                className="size-6 text-muted-foreground hover:text-destructive"
-                onClick={() => onDelete(comment.id)}
-              >
-                <X className="size-3" />
-              </Button>
-            </div>
-          )}
-        </div>
-
-        {/* Body */}
-        {isEditing ? (
-          <div className="flex flex-col gap-2">
-            <RichTextEditor
-              content={editBody}
-              onChange={setEditBody}
-              placeholder="Edit comment…"
-              minHeight="60px"
-              members={members}
-            />
-            <div className="flex items-center gap-2">
-              <Button size="sm" className="h-7 px-2.5 text-xs" onClick={handleSaveEdit} disabled={isPending || !editBody.trim()}>
-                {isPending ? <Loader2 className="size-3.5 animate-spin" /> : <><Check className="mr-1 size-3" />Save</>}
-              </Button>
-              <Button size="sm" variant="ghost" className="h-7 px-2.5 text-xs" onClick={() => setIsEditing(false)}>
-                Cancel
-              </Button>
-            </div>
-          </div>
-        ) : (
-          <div
-            className="prose prose-sm dark:prose-invert max-w-none rounded-lg border border-border bg-muted/30 px-3 py-2 text-sm"
-            dangerouslySetInnerHTML={{ __html: comment.body }}
-          />
-        )}
-      </div>
-    </motion.div>
   );
 }
 
@@ -730,15 +623,14 @@ export function IssueDetailModal({
                           <ActivityEntry activity={entry.data} />
                         </motion.div>
                       ) : (
-                        <div key={`comment-${entry.data.id}`} className="group">
-                          <CommentEntry
-                            comment={entry.data}
-                            currentUserId={currentUserId}
-                            members={members}
-                            onEdit={handleEditComment}
-                            onDelete={handleDeleteComment}
-                          />
-                        </div>
+                        <CommentEntry
+                          key={`comment-${entry.data.id}`}
+                          comment={entry.data}
+                          currentUserId={currentUserId}
+                          members={members}
+                          onEdit={handleEditComment}
+                          onDelete={handleDeleteComment}
+                        />
                       ),
                     )}
                   </AnimatePresence>

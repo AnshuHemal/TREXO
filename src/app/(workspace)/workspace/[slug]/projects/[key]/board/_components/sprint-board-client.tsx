@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useTransition } from "react";
 import {
   DndContext,
   DragOverlay,
@@ -12,9 +12,22 @@ import {
   type DragOverEvent,
   type DragEndEvent,
 } from "@dnd-kit/core";
-import { AnimatePresence } from "motion/react";
-import { ISSUE_STATUSES, getPriorityConfig } from "@/lib/issue-config";
-import { moveIssue, createIssue } from "../../issues/actions";
+import { AnimatePresence, motion } from "motion/react";
+import {
+  X, Loader2, Trash2,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from "@/components/ui/select";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  AlertDialog, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader,
+  AlertDialogTitle, AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { ISSUE_STATUSES, ISSUE_PRIORITIES, getPriorityConfig } from "@/lib/issue-config";
+import { moveIssue, createIssue, bulkUpdateIssues, bulkDeleteIssues } from "../../issues/actions";
 import { KanbanColumn } from "../../_components/kanban-column";
 import { KanbanCard } from "../../_components/kanban-card";
 import { IssueDetailModal, type IssueDetail } from "../../issues/_components/issue-detail-modal";
@@ -25,6 +38,7 @@ import { useWorkspaceSafe } from "@/components/providers/workspace-provider";
 import { ReconnectBanner } from "@/components/shared/realtime-indicator";
 import type { BoardIssue } from "../../_components/kanban-board";
 import { getBoardColumns, type WorkflowConfig, DEFAULT_WORKFLOW_CONFIG } from "@/lib/workflow";
+import { cn } from "@/lib/utils";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -96,6 +110,62 @@ export function SprintBoardClient({
   const [selectedIssueId, setSelectedIssueId] = useState<string | null>(null);
   const [issueDetail, setIssueDetail]         = useState<IssueDetail | null>(null);
   const [isLoadingDetail, setIsLoadingDetail] = useState(false);
+
+  // ── Bulk selection ────────────────────────────────────────────────────────────
+  const [selectedIds, setSelectedIds]       = useState<Set<string>>(new Set());
+  const [isBulkPending, startBulkTransition] = useTransition();
+
+  function handleCardSelect(id: string, checked: boolean) {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      checked ? next.add(id) : next.delete(id);
+      return next;
+    });
+  }
+
+  function clearSelection() { setSelectedIds(new Set()); }
+
+  function handleBulkUpdate(field: string, value: string | null) {
+    startBulkTransition(async () => {
+      const result = await bulkUpdateIssues({
+        issueIds: Array.from(selectedIds),
+        ...(field === "status"     && { status:     value as never }),
+        ...(field === "priority"   && { priority:   value as never }),
+        ...(field === "assigneeId" && { assigneeId: value }),
+      });
+      if (result.success) {
+        setIssues((prev) => prev.map((i) =>
+          selectedIds.has(i.id)
+            ? {
+                ...i,
+                ...(field === "status"     && { status:     value as string }),
+                ...(field === "priority"   && { priority:   value as string }),
+                ...(field === "assigneeId" && {
+                  assigneeId: value,
+                  assignee: value ? (members.find((m) => m.id === value) ?? null) : null,
+                }),
+              }
+            : i,
+        ));
+        clearSelection();
+      }
+    });
+  }
+
+  function handleBulkDelete() {
+    startBulkTransition(async () => {
+      const ids = Array.from(selectedIds);
+      const result = await bulkDeleteIssues(ids);
+      if (result.success) {
+        setIssues((prev) => prev.filter((i) => !selectedIds.has(i.id)));
+        setSprint((prev) => ({
+          ...prev,
+          totalIssues: Math.max(0, prev.totalIssues - ids.length),
+        }));
+        clearSelection();
+      }
+    });
+  }
 
   // ── Filter + swimlane ─────────────────────────────────────────────────────────
   const [filterAssignee, setFilterAssignee] = useState("all");
@@ -415,6 +485,110 @@ export function SprintBoardClient({
           </DragOverlay>
         </DndContext>
       </div>
+
+      {/* Floating bulk action bar */}
+      <AnimatePresence>
+        {selectedIds.size > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 16, scale: 0.97 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 16, scale: 0.97 }}
+            transition={{ duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
+            className="fixed bottom-6 left-1/2 z-40 -translate-x-1/2"
+          >
+            <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-primary/30 bg-card px-4 py-2.5 shadow-2xl shadow-primary/10">
+              {/* Count */}
+              <div className="flex items-center gap-2">
+                <span className="flex h-6 min-w-6 items-center justify-center rounded-full bg-primary px-2 text-xs font-bold text-primary-foreground">
+                  {selectedIds.size}
+                </span>
+                <span className="text-sm font-medium text-foreground">
+                  {selectedIds.size === 1 ? "issue" : "issues"} selected
+                </span>
+              </div>
+              <div className="h-4 w-px bg-border" />
+
+              {/* Status */}
+              <Select onValueChange={(v) => handleBulkUpdate("status", v)} disabled={isBulkPending}>
+                <SelectTrigger className="h-7 w-32 text-xs"><SelectValue placeholder="Set status" /></SelectTrigger>
+                <SelectContent>
+                  {ISSUE_STATUSES.map(({ value, label, icon: Icon, color }) => (
+                    <SelectItem key={value} value={value}>
+                      <span className="flex items-center gap-2 text-xs"><Icon className={cn("size-3.5", color)} />{label}</span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              {/* Priority */}
+              <Select onValueChange={(v) => handleBulkUpdate("priority", v)} disabled={isBulkPending}>
+                <SelectTrigger className="h-7 w-32 text-xs"><SelectValue placeholder="Set priority" /></SelectTrigger>
+                <SelectContent>
+                  {ISSUE_PRIORITIES.map(({ value, label, icon: Icon, color }) => (
+                    <SelectItem key={value} value={value}>
+                      <span className="flex items-center gap-2 text-xs"><Icon className={cn("size-3.5", color)} />{label}</span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              {/* Assignee */}
+              <Select onValueChange={(v) => handleBulkUpdate("assigneeId", v === "none" ? null : v)} disabled={isBulkPending}>
+                <SelectTrigger className="h-7 w-36 text-xs"><SelectValue placeholder="Assign to…" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none"><span className="text-xs text-muted-foreground">Unassigned</span></SelectItem>
+                  {members.map((m) => (
+                    <SelectItem key={m.id} value={m.id}>
+                      <span className="flex items-center gap-2 text-xs">
+                        <Avatar className="size-4">
+                          <AvatarFallback className="text-[8px]">{m.name.slice(0, 2).toUpperCase()}</AvatarFallback>
+                        </Avatar>
+                        {m.name}
+                      </span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              {isBulkPending && <Loader2 className="size-4 animate-spin text-muted-foreground" />}
+
+              <div className="flex items-center gap-1.5">
+                {/* Delete */}
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="ghost" size="sm"
+                      className="h-7 gap-1.5 px-2 text-xs text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                      disabled={isBulkPending}>
+                      <Trash2 className="size-3.5" />Delete
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Delete {selectedIds.size} {selectedIds.size === 1 ? "issue" : "issues"}?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This will permanently delete the selected issues. This cannot be undone.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <Button variant="destructive" onClick={handleBulkDelete} disabled={isBulkPending}>
+                        Delete {selectedIds.size} {selectedIds.size === 1 ? "issue" : "issues"}
+                      </Button>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+
+                {/* Clear */}
+                <Button variant="ghost" size="sm"
+                  className="h-7 gap-1 px-2 text-xs text-muted-foreground hover:text-foreground"
+                  onClick={clearSelection}>
+                  <X className="size-3.5" />Clear
+                </Button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Issue detail modal */}
       <AnimatePresence>
