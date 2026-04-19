@@ -22,6 +22,12 @@ interface KanbanColumnProps {
   wipLimit?: number;
   onQuickCreate: (title: string) => void;
   onOpenIssue: (issueId: string) => void;
+  /** Members for assignee quick-edit */
+  members?: { id: string; name: string; image: string | null }[];
+  /** Called when a field is updated inline */
+  onIssueUpdated?: (id: string, field: string, value: string | null) => void;
+  /** Currently keyboard-focused issue ID */
+  focusedIssueId?: string | null;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -36,6 +42,9 @@ export function KanbanColumn({
   wipLimit,
   onQuickCreate,
   onOpenIssue,
+  members = [],
+  onIssueUpdated,
+  focusedIssueId,
 }: KanbanColumnProps) {
   const [isCreating, setIsCreating] = useState(false);
   const [newTitle, setNewTitle] = useState("");
@@ -138,6 +147,9 @@ export function KanbanColumn({
                 issue={issue}
                 projectKey={projectKey}
                 onOpen={() => onOpenIssue(issue.id)}
+                members={members}
+                onUpdated={onIssueUpdated}
+                isFocused={focusedIssueId === issue.id}
               />
             ))}
           </AnimatePresence>

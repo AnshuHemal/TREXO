@@ -946,19 +946,29 @@ export function IssueListClient({
             <div className="flex size-14 items-center justify-center rounded-2xl bg-muted/60">
               <Filter className="size-7 text-muted-foreground/40" />
             </div>
-            <p className="text-sm font-medium text-foreground">
-              {hasFilters ? "No issues match your filters" : "No issues yet"}
-            </p>
-            <p className="text-xs text-muted-foreground">
-              {hasFilters
-                ? "Try adjusting or clearing your filters."
-                : "Create your first issue to get started."}
-            </p>
-            {hasFilters && (
+            <div>
+              <p className="text-sm font-semibold text-foreground">
+                {hasFilters ? "No issues match your filters" : "No issues yet"}
+              </p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                {hasFilters
+                  ? "Try adjusting or clearing your filters."
+                  : "Create your first issue to get started."}
+              </p>
+            </div>
+            {hasFilters ? (
               <Button variant="outline" size="sm" className="gap-1.5"
                 onClick={() => setFilters({ search: "", status: "", priority: "", type: "", assignee: "", sprint: "", epic: "" })}>
                 <RotateCcw className="size-3.5" />Clear filters
               </Button>
+            ) : (
+              <CreateIssueDialog
+                projectId={project.id}
+                projectKey={project.key}
+                workspaceSlug={workspaceSlug}
+                members={members}
+                onCreated={() => router.refresh()}
+              />
             )}
           </div>
         ) : (

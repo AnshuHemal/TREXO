@@ -1183,12 +1183,19 @@ export function BacklogClient({
 
         {filtered.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">
-            <SlidersHorizontal className="size-8 text-muted-foreground/30 mb-3" />
-            <p className="text-sm text-muted-foreground">
-              {search || hasActiveFilters ? "No issues match your filters." : "No issues yet."}
+            <div className="flex size-14 items-center justify-center rounded-2xl bg-muted/60 mb-4">
+              <SlidersHorizontal className="size-7 text-muted-foreground/40" />
+            </div>
+            <p className="text-sm font-semibold text-foreground">
+              {search || hasActiveFilters ? "No issues match your filters" : "Backlog is empty"}
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground max-w-xs">
+              {search || hasActiveFilters
+                ? "Try adjusting or clearing your filters."
+                : "Add issues to the backlog to start planning your sprints."}
             </p>
             {!search && !hasActiveFilters && (
-              <div className="mt-4">
+              <div className="mt-5">
                 <CreateIssueDialog
                   projectId={project.id}
                   projectKey={project.key}
@@ -1196,6 +1203,11 @@ export function BacklogClient({
                   members={members}
                 />
               </div>
+            )}
+            {(search || hasActiveFilters) && (
+              <Button variant="outline" size="sm" className="mt-4 gap-1.5" onClick={clearFilters}>
+                <X className="size-3.5" />Clear filters
+              </Button>
             )}
           </div>
         ) : (

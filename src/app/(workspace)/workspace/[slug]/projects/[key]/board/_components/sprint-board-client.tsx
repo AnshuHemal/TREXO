@@ -40,6 +40,7 @@ import { ReconnectBanner } from "@/components/shared/realtime-indicator";
 import type { BoardIssue } from "../../_components/kanban-board";
 import { getBoardColumns, type WorkflowConfig, DEFAULT_WORKFLOW_CONFIG } from "@/lib/workflow";
 import { cn } from "@/lib/utils";
+import { useKanbanKeyboard } from "@/hooks/use-kanban-keyboard";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -170,11 +171,40 @@ export function SprintBoardClient({
     });
   }
 
-  // ── Filter + swimlane ─────────────────────────────────────────────────────────
-  const [filterAssignee, setFilterAssignee] = useState("all");
+  // ── Keyboard navigation ───────────────────────────────────────────────────────
+  const allIssueIds = issues
+    .filter((i) => i.type !== "SUBTASK")
+    .map((i) => i.id);
+
+  const { focusedId, setFocusedId } = useKanbanKeyboard({
+    issueIds: allIssueIds,
+    onOpen: handleOpenIssue,
+    enabled: !selectedIssueId, // disable when modal is open
+  });
+
+  // ── Inline issue update (from quick-edit) ─────────────────────────────────────
+  function handleIssueUpdated(id: string, field: string, value: string | null) {
+    setIssues((prev) => prev.map((i) => {
+      if (i.id !== id) return i;
+      const updated = { ...i, [field]: value };
+      if (field === "assigneeId") {
+        updated.assignee = value ? (members.find((m) => m.id === value) ?? null) : null;
+      }
+      return updated;
+    }));
+    // Update sprint done count if status changed
+    if (field === "status") {
+      const next = issues.map((i) => i.id === id ? { ...i, status: value ?? i.status } : i);
+      const doneIssues = next.filter((i) => i.status === "DONE" || i.status === "CANCELLED").length;
+      setSprint((prev) => ({ ...prev, doneIssues }));
+    }
+  }
   const [filterPriority, setFilterPriority] = useState("all");
   const [filterEpic, setFilterEpic]         = useState("all");
   const [swimlane, setSwimlane]             = useState<SwimlaneMode>("none");
+
+  // ── Filter + swimlane ─────────────────────────────────────────────────────────
+  const [filterAssignee, setFilterAssignee] = useState("all");
 
   // ── Capacity panel ────────────────────────────────────────────────────────────
   const [showCapacity, setShowCapacity] = useState(false);
@@ -358,6 +388,7 @@ export function SprintBoardClient({
   }
 
   async function handleOpenIssue(issueId: string) {
+    setFocusedId(issueId);
     setSelectedIssueId(issueId);
     setIsLoadingDetail(true);
     try {
@@ -445,6 +476,9 @@ export function SprintBoardClient({
                       projectKey={project.key}
                       onQuickCreate={(title) => handleQuickCreate(value, title)}
                       onOpenIssue={handleOpenIssue}
+                      members={members}
+                      onIssueUpdated={handleIssueUpdated}
+                      focusedIssueId={focusedId}
                     />
                   ) : (
                     <>
@@ -472,6 +506,9 @@ export function SprintBoardClient({
                             projectKey={project.key}
                             onQuickCreate={(title) => handleQuickCreate(value, title)}
                             onOpenIssue={handleOpenIssue}
+                            members={members}
+                            onIssueUpdated={handleIssueUpdated}
+                            focusedIssueId={focusedId}
                           />
                         </div>
                       ))}
