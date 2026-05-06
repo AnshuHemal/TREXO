@@ -2,7 +2,7 @@
 
 > **Track less. Ship more.**
 
-Trexo is a modern, open-source project management platform built for teams that move fast. It is a full-featured JIRA-style clone built with the latest Next.js, React, and TypeScript — production-ready from day one.
+Trexo is a modern, full-featured project management platform — a production-grade JIRA clone built with Next.js 16, React 19, and TypeScript. Built for teams that move fast.
 
 ---
 
@@ -19,7 +19,10 @@ Trexo is a modern, open-source project management platform built for teams that 
 | Authentication | Better Auth v1.6 |
 | Database ORM | Prisma 7 |
 | Database | PostgreSQL |
-| Email | Resend |
+| Email | Nodemailer + Brevo SMTP |
+| Rich Text | Tiptap (with @mention support) |
+| Drag & Drop | @dnd-kit |
+| Charts | Recharts |
 | Icons | Lucide React |
 | Fonts | Inter · JetBrains Mono |
 
@@ -30,21 +33,102 @@ Trexo is a modern, open-source project management platform built for teams that 
 ### Authentication
 - Email + password sign-up with **OTP email verification** (6-char alphanumeric, uppercase)
 - OAuth sign-in via **GitHub** and **Google**
+- Forgot password — 3-step flow: email → OTP → reset
 - Session-based auth with Better Auth
-- Route protection via Next.js 16 `proxy.ts` (cookie check) + server-side layout guards
-- Automatic redirect: logged-in users are bounced away from auth pages
-- Animated OTP input — auto-advance, paste support, shake on error, resend with cooldown
+- Route protection via Next.js 16 `proxy.ts` + server-side layout guards
+- Active session management — view and revoke sessions per device
+- Connected accounts — link/unlink OAuth providers
+
+### Workspace
+- Multi-workspace support with workspace switcher
+- Workspace roles: **OWNER · ADMIN · MEMBER · VIEWER**
+- Email invitations with secure token-based acceptance (`/invite/[token]`)
+- Workspace settings — rename, change slug, danger zone (delete)
+- Workspace-level labels management (name + color picker)
+- Workspace-level issue templates (type, priority, title prefix, description)
+
+### Projects
+- Create / edit / delete projects with auto-generated keys (e.g. `TRX`)
+- **PUBLIC** (all workspace members) or **PRIVATE** (explicit members only) visibility
+- Project-level access control — roles: **LEAD · MEMBER · VIEWER**
+- Project settings — general, access management, danger zone
+
+### Issues
+- Full CRUD with rich text descriptions (Tiptap)
+- Issue types: **EPIC · STORY · TASK · BUG · SUBTASK**
+- Statuses: **BACKLOG · TODO · IN_PROGRESS · IN_REVIEW · DONE · CANCELLED**
+- Priorities: **URGENT · HIGH · MEDIUM · LOW · NO_PRIORITY**
+- Assignee, reporter, due dates, story point estimates
+- Labels (colored badges), sub-tasks with progress bar
+- Issue linking — **BLOCKS · BLOCKED_BY · DUPLICATES · RELATES_TO**
+- @mentions in comments (Tiptap Mention extension + Brevo notification email)
+- Comment edit / delete, unified activity timeline
+- Auto-incrementing issue keys per project (e.g. `TRX-42`)
+
+### Views
+- **Kanban Board** — drag-and-drop columns, swimlanes (by assignee or priority), WIP limits, epic badges, priority left-border color coding, filter bar
+- **Backlog** — group by (status/priority/assignee), sort by (due date/priority/status/created/updated), bulk actions (status/priority/assignee), inline create per group, column visibility toggles, saved filters (personal + shared)
+- **List View** — tabular issue list with inline editing
+- **Sprints** — create/start/complete sprints, move incomplete issues to backlog or next sprint, sprint backlog view
+- **Roadmap** — horizontal timeline, drag to move/resize sprint bars, epic bars, today line, progress fill
+- **My Issues** — cross-project view of issues assigned to the current user
+
+### Sprint Planning
+- Sprint capacity planning with story points
+- Active sprint widget on workspace dashboard
+- Velocity chart (points completed per sprint over time)
+- Sprint progress bars with done/total counts
+
+### Workspace Dashboard
+- Active sprint widget (progress, days remaining, story points)
+- My open issues (top 5)
+- Recent activity feed
+- Issue status donut chart (Recharts)
+- Recently updated issues
+- Velocity chart (last 6 completed sprints)
+- Stats row: members, projects, total issues
+
+### Team Pages
+- **Members** — invite by email, role management, remove members
+- **Workload** — per-member open issue count with animated load bars, overdue indicators, story point totals
+- **Activity** — full workspace audit log grouped by day, paginated, with actor avatars
+
+### Notifications
+- In-app notification bell with unread count badge (30s polling)
+- Types: assigned, mentioned, status changed, comment added
+- Mark as read / mark all as read
+- Per-type notification preferences (toggle on/off)
+- "Manage preferences" link in bell dropdown → `/settings/notifications`
+
+### Global Search
+- `Cmd+K` / `Ctrl+K` palette
+- Searches issues + projects across the workspace
+- Filter by status, priority, assignee, project
+- Keyboard navigation (↑↓ Enter)
+
+### Keyboard Shortcuts
+- `C` — create issue (from anywhere in a project)
+- `B` — go to Backlog
+- `G B` — go to Board
+- `G S` — go to Sprints
+- `G R` — go to Roadmap
+- `?` — show shortcuts help modal
+- `E` — edit issue title (when detail modal is open)
+- `A` — assign to me (when detail modal is open)
+- `Esc` — close modal
+
+### User Settings
+- Profile — name, avatar
+- Security — change password, connected OAuth accounts, active sessions
+- Notifications — per-type toggles with live persistence
 
 ### UI / UX
-- Light / dark / system theme toggle with animated Sun ↔ Moon icon
-- Framer Motion page entry animations throughout
-- Animated brand logo — "TREX" + pill shape that morphs into a circle every 5s
-- Fully responsive — mobile-first layout
+- Light / dark / system theme toggle
+- Animated brand logo — "TREX" + pill morphing into circle
+- Motion animations throughout (FadeIn, StaggerChildren, AnimatePresence)
 - Accessible — ARIA labels, keyboard navigation, focus management
-
-### Database
-- Full Prisma schema covering the entire JIRA domain model
-- Better Auth tables co-located in the same database
+- Tiptap rich text editor with toolbar (bold, italic, headings, lists, code, task lists)
+- `@mention` support in comments with animated member dropdown
 
 ---
 
@@ -53,32 +137,71 @@ Trexo is a modern, open-source project management platform built for teams that 
 ```
 trexo/
 ├── prisma/
-│   └── schema.prisma          # Full database schema
-├── proxy.ts                   # Next.js 16 route protection
+│   ├── schema.prisma              # Full database schema
+│   └── migrations/                # Migration history
+├── proxy.ts                       # Next.js 16 route protection (cookie check)
 ├── src/
 │   ├── app/
-│   │   ├── (auth)/            # /login  /signup  /verify-email
-│   │   ├── (dashboard)/       # /dashboard  (protected)
-│   │   ├── (marketing)/       # /  (landing page)
-│   │   ├── api/auth/[...all]/ # Better Auth catch-all handler
-│   │   ├── layout.tsx         # Root layout — fonts, ThemeProvider
-│   │   └── not-found.tsx      # 404 page
+│   │   ├── (auth)/                # /login /signup /verify-email /forgot-password
+│   │   ├── (dashboard)/           # /dashboard — workspace picker
+│   │   ├── (marketing)/           # / — landing page
+│   │   ├── (onboarding)/          # /onboarding — workspace setup wizard
+│   │   ├── (settings)/            # /settings — user profile/security/notifications
+│   │   ├── (workspace)/           # /workspace/[slug]/... — main app
+│   │   │   └── workspace/[slug]/
+│   │   │       ├── page.tsx       # Workspace home dashboard
+│   │   │       ├── my-issues/     # Cross-project assigned issues
+│   │   │       ├── members/       # Member management + invitations
+│   │   │       ├── workload/      # Team workload view
+│   │   │       ├── activity/      # Workspace activity log
+│   │   │       ├── settings/      # Workspace settings, labels, templates
+│   │   │       └── projects/[key]/
+│   │   │           ├── page.tsx   # Kanban board (default project view)
+│   │   │           ├── backlog/   # Backlog with grouping/sorting/bulk actions
+│   │   │           ├── list/      # List view
+│   │   │           ├── sprints/   # Sprint management
+│   │   │           ├── roadmap/   # Timeline roadmap
+│   │   │           └── settings/  # Project settings + access control
+│   │   ├── invite/[token]/        # Workspace invitation acceptance
+│   │   └── api/
+│   │       ├── auth/[...all]/     # Better Auth catch-all
+│   │       ├── issues/[id]/       # Issue detail API
+│   │       ├── notifications/     # Notifications API (GET + PATCH)
+│   │       ├── search/            # Global search API
+│   │       └── sse/               # Server-Sent Events (real-time)
 │   ├── components/
-│   │   ├── motion/            # Framer Motion wrappers (FadeIn, StaggerChildren)
-│   │   ├── providers/         # ThemeProvider
-│   │   ├── shared/            # Header, Logo, ThemeToggle, UserMenu
-│   │   └── ui/                # shadcn/ui components (56 components)
+│   │   ├── editor/                # RichTextEditor, MentionSuggestion
+│   │   ├── motion/                # FadeIn, StaggerChildren
+│   │   ├── providers/             # ThemeProvider, WorkspaceProvider
+│   │   ├── shared/                # Header, Logo, GlobalSearch, NotificationBell,
+│   │   │                          # KeyboardShortcutsModal, ShortcutHint,
+│   │   │                          # RealtimeIndicator, LabelPicker, UserMenu
+│   │   └── ui/                    # 56 shadcn/ui components
 │   ├── config/
-│   │   └── site.ts            # Central site config — name, URL, metadata
-│   ├── lib/
-│   │   ├── auth.ts            # Better Auth server instance
-│   │   ├── auth-client.ts     # Better Auth browser client
-│   │   ├── email.ts           # Resend client + HTML email templates
-│   │   ├── prisma.ts          # Prisma singleton
-│   │   ├── session.ts         # Server-side session helpers
-│   │   └── utils.ts           # cn() utility
-│   └── generated/
-│       └── prisma/            # Auto-generated Prisma client (gitignored)
+│   │   └── site.ts                # Central site config
+│   ├── hooks/
+│   │   ├── use-keyboard-shortcuts.ts
+│   │   ├── use-kanban-keyboard.ts
+│   │   ├── use-realtime.ts
+│   │   ├── use-realtime-issues.ts
+│   │   └── use-mobile.ts
+│   └── lib/
+│       ├── auth.ts                # Better Auth server instance
+│       ├── auth-client.ts         # Better Auth browser client
+│       ├── email.ts               # Nodemailer + Brevo SMTP (OTP + invite emails)
+│       ├── invite-actions.ts      # Workspace invitation server actions
+│       ├── notifications.ts       # Notification creation helpers
+│       ├── project-access.ts      # Project visibility + access control
+│       ├── mentions.ts            # @mention HTML parsing
+│       ├── due-date.ts            # Due date utilities
+│       ├── issue-config.tsx       # Issue type/status/priority config
+│       ├── workflow.ts            # Custom workflow management
+│       ├── custom-fields.ts       # Custom field definitions
+│       ├── sse.ts                 # SSE event utilities
+│       ├── broadcast.ts           # Pub/sub broadcast
+│       ├── prisma.ts              # Prisma singleton
+│       ├── session.ts             # Server-side session helpers
+│       └── utils.ts               # cn() and general utilities
 ```
 
 ---
@@ -89,16 +212,26 @@ trexo/
 `users` · `sessions` · `accounts` · `verifications`
 
 ### Application models
+
 | Model | Description |
 |---|---|
-| `Workspace` | Top-level org container |
-| `WorkspaceMember` | User ↔ Workspace join with role (`OWNER` `ADMIN` `MEMBER` `VIEWER`) |
-| `Project` | Lives inside a workspace, has a short key (e.g. `TRX`) |
+| `Workspace` | Top-level organisation container |
+| `WorkspaceMember` | User ↔ Workspace join (`OWNER` `ADMIN` `MEMBER` `VIEWER`) |
+| `Project` | Lives inside a workspace, has key + visibility + workflow config |
+| `ProjectMember` | User ↔ Project join (`LEAD` `MEMBER` `VIEWER`) |
 | `Sprint` | Time-boxed iteration (`PLANNED` `ACTIVE` `COMPLETED`) |
-| `Issue` | Atomic unit of work — type, status, priority, position, sub-tasks |
-| `Label` / `IssueLabel` | Free-form tags on issues |
+| `Issue` | Atomic unit of work — type, status, priority, estimate, custom fields |
+| `IssueLink` | Issue relationships (`BLOCKS` `BLOCKED_BY` `DUPLICATES` `RELATES_TO`) |
+| `Label` / `IssueLabel` | Free-form coloured tags on issues |
 | `Comment` | Rich-text comments on issues |
-| `Activity` | Audit log — records every field change on an issue |
+| `CommentReaction` | Emoji reactions on comments |
+| `Activity` | Audit log — records every field change |
+| `Notification` | In-app notifications |
+| `NotificationPreference` | Per-user notification type toggles |
+| `ProjectNotificationMute` | Mute all notifications from a project |
+| `SavedFilter` | Named filter presets per project (personal + shared) |
+| `IssueTemplate` | Issue templates with default type/priority/description |
+| `Invitation` | Workspace invitations with secure token + expiry |
 
 ---
 
@@ -114,39 +247,36 @@ npm install
 
 ### 2. Configure environment variables
 
-Copy the example file and fill in the values:
-
 ```env
-# App
+# ── App ────────────────────────────────────────────────────────────────────────
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 
-# Better Auth
+# ── Better Auth ────────────────────────────────────────────────────────────────
 BETTER_AUTH_SECRET=          # openssl rand -base64 32
 BETTER_AUTH_URL=http://localhost:3000
 
-# Database (PostgreSQL)
+# ── Database (PostgreSQL) ──────────────────────────────────────────────────────
 DATABASE_URL=postgresql://user:password@host:5432/trexo
 
-# Resend (email)
-RESEND_API_KEY=              # https://resend.com/api-keys
-RESEND_FROM_EMAIL=Trexo <noreply@trexo.com>
+# ── Brevo SMTP (email) ────────────────────────────────────────────────────────
+# Get from: brevo.com → SMTP & API → SMTP tab
+BREVO_SMTP_USER=             # Login shown on SMTP settings page
+BREVO_SMTP_PASS=             # SMTP key (starts with xsmtpsib-)
+EMAIL_FROM=Trexo <noreply@yourdomain.com>
 
-# OAuth — GitHub
+# ── OAuth — GitHub ─────────────────────────────────────────────────────────────
 GITHUB_CLIENT_ID=
 GITHUB_CLIENT_SECRET=
 
-# OAuth — Google
+# ── OAuth — Google ─────────────────────────────────────────────────────────────
 GOOGLE_CLIENT_ID=
 GOOGLE_CLIENT_SECRET=
 ```
 
 ### 3. Set up the database
 
-Run the first migration to create all tables:
-
 ```bash
 npm run db:migrate
-# When prompted, name it: init
 ```
 
 ### 4. Start the dev server
@@ -175,38 +305,62 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ```
 Sign up
-  └── POST /api/auth/sign-up/email
-        └── Account created (emailVerified: false)
-        └── OTP sent via Resend (6-char, uppercase alphanumeric)
-        └── Redirect → /verify-email?email=...&password=...
+  └── Account created (emailVerified: false)
+  └── OTP sent via Brevo SMTP (6-char, uppercase alphanumeric)
+  └── Redirect → /verify-email
 
 Verify email
-  └── POST /api/auth/email-otp/verify-email
-        └── emailVerified: true
-        └── Auto sign-in → POST /api/auth/sign-in/email
-        └── Redirect → /dashboard
+  └── emailVerified: true → auto sign-in → /dashboard
 
 Sign in (existing user)
-  └── POST /api/auth/sign-in/email  OR  signIn.social({ provider })
-        └── Session created
-        └── Redirect → /dashboard
+  └── Email/password  OR  OAuth (GitHub / Google)
+  └── Session created → /dashboard → /workspace/[slug]
 
-Sign out
-  └── POST /api/auth/sign-out
-        └── Session destroyed
-        └── Redirect → /
+Forgot password
+  └── Enter email → OTP sent → verify OTP → set new password
+
+Workspace invitation
+  └── OWNER/ADMIN sends invite → Brevo email with /invite/[token]
+  └── Recipient clicks link → accepts → added to workspace
 ```
 
 ### OAuth callback URLs
-
-Register these in your OAuth app settings:
 
 | Provider | Callback URL |
 |---|---|
 | GitHub | `http://localhost:3000/api/auth/callback/github` |
 | Google | `http://localhost:3000/api/auth/callback/google` |
 
-For production, replace `http://localhost:3000` with your domain.
+---
+
+## Email Setup (Brevo)
+
+1. Sign up at [brevo.com](https://brevo.com) — free, 300 emails/day
+2. Go to **SMTP & API → SMTP** tab
+3. Copy the **Login** and generate an **SMTP key**
+4. Add to `.env` as `BREVO_SMTP_USER` and `BREVO_SMTP_PASS`
+5. Go to **Senders & IPs → Senders** — add and verify your sender email
+6. Set `EMAIL_FROM` to that verified address
+
+Brevo handles:
+- OTP verification emails
+- Password reset emails
+- Workspace invitation emails
+
+---
+
+## Route Protection
+
+| Route | Access |
+|---|---|
+| `/` | Public |
+| `/login` `/signup` `/verify-email` `/forgot-password` | Guest only |
+| `/dashboard` `/workspace/*` `/settings/*` `/onboarding` | Authenticated only |
+| `/invite/[token]` | Public (redirects to login if not authenticated) |
+
+Protection is two-layered:
+1. **`proxy.ts`** — fast cookie-presence check on every request
+2. **Layout guards** — `requireUser()` performs real database session validation
 
 ---
 
@@ -220,47 +374,6 @@ For production, replace `http://localhost:3000` with your domain.
 | Max attempts | 5 |
 | Resend strategy | Reuse same OTP within expiry window |
 | Resend cooldown | 60 seconds |
-
----
-
-## Route Protection
-
-| Route | Access |
-|---|---|
-| `/` | Public |
-| `/login` `/signup` `/verify-email` | Guest only (redirect to `/dashboard` if logged in) |
-| `/dashboard` `/workspace/*` `/settings/*` | Authenticated only (redirect to `/login` if not) |
-
-Protection is two-layered:
-1. **`proxy.ts`** — fast cookie-presence check on every request (optimistic, not a security boundary)
-2. **Layout guards** — `requireSession()` in `(dashboard)/layout.tsx` performs a real database session validation
-
----
-
-## Resend Setup
-
-For local development, use `onboarding@resend.dev` as the from address — it works without domain verification but can only send to your own Resend account email.
-
-For production:
-1. Go to [resend.com/domains](https://resend.com/domains)
-2. Add and verify `trexo.com`
-3. Set `RESEND_FROM_EMAIL=Trexo <noreply@trexo.com>`
-
----
-
-## Roadmap
-
-- [ ] Workspace creation and onboarding flow
-- [ ] Project management (create, settings, members)
-- [ ] Kanban board with drag-and-drop (`@dnd-kit`)
-- [ ] Issue CRUD — detail modal, rich text editor (Tiptap)
-- [ ] Sprint management
-- [ ] Comments and activity log
-- [ ] Real-time updates
-- [ ] Notifications
-- [ ] Search
-- [ ] Forgot password flow
-- [ ] Settings pages (profile, workspace, billing)
 
 ---
 
