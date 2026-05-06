@@ -1,12 +1,42 @@
-import { Resend } from "resend";
+import nodemailer from "nodemailer";
 import { siteConfig } from "@/config/site";
 
-// ─── Resend client ────────────────────────────────────────────────────────────
+// ─── Brevo SMTP transporter ───────────────────────────────────────────────────
+//
+// Credentials come from Brevo → SMTP & API → SMTP tab.
+// Free plan: 300 emails/day, no credit card required.
+//
+// Required env vars:
+//   BREVO_SMTP_USER   — your Brevo login email
+//   BREVO_SMTP_PASS   — the SMTP key from Brevo (NOT your login password)
+//   EMAIL_FROM        — the "from" address, e.g. noreply@trexo.com
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const transporter = nodemailer.createTransport({
+  host: "smtp-relay.brevo.com",
+  port: 587,
+  secure: false, // STARTTLS
+  auth: {
+    user: process.env.BREVO_SMTP_USER,
+    pass: process.env.BREVO_SMTP_PASS,
+  },
+});
 
-/** The "from" address shown in the email client. */
-const FROM = process.env.RESEND_FROM_EMAIL ?? `${siteConfig.name} <noreply@trexo.com>`;
+const FROM =
+  process.env.EMAIL_FROM ?? `${siteConfig.name} <noreply@trexo.com>`;
+
+// ─── Core send helper ─────────────────────────────────────────────────────────
+
+export async function sendEmail({
+  to,
+  subject,
+  html,
+}: {
+  to: string;
+  subject: string;
+  html: string;
+}): Promise<void> {
+  await transporter.sendMail({ from: FROM, to, subject, html });
+}
 
 // ─── sendOTPEmail ─────────────────────────────────────────────────────────────
 
@@ -17,53 +47,60 @@ interface SendOTPEmailOptions {
 }
 
 /**
- * Sends a transactional OTP email via Resend.
- *
- * The email is intentionally NOT awaited at the call-site to avoid timing
- * attacks — Better Auth recommends fire-and-forget for OTP delivery.
+ * Sends a transactional OTP email via Brevo SMTP.
+ * Drop-in replacement for the previous Resend implementation —
+ * Better Auth calls this with the same signature.
  */
 export async function sendOTPEmail({ to, otp, type }: SendOTPEmailOptions) {
-  const subject = getSubject(type);
-  const html = buildEmailHTML({ otp, type });
-
-  const { error } = await resend.emails.send({
-    from: FROM,
+  await sendEmail({
     to,
-    subject,
-    html,
+    subject: getSubject(type),
+    html: buildOTPEmailHTML({ otp, type }),
   });
+}
 
-  if (error) {
-    // Log but don't throw — we don't want to leak email errors to the client.
-    console.error("[Resend] Failed to send OTP email:", error);
-  }
+// ─── sendInviteEmail ──────────────────────────────────────────────────────────
+
+interface SendInviteEmailOptions {
+  to: string;
+  inviterName: string;
+  workspaceName: string;
+  inviteUrl: string;
+}
+
+/**
+ * Sends a workspace invitation email.
+ */
+export async function sendInviteEmail({
+  to,
+  inviterName,
+  workspaceName,
+  inviteUrl,
+}: SendInviteEmailOptions) {
+  await sendEmail({
+    to,
+    subject: `${inviterName} invited you to ${workspaceName} on ${siteConfig.name}`,
+    html: buildInviteEmailHTML({ inviterName, workspaceName, inviteUrl }),
+  });
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function getSubject(type: SendOTPEmailOptions["type"]): string {
   switch (type) {
-    case "email-verification":
-      return `Verify your ${siteConfig.name} account`;
-    case "sign-in":
-      return `Your ${siteConfig.name} sign-in code`;
-    case "forget-password":
-      return `Reset your ${siteConfig.name} password`;
-    case "change-email":
-      return `Confirm your new ${siteConfig.name} email`;
+    case "email-verification": return `Verify your ${siteConfig.name} account`;
+    case "sign-in":            return `Your ${siteConfig.name} sign-in code`;
+    case "forget-password":    return `Reset your ${siteConfig.name} password`;
+    case "change-email":       return `Confirm your new ${siteConfig.name} email`;
   }
 }
 
 function getHeading(type: SendOTPEmailOptions["type"]): string {
   switch (type) {
-    case "email-verification":
-      return "Verify your email address";
-    case "sign-in":
-      return "Your sign-in code";
-    case "forget-password":
-      return "Reset your password";
-    case "change-email":
-      return "Confirm your new email";
+    case "email-verification": return "Verify your email address";
+    case "sign-in":            return "Your sign-in code";
+    case "forget-password":    return "Reset your password";
+    case "change-email":       return "Confirm your new email";
   }
 }
 
@@ -80,9 +117,9 @@ function getBody(type: SendOTPEmailOptions["type"]): string {
   }
 }
 
-// ─── Email HTML template ──────────────────────────────────────────────────────
+// ─── OTP email template ───────────────────────────────────────────────────────
 
-function buildEmailHTML({
+function buildOTPEmailHTML({
   otp,
   type,
 }: {
@@ -90,10 +127,7 @@ function buildEmailHTML({
   type: SendOTPEmailOptions["type"];
 }): string {
   const heading = getHeading(type);
-  const body = getBody(type);
-
-  // Split OTP into individual characters for spaced rendering.
-  const otpChars = otp.split("").join("</td><td style='padding:0 4px'>") ;
+  const body    = getBody(type);
 
   return /* html */ `
 <!DOCTYPE html>
@@ -105,69 +139,97 @@ function buildEmailHTML({
 </head>
 <body style="margin:0;padding:0;background-color:#f4f4f5;font-family:Inter,ui-sans-serif,system-ui,sans-serif;">
   <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f4f5;padding:40px 16px;">
-    <tr>
-      <td align="center">
-        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:480px;background:#ffffff;border-radius:16px;border:1px solid #e4e4e7;overflow:hidden;">
-
-          <!-- Header -->
-          <tr>
-            <td style="padding:32px 40px 24px;border-bottom:1px solid #f4f4f5;">
-              <span style="font-size:22px;font-weight:800;letter-spacing:-0.5px;color:#18181b;">
-                ${siteConfig.name}
-              </span>
-            </td>
-          </tr>
-
-          <!-- Body -->
-          <tr>
-            <td style="padding:32px 40px;">
-              <h1 style="margin:0 0 12px;font-size:20px;font-weight:700;color:#18181b;letter-spacing:-0.3px;">
-                ${heading}
-              </h1>
-              <p style="margin:0 0 28px;font-size:14px;line-height:1.6;color:#71717a;">
-                ${body}
-              </p>
-
-              <!-- OTP block -->
-              <table cellpadding="0" cellspacing="0" style="margin:0 auto 28px;">
-                <tr>
-                  <td style="background:#f4f4f5;border-radius:12px;padding:16px 24px;">
-                    <table cellpadding="0" cellspacing="0">
-                      <tr>
-                        <td style="padding:0 4px">
-                          <span style="font-size:28px;font-weight:800;letter-spacing:6px;color:#18181b;font-family:'Courier New',monospace;">
-                            ${otp}
-                          </span>
-                        </td>
-                      </tr>
-                    </table>
-                  </td>
-                </tr>
-              </table>
-
-              <p style="margin:0 0 8px;font-size:13px;color:#a1a1aa;">
-                This code expires in <strong style="color:#71717a;">10 minutes</strong>.
-              </p>
-              <p style="margin:0;font-size:13px;color:#a1a1aa;">
-                If you didn't request this, you can safely ignore this email.
-              </p>
-            </td>
-          </tr>
-
-          <!-- Footer -->
-          <tr>
-            <td style="padding:20px 40px;border-top:1px solid #f4f4f5;">
-              <p style="margin:0;font-size:12px;color:#a1a1aa;">
-                © ${new Date().getFullYear()} ${siteConfig.name}. All rights reserved.
-              </p>
-            </td>
-          </tr>
-
-        </table>
-      </td>
-    </tr>
+    <tr><td align="center">
+      <table width="100%" cellpadding="0" cellspacing="0" style="max-width:480px;background:#ffffff;border-radius:16px;border:1px solid #e4e4e7;overflow:hidden;">
+        <tr>
+          <td style="padding:32px 40px 24px;border-bottom:1px solid #f4f4f5;">
+            <span style="font-size:22px;font-weight:800;letter-spacing:-0.5px;color:#18181b;">${siteConfig.name}</span>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:32px 40px;">
+            <h1 style="margin:0 0 12px;font-size:20px;font-weight:700;color:#18181b;">${heading}</h1>
+            <p style="margin:0 0 28px;font-size:14px;line-height:1.6;color:#71717a;">${body}</p>
+            <table cellpadding="0" cellspacing="0" style="margin:0 auto 28px;">
+              <tr>
+                <td style="background:#f4f4f5;border-radius:12px;padding:16px 24px;">
+                  <span style="font-size:28px;font-weight:800;letter-spacing:6px;color:#18181b;font-family:'Courier New',monospace;">${otp}</span>
+                </td>
+              </tr>
+            </table>
+            <p style="margin:0 0 8px;font-size:13px;color:#a1a1aa;">This code expires in <strong style="color:#71717a;">10 minutes</strong>.</p>
+            <p style="margin:0;font-size:13px;color:#a1a1aa;">If you didn't request this, you can safely ignore this email.</p>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:20px 40px;border-top:1px solid #f4f4f5;">
+            <p style="margin:0;font-size:12px;color:#a1a1aa;">© ${new Date().getFullYear()} ${siteConfig.name}. All rights reserved.</p>
+          </td>
+        </tr>
+      </table>
+    </td></tr>
   </table>
 </body>
-</html>
-  `.trim();
+</html>`.trim();
+}
+
+// ─── Invite email template ────────────────────────────────────────────────────
+
+function buildInviteEmailHTML({
+  inviterName,
+  workspaceName,
+  inviteUrl,
+}: {
+  inviterName: string;
+  workspaceName: string;
+  inviteUrl: string;
+}): string {
+  return /* html */ `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>You're invited to ${workspaceName}</title>
+</head>
+<body style="margin:0;padding:0;background-color:#f4f4f5;font-family:Inter,ui-sans-serif,system-ui,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f4f5;padding:40px 16px;">
+    <tr><td align="center">
+      <table width="100%" cellpadding="0" cellspacing="0" style="max-width:480px;background:#ffffff;border-radius:16px;border:1px solid #e4e4e7;overflow:hidden;">
+        <tr>
+          <td style="padding:32px 40px 24px;border-bottom:1px solid #f4f4f5;">
+            <span style="font-size:22px;font-weight:800;letter-spacing:-0.5px;color:#18181b;">${siteConfig.name}</span>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:32px 40px;">
+            <h1 style="margin:0 0 12px;font-size:20px;font-weight:700;color:#18181b;">You've been invited!</h1>
+            <p style="margin:0 0 24px;font-size:14px;line-height:1.6;color:#71717a;">
+              <strong style="color:#18181b;">${inviterName}</strong> has invited you to join
+              <strong style="color:#18181b;">${workspaceName}</strong> on ${siteConfig.name}.
+            </p>
+            <table cellpadding="0" cellspacing="0" style="margin:0 0 28px;">
+              <tr>
+                <td style="border-radius:10px;background:#18181b;">
+                  <a href="${inviteUrl}"
+                     style="display:inline-block;padding:14px 28px;font-size:14px;font-weight:600;color:#ffffff;text-decoration:none;border-radius:10px;">
+                    Accept invitation →
+                  </a>
+                </td>
+              </tr>
+            </table>
+            <p style="margin:0 0 8px;font-size:13px;color:#a1a1aa;">This invitation expires in <strong style="color:#71717a;">7 days</strong>.</p>
+            <p style="margin:0;font-size:13px;color:#a1a1aa;">If you weren't expecting this, you can safely ignore it.</p>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:20px 40px;border-top:1px solid #f4f4f5;">
+            <p style="margin:0;font-size:12px;color:#a1a1aa;">© ${new Date().getFullYear()} ${siteConfig.name}. All rights reserved.</p>
+          </td>
+        </tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`.trim();
 }

@@ -43,7 +43,7 @@ export function InviteMemberForm({
         return;
       }
 
-      setSuccessMessage(`${email} has been added to the workspace.`);
+      setSuccessMessage(`Invitation sent to ${email}.`);
       setEmail("");
       onMemberAdded?.();
     });
@@ -78,7 +78,7 @@ export function InviteMemberForm({
             ) : (
               <>
                 <UserPlus className="mr-2 size-4" />
-                Add member
+                Send invite
               </>
             )}
           </Button>

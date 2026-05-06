@@ -98,10 +98,10 @@ export default async function MembersPage({ params }: MembersPageProps) {
             <FadeIn delay={0.05}>
               <div className="rounded-xl border border-border bg-card p-6">
                 <h2 className="mb-1 text-base font-semibold text-foreground">
-                  Add member
+                  Invite member
                 </h2>
                 <p className="mb-5 text-sm text-muted-foreground">
-                  Add an existing Trexo user to this workspace by email.
+                  Send an invitation email to add someone to this workspace.
                 </p>
                 <InviteMemberForm workspaceId={workspace.id} />
               </div>

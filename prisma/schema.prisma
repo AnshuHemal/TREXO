@@ -37,6 +37,7 @@ model User {
   savedFilters           SavedFilter[]
   commentReactions       CommentReaction[]
   projectMutes           ProjectNotificationMute[]
+  sentInvitations        Invitation[]
 
   @@map("users")
 }
@@ -101,6 +102,7 @@ model Workspace {
   projects     Project[]
   templates    IssueTemplate[]
   savedFilters SavedFilter[]
+  invitations  Invitation[]
 
   @@map("workspaces")
 }
@@ -431,4 +433,25 @@ model ProjectNotificationMute {
 
   @@unique([userId, projectId])
   @@map("project_notification_mutes")
+}
+
+// ── Invitation ────────────────────────────────────────────────────────────────
+
+model Invitation {
+  id          String        @id @default(cuid())
+  workspaceId String
+  email       String
+  role        WorkspaceRole @default(MEMBER)
+  token       String        @unique
+  invitedById String
+  expiresAt   DateTime
+  acceptedAt  DateTime?
+  createdAt   DateTime      @default(now())
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  invitedBy User      @relation(fields: [invitedById], references: [id], onDelete: Cascade)
+
+  @@index([token])
+  @@index([workspaceId, email])
+  @@map("invitations")
 }

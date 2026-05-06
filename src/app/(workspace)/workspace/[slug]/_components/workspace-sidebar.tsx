@@ -15,6 +15,7 @@ import {
   LayoutTemplate,
   Activity,
   Users,
+  BarChart2,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -83,7 +84,8 @@ export function WorkspaceSidebar({
   const navItems = [
     { href: baseSlug,                  label: "Home",      icon: Home,        exact: true  },
     { href: `${baseSlug}/my-issues`,   label: "My Issues", icon: CircleUser,  exact: false },
-    { href: `${baseSlug}/workload`,    label: "Workload",  icon: Users,       exact: false },
+    { href: `${baseSlug}/members`,     label: "Members",   icon: Users,       exact: false },
+    { href: `${baseSlug}/workload`,    label: "Workload",  icon: BarChart2,   exact: false },
     { href: `${baseSlug}/activity`,    label: "Activity",  icon: Activity,    exact: false },
   ];
 

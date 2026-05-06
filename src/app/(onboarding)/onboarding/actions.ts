@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/session";
+import { sendWorkspaceInvite } from "../../../(workspace)/workspace/[slug]/members/invite-actions";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -133,8 +134,6 @@ export interface SendInvitesInput {
 export async function sendInvites(
   input: SendInvitesInput,
 ): Promise<ActionResult> {
-  await requireUser();
-
   const validEmails = input.emails
     .map((e) => e.trim().toLowerCase())
     .filter((e) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e));
@@ -143,11 +142,18 @@ export async function sendInvites(
     return { success: false, error: "No valid email addresses provided." };
   }
 
-  // TODO: send invitation emails via Resend + create pending memberships
-  // For now, just acknowledge the invites were received.
-  console.log(
-    `[Invites] Would send invitations to: ${validEmails.join(", ")} for workspace ${input.workspaceId}`,
+  // Send real invitations via Brevo SMTP
+  const results = await Promise.allSettled(
+    validEmails.map((email) => sendWorkspaceInvite(input.workspaceId, email)),
   );
+
+  const failed = results.filter(
+    (r) => r.status === "rejected" || (r.status === "fulfilled" && !r.value.success),
+  );
+
+  if (failed.length === validEmails.length) {
+    return { success: false, error: "Failed to send invitations. Please try again." };
+  }
 
   return { success: true };
 }
