@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
-import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/session";
-import { prisma } from "@/lib/prisma";
 import { siteConfig } from "@/config/site";
 import { OnboardingWizard } from "./_components/onboarding-wizard";
 
@@ -19,18 +17,7 @@ export const metadata: Metadata = {
  *      and redirect to their first workspace.
  */
 export default async function OnboardingPage() {
-  const user = await requireUser();
-
-  // Check if the user already belongs to a workspace.
-  const existingMembership = await prisma.workspaceMember.findFirst({
-    where: { userId: user.id },
-    include: { workspace: { select: { slug: true } } },
-    orderBy: { createdAt: "asc" },
-  });
-
-  if (existingMembership) {
-    redirect(`/workspace/${existingMembership.workspace.slug}`);
-  }
+  await requireUser();
 
   return <OnboardingWizard />;
 }

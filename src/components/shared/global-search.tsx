@@ -512,7 +512,7 @@ export function GlobalSearch({
       >
         <span className="flex items-center gap-2">
           <Search className="size-3.5" />
-          Search or jump to…
+          Search
         </span>
         <kbd className="pointer-events-none flex h-5 items-center gap-0.5 rounded border border-border bg-background px-1.5 font-mono text-[10px] font-medium text-muted-foreground">
           {isMac() ? "⌘" : "Ctrl"}K

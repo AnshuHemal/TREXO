@@ -1,17 +1,17 @@
 import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
+import Link from "next/link";
+import { Logo } from "@/components/shared/logo";
+import { ThemeToggle } from "@/components/shared/theme-toggle";
+import { FadeIn } from "@/components/motion/fade-in";
 
 /**
- * Dashboard layout — server-side session + onboarding guard.
+ * Dashboard layout — personal home shown after login.
  *
- * Two checks:
- *   1. Must be authenticated (requireUser redirects to /login if not)
- *   2. Must have at least one workspace — if not, redirect to /onboarding
- *      so the user completes setup before accessing the dashboard.
- *
- * proxy.ts handles the optimistic cookie-based redirect, but this layout
- * performs the real server-side validation.
+ * Guard: if the user has no workspace at all, redirect to /onboarding.
+ * If they have exactly one workspace, redirect straight to it (fast path).
+ * If they have multiple, render the workspace picker (children).
  */
 export default async function DashboardLayout({
   children,
@@ -20,20 +20,57 @@ export default async function DashboardLayout({
 }) {
   const user = await requireUser();
 
-  // Check workspace membership — redirect to onboarding if none exists.
-  const membership = await prisma.workspaceMember.findFirst({
+  const memberships = await prisma.workspaceMember.findMany({
     where: { userId: user.id },
     select: { workspace: { select: { slug: true } } },
     orderBy: { createdAt: "asc" },
+    take: 2, // only need to know if 0, 1, or 2+
   });
 
-  if (!membership) {
+  if (memberships.length === 0) {
     redirect("/onboarding");
   }
 
+  // Always show the picker — even with a single workspace
   return (
-    <div className="flex min-h-screen flex-col">
-      {children}
+    <div className="relative flex min-h-screen flex-col">
+      {/* Grid background */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,var(--border)_1px,transparent_1px),linear-gradient(to_bottom,var(--border)_1px,transparent_1px)] bg-size-[4rem_4rem] opacity-40"
+      />
+      {/* Radial fade */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_50%,transparent_40%,var(--background)_100%)]"
+      />
+
+      {/* Topbar */}
+      <FadeIn
+        direction="down"
+        className="relative z-10 flex items-center justify-between border-b border-border bg-background/80 px-6 py-4 backdrop-blur-sm"
+      >
+        <Logo size={24} />
+        <ThemeToggle />
+      </FadeIn>
+
+      {/* Content */}
+      <main className="relative z-10 flex flex-1 flex-col items-center justify-center px-4 py-12">
+        {children}
+      </main>
+
+      {/* Footer */}
+      <FadeIn
+        direction="none"
+        delay={0.4}
+        className="relative z-10 flex items-center justify-center gap-4 px-6 py-5 text-xs text-muted-foreground"
+      >
+        <Link href="/privacy" className="hover:text-foreground transition-colors">Privacy</Link>
+        <span aria-hidden>·</span>
+        <Link href="/terms" className="hover:text-foreground transition-colors">Terms</Link>
+        <span aria-hidden>·</span>
+        <Link href="/help" className="hover:text-foreground transition-colors">Help</Link>
+      </FadeIn>
     </div>
   );
 }

@@ -30,7 +30,6 @@ export default async function SettingsPage({ params }: SettingsPageProps) {
     where: {
       userId: user.id,
       workspace: { slug },
-      role: { in: ["OWNER", "ADMIN"] },
     },
     include: {
       workspace: { select: { id: true, name: true, slug: true } },
@@ -43,6 +42,7 @@ export default async function SettingsPage({ params }: SettingsPageProps) {
 
   const { workspace } = membership;
   const isOwner = membership.role === "OWNER";
+  const canManage = membership.role === "OWNER" || membership.role === "ADMIN";
 
   return (
     <div className="flex flex-1 flex-col overflow-y-auto">
@@ -63,22 +63,35 @@ export default async function SettingsPage({ params }: SettingsPageProps) {
         </FadeIn>
 
         <div className="flex max-w-2xl flex-col gap-6">
-          {/* General settings */}
-          <FadeIn delay={0.05}>
-            <div className="rounded-xl border border-border bg-card p-6">
-              <h2 className="mb-1 text-base font-semibold text-foreground">
-                General
-              </h2>
-              <p className="mb-5 text-sm text-muted-foreground">
-                Update your workspace name and URL.
-              </p>
-              <GeneralSettingsForm
-                workspaceId={workspace.id}
-                initialName={workspace.name}
-                initialSlug={workspace.slug}
-              />
-            </div>
-          </FadeIn>
+          {/* General settings — OWNER/ADMIN only */}
+          {canManage && (
+            <FadeIn delay={0.05}>
+              <div className="rounded-xl border border-border bg-card p-6">
+                <h2 className="mb-1 text-base font-semibold text-foreground">
+                  General
+                </h2>
+                <p className="mb-5 text-sm text-muted-foreground">
+                  Update your workspace name and URL.
+                </p>
+                <GeneralSettingsForm
+                  workspaceId={workspace.id}
+                  initialName={workspace.name}
+                  initialSlug={workspace.slug}
+                />
+              </div>
+            </FadeIn>
+          )}
+
+          {!canManage && (
+            <FadeIn delay={0.05}>
+              <div className="rounded-xl border border-border bg-card p-6">
+                <h2 className="mb-1 text-base font-semibold text-foreground">General</h2>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  You need OWNER or ADMIN role to edit workspace settings.
+                </p>
+              </div>
+            </FadeIn>
+          )}
 
           {/* Danger zone — OWNER only */}
           {isOwner && (

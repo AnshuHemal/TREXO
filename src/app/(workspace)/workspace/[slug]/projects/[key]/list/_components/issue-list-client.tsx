@@ -189,13 +189,8 @@ function InlineSelect({
 }) {
   return (
     <Select value={value} onValueChange={onSave} disabled={disabled}>
-      <SelectTrigger asChild>
-        <button
-          className="flex items-center gap-1 rounded px-1 py-0.5 text-xs transition-colors hover:bg-accent focus:outline-none"
-          disabled={disabled}
-        >
-          {trigger}
-        </button>
+      <SelectTrigger className="h-auto w-auto gap-1 border-0 bg-transparent px-1 py-0.5 text-xs shadow-none hover:bg-accent focus:ring-0 [&>svg]:hidden">
+        {trigger}
       </SelectTrigger>
       <SelectContent>
         {options.map(({ value: v, label, icon: Icon, color }) => (
@@ -290,8 +285,7 @@ function AssigneeCell({
       onValueChange={(v) => onSave(issue.id, v === "none" ? null : v)}
       disabled={disabled}
     >
-      <SelectTrigger asChild>
-        <button className="flex items-center gap-1.5 rounded px-1 py-0.5 transition-colors hover:bg-accent focus:outline-none" disabled={disabled}>
+      <SelectTrigger className="h-auto w-auto gap-1.5 border-0 bg-transparent px-1 py-0.5 shadow-none hover:bg-accent focus:ring-0 [&>svg]:hidden">
           {issue.assignee ? (
             <>
               <Avatar className="size-5">
@@ -302,7 +296,6 @@ function AssigneeCell({
           ) : (
             <div className="size-5 rounded-full border border-dashed border-border" />
           )}
-        </button>
       </SelectTrigger>
       <SelectContent>
         <SelectItem value="none">
@@ -401,13 +394,11 @@ function EstimateCell({
       onValueChange={(v) => onSave(issue.id, v === "none" ? null : Number(v))}
       disabled={disabled}
     >
-      <SelectTrigger asChild>
-        <button className="flex items-center gap-1 rounded px-1.5 py-0.5 text-xs transition-colors hover:bg-accent focus:outline-none" disabled={disabled}>
+      <SelectTrigger className="h-auto w-auto gap-1 border-0 bg-transparent px-1.5 py-0.5 text-xs shadow-none hover:bg-accent focus:ring-0 [&>svg]:hidden">
           <Zap className="size-3 text-primary" />
           <span className={cn(issue.estimate != null ? "text-foreground" : "text-muted-foreground/40")}>
             {issue.estimate ?? "—"}
           </span>
-        </button>
       </SelectTrigger>
       <SelectContent>
         {ESTIMATE_OPTS.map(({ value, label }) => (
