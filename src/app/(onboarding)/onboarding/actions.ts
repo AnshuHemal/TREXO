@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/session";
-import { sendWorkspaceInvite } from "../../../(workspace)/workspace/[slug]/members/invite-actions";
+import { sendWorkspaceInvite } from "@/lib/invite-actions";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -125,11 +125,8 @@ export interface SendInvitesInput {
 }
 
 /**
- * Sends workspace invitations.
- *
- * For v1 this is a stub — it validates the emails and returns success.
- * In a future iteration this will send invitation emails via Resend and
- * create pending WorkspaceMember records.
+ * Sends workspace invitations via Brevo SMTP.
+ * Creates Invitation records and sends invite emails with accept links.
  */
 export async function sendInvites(
   input: SendInvitesInput,

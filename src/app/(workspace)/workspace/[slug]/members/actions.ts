@@ -2,7 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/session";
-import { sendWorkspaceInvite } from "./invite-actions";
+import { sendWorkspaceInvite } from "@/lib/invite-actions";
 import type { WorkspaceRole } from "@/generated/prisma/enums";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
