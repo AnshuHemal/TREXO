@@ -22,6 +22,7 @@ export function ProjectTabs({ slug, projectKey }: ProjectTabsProps) {
     { label: "Sprints",       href: `${base}/sprints`,                   exact: false },
     { label: "Analytics",     href: `${base}/analytics`,                 exact: false },
     { label: "Health",        href: `${base}/health`,                    exact: false },
+    { label: "Time",          href: `${base}/time`,                      exact: false },
     { label: "Roadmap",       href: `${base}/roadmap`,                   exact: false },
     { label: "Settings",      href: `${base}/settings`,                  exact: true  },
     { label: "Workflow",      href: `${base}/settings/workflow`,         exact: false },
@@ -36,7 +37,7 @@ export function ProjectTabs({ slug, projectKey }: ProjectTabsProps) {
   }
 
   return (
-    <div className="flex items-center gap-0 border-b border-border px-4 bg-background">
+    <div className="flex items-center gap-0 overflow-x-auto border-b border-border bg-background px-4 scrollbar-none">
       {tabs.map(({ label, href, exact }) => (
         <Link
           key={href}

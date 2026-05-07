@@ -2,12 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ChevronRight, Keyboard } from "lucide-react";
+import { ChevronRight, Keyboard, Menu } from "lucide-react";
 import { ThemeToggle } from "@/components/shared/theme-toggle";
 import { GlobalSearch } from "@/components/shared/global-search";
 import { NotificationBell } from "@/components/shared/notification-bell";
 import { Button } from "@/components/ui/button";
 import { useWorkspaceSafe } from "@/components/providers/workspace-provider";
+import { useMobileSidebarSafe } from "@/components/providers/mobile-sidebar-provider";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -52,6 +53,7 @@ export function WorkspaceTopbar({
   const pathname = usePathname();
   const title = pageTitle ?? derivePageTitle(pathname, workspaceSlug);
   const ctx = useWorkspaceSafe();
+  const mobileSidebar = useMobileSidebarSafe();
 
   // Prefer context values (always up-to-date) over props
   const resolvedWorkspaceId = workspaceId ?? ctx?.workspaceId;
@@ -60,21 +62,36 @@ export function WorkspaceTopbar({
 
   return (
     <header className="sticky top-0 z-40 flex h-14 items-center justify-between border-b border-border bg-background/95 px-4 backdrop-blur-sm">
-      {/* Left: breadcrumb */}
-      <nav className="flex items-center gap-1.5 text-sm" aria-label="Breadcrumb">
-        <Link
-          href={`/workspace/${workspaceSlug}`}
-          className="font-medium text-muted-foreground transition-colors hover:text-foreground"
-        >
-          {workspaceName}
-        </Link>
-        {title !== "Home" && (
-          <>
-            <ChevronRight className="size-3.5 text-muted-foreground" />
-            <span className="font-medium text-foreground">{title}</span>
-          </>
+      {/* Left: hamburger (mobile) + breadcrumb */}
+      <div className="flex items-center gap-2">
+        {/* Hamburger — only on mobile */}
+        {mobileSidebar && (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="size-8 text-muted-foreground hover:text-foreground lg:hidden"
+            aria-label="Open menu"
+            onClick={mobileSidebar.toggle}
+          >
+            <Menu className="size-5" />
+          </Button>
         )}
-      </nav>
+
+        <nav className="flex items-center gap-1.5 text-sm" aria-label="Breadcrumb">
+          <Link
+            href={`/workspace/${workspaceSlug}`}
+            className="font-medium text-muted-foreground transition-colors hover:text-foreground"
+          >
+            {workspaceName}
+          </Link>
+          {title !== "Home" && (
+            <>
+              <ChevronRight className="size-3.5 text-muted-foreground" />
+              <span className="font-medium text-foreground">{title}</span>
+            </>
+          )}
+        </nav>
+      </div>
 
       {/* Right: search + actions */}
       <div className="flex items-center gap-1.5">
@@ -88,15 +105,14 @@ export function WorkspaceTopbar({
 
         <div className="h-4 w-px bg-border" aria-hidden />
 
-        {/* Keyboard shortcuts hint */}
+        {/* Keyboard shortcuts hint — hidden on mobile */}
         <Button
           variant="ghost"
           size="icon"
-          className="size-8 text-muted-foreground hover:text-foreground"
+          className="hidden size-8 text-muted-foreground hover:text-foreground sm:flex"
           aria-label="Keyboard shortcuts (?)"
           title="Keyboard shortcuts (?)"
           onClick={() => {
-            // Dispatch a synthetic ? keydown to trigger the project shortcuts provider
             window.dispatchEvent(new KeyboardEvent("keydown", { key: "?", bubbles: true }));
           }}
         >

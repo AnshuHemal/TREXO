@@ -6,7 +6,9 @@ import {
   MessageSquare, Search, CalendarDays, ArrowUpDown, X,
   ChevronDown, Plus, Check, Loader2, Layers, Eye, EyeOff,
   SquareCheck, Square, SlidersHorizontal, Zap, ShieldAlert, Trash2,
+  Download,
 } from "lucide-react";
+import { exportIssuesToCsv } from "@/lib/export-csv";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -979,7 +981,7 @@ export function BacklogClient({
   return (
     <div className="flex flex-1 flex-col">
       {/* Toolbar */}
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border px-6 py-3">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border px-3 py-2.5 sm:px-6 sm:py-3">
         <div className="flex flex-wrap items-center gap-2">
           {/* Search */}
           <div className="relative">
@@ -1131,6 +1133,18 @@ export function BacklogClient({
             members={members}
           />
         </ShortcutHint>
+
+        {/* Export CSV */}
+        <Button
+          variant="ghost"
+          size="icon"
+          className="size-8 text-muted-foreground hover:text-foreground"
+          title={`Export ${filtered.length} issues as CSV`}
+          aria-label="Export CSV"
+          onClick={() => exportIssuesToCsv(filtered, project.key)}
+        >
+          <Download className="size-4" />
+        </Button>
 
         {/* Real-time indicator */}
         <RealtimeIndicator status={connStatus} />

@@ -38,6 +38,7 @@ model User {
   commentReactions       CommentReaction[]
   projectMutes           ProjectNotificationMute[]
   sentInvitations        Invitation[]
+  timeLogs               TimeLog[]
 
   @@map("users")
 }
@@ -234,6 +235,7 @@ model Issue {
   notifications Notification[]
   outgoingLinks IssueLink[]    @relation("LinkSource")
   incomingLinks IssueLink[]    @relation("LinkTarget")
+  timeLogs      TimeLog[]
 
   @@unique([projectId, key])
   @@map("issues")
@@ -454,4 +456,24 @@ model Invitation {
   @@index([token])
   @@index([workspaceId, email])
   @@map("invitations")
+}
+
+// ── TimeLog ───────────────────────────────────────────────────────────────────
+
+model TimeLog {
+  id          String   @id @default(cuid())
+  issueId     String
+  userId      String
+  minutes     Int      // duration in minutes
+  loggedAt    DateTime @default(now()) // the date the work was done
+  description String?  // optional note about what was done
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  issue Issue @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId],  references: [id], onDelete: Cascade)
+
+  @@index([issueId])
+  @@index([userId])
+  @@map("time_logs")
 }

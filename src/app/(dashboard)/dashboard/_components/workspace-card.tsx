@@ -85,7 +85,7 @@ export function WorkspaceCard({ workspace }: WorkspaceCardProps) {
             {workspace.name}
           </h3>
           <p className="font-mono text-xs text-muted-foreground">
-            trexo.com/workspace/{workspace.slug}
+            trexo-web.vercel.app/workspace/{workspace.slug}
           </p>
         </div>
 

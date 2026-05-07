@@ -47,6 +47,7 @@ import { IssueLinks } from "./issue-links";
 import type { IssueLinkItem } from "../link-actions";
 import { CommentEntry, type CommentItem } from "./comment-entry";
 import { CustomFieldValues } from "./custom-field-values";
+import { TimeLogSection } from "./time-log-section";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -462,7 +463,7 @@ export function IssueDetailModal({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/50 backdrop-blur-sm p-4 pt-16"
+      className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/50 backdrop-blur-sm p-0 sm:p-4 sm:pt-16"
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
       <motion.div
@@ -470,7 +471,7 @@ export function IssueDetailModal({
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.97, y: 8 }}
         transition={{ duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
-        className="relative flex w-full max-w-5xl flex-col rounded-xl border border-border bg-card shadow-2xl"
+        className="relative flex w-full max-w-5xl flex-col rounded-none border-0 bg-card shadow-2xl sm:rounded-xl sm:border sm:border-border"
         onClick={(e) => e.stopPropagation()}
       >
         {/* ── Header ──────────────────────────────────────────────────────── */}
@@ -559,7 +560,7 @@ export function IssueDetailModal({
         </AnimatePresence>
 
         {/* ── Body ────────────────────────────────────────────────────────── */}
-        <div className="flex flex-1 overflow-hidden">
+        <div className="flex flex-1 flex-col overflow-hidden sm:flex-row">
 
           {/* Left — main content */}
           <div className="flex flex-1 flex-col gap-6 overflow-y-auto p-6">
@@ -626,6 +627,13 @@ export function IssueDetailModal({
                 onOpenIssue={handleOpenSubTask}
               />
             )}
+
+            {/* Time tracking */}
+            <TimeLogSection
+              issueId={issue.id}
+              estimate={issue.estimate ?? null}
+              currentUserId={currentUserId}
+            />
 
             {/* Error */}
             <AnimatePresence>
@@ -729,7 +737,7 @@ export function IssueDetailModal({
           </div>
 
           {/* Right — sidebar */}
-          <div className="flex w-64 shrink-0 flex-col gap-5 overflow-y-auto border-l border-border p-5">
+          <div className="flex w-full shrink-0 flex-col gap-5 overflow-y-auto border-t border-border p-5 sm:w-64 sm:border-l sm:border-t-0">
 
             <SidebarField label="Status">
               <Select value={issue.status} onValueChange={(v) => handleFieldUpdate("status", v)} disabled={isPending}>

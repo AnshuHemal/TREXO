@@ -10,7 +10,7 @@ export const siteConfig = {
   tagline: "Track less. Ship more.",
   description:
     "Trexo is a modern project management platform built for teams that move fast. Organize work, track issues, and ship products — without the noise.",
-  url: process.env.NEXT_PUBLIC_APP_URL ?? "https://trexo.com",
+  url: process.env.NEXT_PUBLIC_APP_URL ?? "https://trexo-web.vercel.app",
   ogImage: "/og.png",
 
   /** Used in <title> templates: "Page Name | Trexo" */
@@ -30,7 +30,7 @@ export const siteConfig = {
 
   author: {
     name: "Trexo",
-    url: "https://trexo.com",
+    url: "https://trexo-web.vercel.app",
   },
 
   links: {

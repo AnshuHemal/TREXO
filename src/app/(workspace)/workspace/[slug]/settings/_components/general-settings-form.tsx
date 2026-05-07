@@ -168,7 +168,7 @@ export function GeneralSettingsForm({
           )}
         >
           <span className="select-none border-r border-border px-3 py-2 text-sm text-muted-foreground whitespace-nowrap">
-            trexo.com/
+            trexo-web.vercel.app/
           </span>
           <div className="flex flex-1 items-center">
             <input
