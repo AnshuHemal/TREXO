@@ -35,8 +35,8 @@ Thank you for your interest in contributing. This document covers everything you
 ### Steps
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/trexo.git
-cd trexo
+git clone https://github.com/AnshuHemal/TREXO.git
+cd TREXO
 npm install
 cp .env.example .env
 ```
