@@ -21,7 +21,7 @@ const SEGMENT_LABELS: Record<string, string> = {
 
 function derivePageTitle(pathname: string, slug: string): string {
   const base = `/workspace/${slug}`;
-  const rest = pathname.replace(base, "").replace(/^\
+  const rest = pathname.replace(base, "").replace(/^\//, "");
   if (!rest) return "Home";
   const firstSegment = rest.split("/")[0];
   return SEGMENT_LABELS[firstSegment] ?? firstSegment;
