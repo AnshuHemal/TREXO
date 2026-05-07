@@ -98,8 +98,13 @@ export function WorkspaceSidebar({
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="flex h-9 w-full items-center justify-between gap-2 rounded-md px-2 text-sidebar-foreground hover:bg-accent hover:text-accent-foreground">
               <div className="flex items-center gap-2 min-w-0">
-                <div className="flex size-7 shrink-0 items-center justify-center rounded-md bg-primary/10 text-xs font-bold text-primary">
-                  {workspace.name.charAt(0).toUpperCase()}
+                <div className="flex size-7 shrink-0 items-center justify-center rounded-md bg-primary/10 text-xs font-bold text-primary overflow-hidden">
+                  {workspace.logo ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={workspace.logo} alt={workspace.name} className="size-full object-cover rounded-md" />
+                  ) : (
+                    workspace.name.charAt(0).toUpperCase()
+                  )}
                 </div>
                 <span className="truncate text-sm font-semibold text-sidebar-foreground">{workspace.name}</span>
               </div>

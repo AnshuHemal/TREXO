@@ -26,6 +26,39 @@ export async function checkWorkspaceSlug(
   return { available: !existing };
 }
 
+// ─── updateWorkspaceLogo ──────────────────────────────────────────────────────
+
+export async function updateWorkspaceLogo(
+  workspaceId: string,
+  logo: string | null,
+): Promise<ActionResult> {
+  const user = await requireUser();
+
+  const membership = await prisma.workspaceMember.findFirst({
+    where: { workspaceId, userId: user.id, role: { in: ["OWNER", "ADMIN"] } },
+    select: { id: true },
+  });
+
+  if (!membership) {
+    return { success: false, error: "You don't have permission to update this workspace." };
+  }
+
+  // Validate base64 size (max ~2MB after encoding)
+  if (logo && logo.length > 3 * 1024 * 1024) {
+    return { success: false, error: "Logo image must be smaller than 2 MB." };
+  }
+
+  try {
+    await prisma.workspace.update({
+      where: { id: workspaceId },
+      data: { logo },
+    });
+    return { success: true };
+  } catch {
+    return { success: false, error: "Failed to update workspace logo." };
+  }
+}
+
 // ─── updateWorkspace ──────────────────────────────────────────────────────────
 
 export async function updateWorkspace(

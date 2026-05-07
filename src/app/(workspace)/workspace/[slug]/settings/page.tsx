@@ -32,7 +32,7 @@ export default async function SettingsPage({ params }: SettingsPageProps) {
       workspace: { slug },
     },
     include: {
-      workspace: { select: { id: true, name: true, slug: true } },
+      workspace: { select: { id: true, name: true, slug: true, logo: true } },
     },
   });
 
@@ -77,6 +77,7 @@ export default async function SettingsPage({ params }: SettingsPageProps) {
                   workspaceId={workspace.id}
                   initialName={workspace.name}
                   initialSlug={workspace.slug}
+                  initialLogo={workspace.logo}
                 />
               </div>
             </FadeIn>

@@ -15,7 +15,7 @@ Trexo is a modern, full-featured project management platform — a production-gr
 | UI Runtime | React 19 |
 | Styling | Tailwind CSS v4 |
 | Components | shadcn/ui (new-york style) |
-| Animations | Motion (Framer Motion v12) |
+| Animations | Motion (motion/react v12) |
 | Authentication | Better Auth v1.6 |
 | Database ORM | Prisma 7 |
 | Database | PostgreSQL |
@@ -41,6 +41,7 @@ Trexo is a modern, full-featured project management platform — a production-gr
 
 ### Workspace
 - Multi-workspace support with workspace switcher
+- **Workspace logo upload** — image upload in general settings, logo shown in sidebar header and switcher
 - Workspace roles: **OWNER · ADMIN · MEMBER · VIEWER**
 - Email invitations with secure token-based acceptance (`/invite/[token]`)
 - Workspace settings — rename, change slug, danger zone (delete)
@@ -51,7 +52,7 @@ Trexo is a modern, full-featured project management platform — a production-gr
 - Create / edit / delete projects with auto-generated keys (e.g. `TRX`)
 - **PUBLIC** (all workspace members) or **PRIVATE** (explicit members only) visibility
 - Project-level access control — roles: **LEAD · MEMBER · VIEWER**
-- Project settings — general, access management, danger zone
+- Project settings — general, access management, workflow, danger zone
 
 ### Issues
 - Full CRUD with rich text descriptions (Tiptap)
@@ -61,17 +62,33 @@ Trexo is a modern, full-featured project management platform — a production-gr
 - Assignee, reporter, due dates, story point estimates
 - Labels (colored badges), sub-tasks with progress bar
 - Issue linking — **BLOCKS · BLOCKED_BY · DUPLICATES · RELATES_TO**
+- **Issue duplicate** — copy button in modal header clones title, type, priority, description, labels; opens new issue immediately
+- **Issue watcher / follow** — Watch button in modal sidebar; watchers receive comment + status-change notifications; watcher count shown
+- **Issue permalink** — dedicated `/workspace/[slug]/projects/[key]/issues/[issueKey]` full-page route; ExternalLink button in modal header navigates there
 - @mentions in comments (Tiptap Mention extension + Brevo notification email)
-- Comment edit / delete, unified activity timeline
+- Comment edit / delete, emoji reactions, unified activity timeline
 - Auto-incrementing issue keys per project (e.g. `TRX-42`)
+- **Custom fields** — per-project field definitions (text, number, select, date)
+- **Time tracking** — log time per issue, time report view per project
 
 ### Views
 - **Kanban Board** — drag-and-drop columns, swimlanes (by assignee or priority), WIP limits, epic badges, priority left-border color coding, filter bar
-- **Backlog** — group by (status/priority/assignee), sort by (due date/priority/status/created/updated), bulk actions (status/priority/assignee), inline create per group, column visibility toggles, saved filters (personal + shared)
+- **Backlog** — group by (status/priority/assignee), sort by (due date/priority/status/created/updated), bulk actions (status/priority/assignee/delete), inline create per group, column visibility toggles, saved filters (personal + shared), **CSV export**
 - **List View** — tabular issue list with inline editing
 - **Sprints** — create/start/complete sprints, move incomplete issues to backlog or next sprint, sprint backlog view
 - **Roadmap** — horizontal timeline, drag to move/resize sprint bars, epic bars, today line, progress fill
+- **Planning** — sprint capacity planning with story points
+- **Epics** — epic overview with child issue progress
+- **Analytics** — issue status distribution, velocity chart, burndown
+- **Health** — project health indicators, overdue issues, blocked issues
+- **Time** — per-project time log report grouped by member
 - **My Issues** — cross-project view of issues assigned to the current user
+
+### Workflow Settings
+- Per-project custom workflow configuration (add / rename / reorder / enable-disable statuses)
+- Transition matrix — allow or deny specific status-to-status transitions
+- Board columns dynamically generated from the project's workflow config
+- Projects without custom config fall back to global defaults
 
 ### Sprint Planning
 - Sprint capacity planning with story points
@@ -96,6 +113,7 @@ Trexo is a modern, full-featured project management platform — a production-gr
 ### Notifications
 - In-app notification bell with unread count badge (30s polling)
 - Types: assigned, mentioned, status changed, comment added
+- Watchers receive comment-added and status-changed notifications
 - Mark as read / mark all as read
 - Per-type notification preferences (toggle on/off)
 - "Manage preferences" link in bell dropdown → `/settings/notifications`
@@ -107,28 +125,47 @@ Trexo is a modern, full-featured project management platform — a production-gr
 - Keyboard navigation (↑↓ Enter)
 
 ### Keyboard Shortcuts
-- `C` — create issue (from anywhere in a project)
-- `B` — go to Backlog
-- `G B` — go to Board
-- `G S` — go to Sprints
-- `G R` — go to Roadmap
-- `?` — show shortcuts help modal
-- `E` — edit issue title (when detail modal is open)
-- `A` — assign to me (when detail modal is open)
-- `Esc` — close modal
+
+| Shortcut | Action |
+|---|---|
+| `?` | Show keyboard shortcuts help modal |
+| `⌘K` / `Ctrl+K` | Open global search palette |
+| `G H` | Go to workspace home |
+| `G M` | Go to My Issues |
+| `C` | Create issue (from anywhere in a project) |
+| `B` | Go to Backlog |
+| `G B` | Go to Board |
+| `G S` | Go to Sprints |
+| `G R` | Go to Roadmap |
+| `E` | Edit issue title (when detail modal is open) |
+| `A` | Assign to me (when detail modal is open) |
+| `Esc` | Close modal |
 
 ### User Settings
-- Profile — name, avatar
+- Profile — name, **avatar upload** (camera overlay, base64 preview, auto-save)
 - Security — change password, connected OAuth accounts, active sessions
 - Notifications — per-type toggles with live persistence
+
+### Navigation & Loading
+- **Navigation progress bar** — slim top bar animates on every route transition
+- **Loading screen** — full-screen branded loading overlay with Trexo logo and animated indicators shown during page rendering
+- **Favicon** — custom Trexo favicon across all pages
+
+### Error Handling
+- **Error boundaries** at every route segment — workspace, project, auth, settings, root
+- `global-error.tsx` catches root layout failures (includes `<html>/<body>`)
+- Friendly `ErrorScreen` component — animated AlertTriangle icon, error digest ID, "Try again" + "Go to dashboard" buttons, grid background
+- `not-found.tsx` — custom 404 page
 
 ### UI / UX
 - Light / dark / system theme toggle
 - Animated brand logo — "TREX" + pill morphing into circle
 - Motion animations throughout (FadeIn, StaggerChildren, AnimatePresence)
+- **Mobile responsive layout** — collapsible sidebar with hamburger on mobile, board horizontal scroll with touch, issue modal full-screen on mobile, backlog rows stack on small screens
 - Accessible — ARIA labels, keyboard navigation, focus management
 - Tiptap rich text editor with toolbar (bold, italic, headings, lists, code, task lists)
 - `@mention` support in comments with animated member dropdown
+- Real-time updates via Server-Sent Events (SSE)
 
 ---
 
@@ -140,15 +177,20 @@ trexo/
 │   ├── schema.prisma              # Full database schema
 │   └── migrations/                # Migration history
 ├── proxy.ts                       # Next.js 16 route protection (cookie check)
+├── public/
+│   └── logo.svg                   # Trexo brand logo (used as favicon + loading screen)
 ├── src/
 │   ├── app/
 │   │   ├── (auth)/                # /login /signup /verify-email /forgot-password
+│   │   │   └── error.tsx          # Auth error boundary
 │   │   ├── (dashboard)/           # /dashboard — workspace picker
 │   │   ├── (marketing)/           # / — landing page
 │   │   ├── (onboarding)/          # /onboarding — workspace setup wizard
 │   │   ├── (settings)/            # /settings — user profile/security/notifications
+│   │   │   └── error.tsx          # Settings error boundary
 │   │   ├── (workspace)/           # /workspace/[slug]/... — main app
 │   │   │   └── workspace/[slug]/
+│   │   │       ├── error.tsx      # Workspace error boundary
 │   │   │       ├── page.tsx       # Workspace home dashboard
 │   │   │       ├── my-issues/     # Cross-project assigned issues
 │   │   │       ├── members/       # Member management + invitations
@@ -156,16 +198,26 @@ trexo/
 │   │   │       ├── activity/      # Workspace activity log
 │   │   │       ├── settings/      # Workspace settings, labels, templates
 │   │   │       └── projects/[key]/
+│   │   │           ├── error.tsx  # Project error boundary
 │   │   │           ├── page.tsx   # Kanban board (default project view)
-│   │   │           ├── backlog/   # Backlog with grouping/sorting/bulk actions
+│   │   │           ├── backlog/   # Backlog with grouping/sorting/bulk actions/CSV export
 │   │   │           ├── list/      # List view
 │   │   │           ├── sprints/   # Sprint management
 │   │   │           ├── roadmap/   # Timeline roadmap
-│   │   │           └── settings/  # Project settings + access control
+│   │   │           ├── time/      # Time tracking report
+│   │   │           ├── issues/
+│   │   │           │   ├── [issueKey]/  # Issue permalink (full-page view)
+│   │   │           │   ├── actions.ts   # Issue CRUD + duplicate server actions
+│   │   │           │   ├── watch-actions.ts  # Watch/unwatch server actions
+│   │   │           │   └── time-actions.ts   # Time log server actions
+│   │   │           └── settings/  # Project settings + access control + workflow
+│   │   ├── error.tsx              # Root app error boundary
+│   │   ├── global-error.tsx       # Root layout error boundary
+│   │   ├── not-found.tsx          # Custom 404 page
 │   │   ├── invite/[token]/        # Workspace invitation acceptance
 │   │   └── api/
 │   │       ├── auth/[...all]/     # Better Auth catch-all
-│   │       ├── issues/[id]/       # Issue detail API
+│   │       ├── issues/[id]/       # Issue detail API (includes isWatching + watcherCount)
 │   │       ├── notifications/     # Notifications API (GET + PATCH)
 │   │       ├── search/            # Global search API
 │   │       └── sse/               # Server-Sent Events (real-time)
@@ -175,7 +227,9 @@ trexo/
 │   │   ├── providers/             # ThemeProvider, WorkspaceProvider
 │   │   ├── shared/                # Header, Logo, GlobalSearch, NotificationBell,
 │   │   │                          # KeyboardShortcutsModal, ShortcutHint,
-│   │   │                          # RealtimeIndicator, LabelPicker, UserMenu
+│   │   │                          # RealtimeIndicator, LabelPicker, UserMenu,
+│   │   │                          # NavigationProgress, LoadingScreen,
+│   │   │                          # GlobalShortcutsProvider, ErrorScreen
 │   │   └── ui/                    # 56 shadcn/ui components
 │   ├── config/
 │   │   └── site.ts                # Central site config
@@ -190,7 +244,7 @@ trexo/
 │       ├── auth-client.ts         # Better Auth browser client
 │       ├── email.ts               # Nodemailer + Brevo SMTP (OTP + invite emails)
 │       ├── invite-actions.ts      # Workspace invitation server actions
-│       ├── notifications.ts       # Notification creation helpers
+│       ├── notifications.ts       # Notification creation helpers (watchers included)
 │       ├── project-access.ts      # Project visibility + access control
 │       ├── mentions.ts            # @mention HTML parsing
 │       ├── due-date.ts            # Due date utilities
@@ -215,13 +269,14 @@ trexo/
 
 | Model | Description |
 |---|---|
-| `Workspace` | Top-level organisation container |
+| `Workspace` | Top-level organisation container (name, slug, logo) |
 | `WorkspaceMember` | User ↔ Workspace join (`OWNER` `ADMIN` `MEMBER` `VIEWER`) |
-| `Project` | Lives inside a workspace, has key + visibility + workflow config |
+| `Project` | Lives inside a workspace — key, visibility, workflowConfig, customFieldsConfig |
 | `ProjectMember` | User ↔ Project join (`LEAD` `MEMBER` `VIEWER`) |
 | `Sprint` | Time-boxed iteration (`PLANNED` `ACTIVE` `COMPLETED`) |
-| `Issue` | Atomic unit of work — type, status, priority, estimate, custom fields |
+| `Issue` | Atomic unit of work — type, status, priority, estimate, customFields |
 | `IssueLink` | Issue relationships (`BLOCKS` `BLOCKED_BY` `DUPLICATES` `RELATES_TO`) |
+| `IssueWatcher` | User subscriptions to an issue — watchers get comment + status notifications |
 | `Label` / `IssueLabel` | Free-form coloured tags on issues |
 | `Comment` | Rich-text comments on issues |
 | `CommentReaction` | Emoji reactions on comments |
@@ -232,6 +287,7 @@ trexo/
 | `SavedFilter` | Named filter presets per project (personal + shared) |
 | `IssueTemplate` | Issue templates with default type/priority/description |
 | `Invitation` | Workspace invitations with secure token + expiry |
+| `TimeLog` | Time entries per issue — minutes, loggedAt, optional description |
 
 ---
 
@@ -346,6 +402,7 @@ Brevo handles:
 - OTP verification emails
 - Password reset emails
 - Workspace invitation emails
+- @mention notification emails
 
 ---
 

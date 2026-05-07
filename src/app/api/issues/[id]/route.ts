@@ -93,6 +93,8 @@ export async function GET(
       project: {
         select: { customFieldsConfig: true },
       },
+      // Watchers count
+      _count: { select: { watchers: true } },
     },
   });
 
@@ -102,9 +104,17 @@ export async function GET(
   const { parseCustomFieldsConfig } = await import("@/lib/custom-fields");
   const customFieldDefs = parseCustomFieldsConfig(issue.project?.customFieldsConfig).fields;
 
+  // Check if current user is watching
+  const isWatching = await prisma.issueWatcher.findUnique({
+    where: { issueId_userId: { issueId: id, userId: user.id } },
+    select: { id: true },
+  });
+
   return NextResponse.json({
     ...issue,
     customFieldDefs,
     customFields: issue.customFields ?? {},
+    watcherCount: issue._count.watchers,
+    isWatching: !!isWatching,
   });
 }

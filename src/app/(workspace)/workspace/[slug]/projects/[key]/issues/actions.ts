@@ -558,6 +558,87 @@ export async function createSubTask(
   }
 }
 
+// ─── duplicateIssue ───────────────────────────────────────────────────────────
+
+/**
+ * Creates a copy of an issue with the same title, type, priority, description,
+ * and labels. The new issue gets the next available key and starts in BACKLOG.
+ */
+export async function duplicateIssue(
+  issueId: string,
+): Promise<ActionResult<{ id: string; key: number }>> {
+  const user = await requireUser();
+
+  const source = await prisma.issue.findUnique({
+    where: { id: issueId },
+    include: {
+      labels: { select: { labelId: true } },
+    },
+  });
+
+  if (!source) return { success: false, error: "Issue not found." };
+
+  try {
+    const newIssue = await prisma.$transaction(async (tx) => {
+      // Get next key
+      const last = await tx.issue.findFirst({
+        where: { projectId: source.projectId },
+        orderBy: { key: "desc" },
+        select: { key: true },
+      });
+      const key = (last?.key ?? 0) + 1;
+
+      // Get position at end of backlog
+      const lastBacklog = await tx.issue.findFirst({
+        where: { projectId: source.projectId, status: "BACKLOG" },
+        orderBy: { position: "desc" },
+        select: { position: true },
+      });
+      const position = (lastBacklog?.position ?? 0) + 1000;
+
+      const created = await tx.issue.create({
+        data: {
+          projectId:   source.projectId,
+          reporterId:  user.id,
+          key,
+          title:       `${source.title} (copy)`,
+          description: source.description,
+          type:        source.type,
+          status:      "BACKLOG",
+          priority:    source.priority,
+          position,
+          estimate:    source.estimate,
+          dueDate:     null, // don't copy due date
+        },
+        select: { id: true, key: true },
+      });
+
+      // Copy labels
+      if (source.labels.length > 0) {
+        await tx.issueLabel.createMany({
+          data: source.labels.map((l) => ({
+            issueId: created.id,
+            labelId: l.labelId,
+          })),
+        });
+      }
+
+      return created;
+    });
+
+    // Log activity
+    await prisma.activity.create({
+      data: { issueId: newIssue.id, actorId: user.id, type: "issue_created" },
+    }).catch(() => {});
+
+    broadcastIssueEvent("issue.created", newIssue.id, user.id).catch(() => {});
+
+    return { success: true, data: { id: newIssue.id, key: newIssue.key } };
+  } catch {
+    return { success: false, error: "Failed to duplicate issue." };
+  }
+}
+
 // ─── bulkUpdateIssues ─────────────────────────────────────────────────────────
 
 export interface BulkUpdateInput {

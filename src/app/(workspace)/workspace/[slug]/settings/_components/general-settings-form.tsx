@@ -2,12 +2,13 @@
 
 import { useRef, useState, useTransition } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { CheckCircle2, XCircle, Loader2 } from "lucide-react";
+import { CheckCircle2, XCircle, Loader2, Camera, Building2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
-import { updateWorkspace, checkWorkspaceSlug } from "../actions";
+import { updateWorkspace, updateWorkspaceLogo, checkWorkspaceSlug } from "../actions";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -36,6 +37,8 @@ interface GeneralSettingsFormProps {
   workspaceId: string;
   initialName: string;
   initialSlug: string;
+  initialLogo?: string | null;
+  workspaceName?: string;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -44,9 +47,15 @@ export function GeneralSettingsForm({
   workspaceId,
   initialName,
   initialSlug,
+  initialLogo = null,
 }: GeneralSettingsFormProps) {
   const [name, setName] = useState(initialName);
   const [slug, setSlug] = useState(initialSlug);
+  const [logo, setLogo] = useState<string | null>(initialLogo);
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [logoError, setLogoError] = useState<string | null>(null);
+  const [logoSaving, startLogoTransition] = useTransition();
+  const logoInputRef = useRef<HTMLInputElement>(null);
   const [slugEdited, setSlugEdited] = useState(false);
   const [slugStatus, setSlugStatus] = useState<
     "idle" | "checking" | "available" | "taken"
@@ -57,6 +66,37 @@ export function GeneralSettingsForm({
   const [isPending, startTransition] = useTransition();
 
   const slugDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  function handleLogoChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setLogoError(null);
+    if (file.size > 2 * 1024 * 1024) {
+      setLogoError("Logo must be smaller than 2 MB.");
+      return;
+    }
+    setLogoFile(file);
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const base64 = ev.target?.result as string;
+      setLogo(base64);
+      // Auto-save logo immediately
+      startLogoTransition(async () => {
+        const result = await updateWorkspaceLogo(workspaceId, base64);
+        if (!result.success) setLogoError(result.error ?? "Failed to save logo.");
+        else setLogoFile(null);
+      });
+    };
+    reader.readAsDataURL(file);
+  }
+
+  async function handleRemoveLogo() {
+    setLogo(null);
+    setLogoFile(null);
+    startLogoTransition(async () => {
+      await updateWorkspaceLogo(workspaceId, null);
+    });
+  }
 
   function triggerSlugCheck(value: string) {
     if (slugDebounceRef.current) clearTimeout(slugDebounceRef.current);
@@ -126,6 +166,57 @@ export function GeneralSettingsForm({
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+      {/* Workspace logo */}
+      <div className="flex items-center gap-5">
+        <div className="relative">
+          <Avatar className="size-16 rounded-xl">
+            <AvatarImage src={logo ?? undefined} alt={name} className="rounded-xl object-cover" />
+            <AvatarFallback className="rounded-xl bg-primary/10 text-lg font-bold text-primary">
+              {name.charAt(0).toUpperCase() || <Building2 className="size-6" />}
+            </AvatarFallback>
+          </Avatar>
+          <button
+            type="button"
+            onClick={() => logoInputRef.current?.click()}
+            disabled={logoSaving}
+            className="absolute -bottom-1 -right-1 flex size-6 items-center justify-center rounded-full border-2 border-background bg-primary text-primary-foreground shadow-sm transition-transform hover:scale-110 disabled:opacity-50"
+            aria-label="Change workspace logo"
+          >
+            {logoSaving ? <Loader2 className="size-3 animate-spin" /> : <Camera className="size-3" />}
+          </button>
+          <input
+            ref={logoInputRef}
+            type="file"
+            accept="image/png,image/jpeg,image/webp,image/svg+xml"
+            className="sr-only"
+            onChange={handleLogoChange}
+          />
+        </div>
+        <div className="flex flex-col gap-1">
+          <p className="text-sm font-medium text-foreground">Workspace logo</p>
+          <p className="text-xs text-muted-foreground">PNG, JPG, WebP or SVG. Max 2 MB.</p>
+          {logo && (
+            <button
+              type="button"
+              onClick={handleRemoveLogo}
+              disabled={logoSaving}
+              className="text-xs text-destructive hover:underline disabled:opacity-50"
+            >
+              Remove logo
+            </button>
+          )}
+          {logoError && (
+            <motion.p
+              initial={{ opacity: 0, y: -4 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-xs text-destructive"
+            >
+              {logoError}
+            </motion.p>
+          )}
+        </div>
+      </div>
+
       {/* Name */}
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="ws-name">Workspace name</Label>

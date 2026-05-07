@@ -4,7 +4,7 @@ import { useState, useTransition, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import {
   X, Trash2, Loader2, XCircle, Send, MessageSquare,
-  Clock, CalendarDays, Zap, ExternalLink,
+  Clock, CalendarDays, Zap, ExternalLink, Copy,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -38,6 +38,7 @@ import {
   updateIssue, deleteIssue,
   addComment, editComment, deleteComment,
   addLabelToIssue, removeLabelFromIssue,
+  duplicateIssue,
 } from "../actions";
 import { LabelPicker, type LabelOption } from "@/components/shared/label-picker";
 import { isOverdue, toInputDate, fromInputDate, getDueDateLabel, isDueThisWeek } from "@/lib/due-date";
@@ -48,6 +49,7 @@ import type { IssueLinkItem } from "../link-actions";
 import { CommentEntry, type CommentItem } from "./comment-entry";
 import { CustomFieldValues } from "./custom-field-values";
 import { TimeLogSection } from "./time-log-section";
+import { WatchButton } from "./watch-button";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -103,6 +105,10 @@ export interface IssueDetail {
   customFields?: Record<string, string | number | null>;
   /** Custom field definitions from the project */
   customFieldDefs?: import("@/lib/custom-fields").CustomFieldDef[];
+  /** Whether the current user is watching this issue */
+  isWatching?: boolean;
+  /** Total number of watchers */
+  watcherCount?: number;
 }
 
 interface IssueDetailModalProps {
@@ -446,6 +452,22 @@ export function IssueDetailModal({
     setSubTaskDetail(null);
   }
 
+  // ── Duplicate issue ───────────────────────────────────────────────────────────
+
+  function handleDuplicate() {
+    startTransition(async () => {
+      const result = await duplicateIssue(issue.id);
+      if (!result.success) { setError(result.error ?? "Failed to duplicate issue."); return; }
+      // Navigate to the new issue's full page if workspaceSlug is available
+      if (workspaceSlug && result.data) {
+        window.location.href = `/workspace/${workspaceSlug}/projects/${projectKey}/issues/${result.data.key}`;
+      } else {
+        onClose();
+        window.location.reload();
+      }
+    });
+  }
+
   // ── Delete issue ──────────────────────────────────────────────────────────────
 
   function handleDeleteIssue() {    startTransition(async () => {
@@ -504,6 +526,17 @@ export function IssueDetailModal({
                 <ExternalLink className="size-4" />
               </a>
             )}
+            {/* Duplicate */}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-8 text-muted-foreground hover:text-foreground"
+              title="Duplicate issue"
+              onClick={handleDuplicate}
+              disabled={isPending}
+            >
+              {isPending ? <Loader2 className="size-3.5 animate-spin" /> : <Copy className="size-4" />}
+            </Button>
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button variant="ghost" size="icon" className="size-8 text-muted-foreground hover:text-destructive">
@@ -909,6 +942,17 @@ export function IssueDetailModal({
                     await updateIssue(issue.id, { estimate: val });
                   });
                 }}
+              />
+            </SidebarField>
+
+            <Separator />
+
+            {/* Watch button */}
+            <SidebarField label="Notifications">
+              <WatchButton
+                issueId={issue.id}
+                initialWatching={issue.isWatching ?? false}
+                initialWatcherCount={issue.watcherCount ?? 0}
               />
             </SidebarField>
 

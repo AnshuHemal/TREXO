@@ -127,7 +127,7 @@ export async function notifyAssigned({
 // ─── notifyStatusChanged ──────────────────────────────────────────────────────
 
 /**
- * Notify the issue reporter that the status changed.
+ * Notify the issue reporter + watchers that the status changed.
  */
 export async function notifyStatusChanged({
   reporterId,
@@ -138,14 +138,31 @@ export async function notifyStatusChanged({
   actorId: string;
   issueId: string;
 }): Promise<void> {
-  await createNotification({ userId: reporterId, actorId, type: "status_changed", issueId });
+  try {
+    const watchers = await prisma.issueWatcher.findMany({
+      where: { issueId },
+      select: { userId: true },
+    });
+
+    const recipients = new Set<string>([reporterId]);
+    for (const w of watchers) recipients.add(w.userId);
+    recipients.delete(actorId);
+
+    await Promise.all(
+      Array.from(recipients).map((userId) =>
+        createNotification({ userId, actorId, type: "status_changed", issueId }),
+      ),
+    );
+  } catch {
+    // Non-critical
+  }
 }
 
 // ─── notifyCommentAdded ───────────────────────────────────────────────────────
 
 /**
- * Notify the issue reporter + all unique previous commenters that a new
- * comment was added. Deduplicates recipients and excludes the actor.
+ * Notify the issue reporter + all unique previous commenters + watchers
+ * that a new comment was added. Deduplicates recipients and excludes the actor.
  */
 export async function notifyCommentAdded({
   issueId,
@@ -159,19 +176,17 @@ export async function notifyCommentAdded({
       where: { id: issueId },
       select: {
         reporterId: true,
-        comments: {
-          select: { authorId: true },
-          distinct: ["authorId"],
-        },
+        comments: { select: { authorId: true }, distinct: ["authorId"] },
+        watchers:  { select: { userId: true } },
       },
     });
 
     if (!issue) return;
 
-    // Collect unique recipients: reporter + all commenters
     const recipients = new Set<string>([issue.reporterId]);
     for (const c of issue.comments) recipients.add(c.authorId);
-    recipients.delete(actorId); // never notify yourself
+    for (const w of issue.watchers)  recipients.add(w.userId);
+    recipients.delete(actorId);
 
     await Promise.all(
       Array.from(recipients).map((userId) =>

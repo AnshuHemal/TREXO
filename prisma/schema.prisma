@@ -39,6 +39,7 @@ model User {
   projectMutes           ProjectNotificationMute[]
   sentInvitations        Invitation[]
   timeLogs               TimeLog[]
+  watchedIssues          IssueWatcher[]
 
   @@map("users")
 }
@@ -236,6 +237,7 @@ model Issue {
   outgoingLinks IssueLink[]    @relation("LinkSource")
   incomingLinks IssueLink[]    @relation("LinkTarget")
   timeLogs      TimeLog[]
+  watchers      IssueWatcher[]
 
   @@unique([projectId, key])
   @@map("issues")
@@ -476,4 +478,21 @@ model TimeLog {
   @@index([issueId])
   @@index([userId])
   @@map("time_logs")
+}
+
+// ── IssueWatcher ──────────────────────────────────────────────────────────────
+
+model IssueWatcher {
+  id        String   @id @default(cuid())
+  issueId   String
+  userId    String
+  createdAt DateTime @default(now())
+
+  issue Issue @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId],  references: [id], onDelete: Cascade)
+
+  @@unique([issueId, userId])
+  @@index([issueId])
+  @@index([userId])
+  @@map("issue_watchers")
 }
