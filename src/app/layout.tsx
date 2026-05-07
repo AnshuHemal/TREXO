@@ -1,7 +1,9 @@
 import type { Metadata, Viewport } from "next";
+import { Suspense } from "react";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { getUserTheme } from "@/lib/theme-actions";
+import { NavigationProgress } from "@/components/shared/navigation-progress";
 import { siteConfig } from "@/config/site";
 import "./globals.css";
 
@@ -89,11 +91,14 @@ export const metadata: Metadata = {
   applicationName: siteConfig.name,
   category: "productivity",
 
-  // Favicon variants are resolved automatically from src/app/favicon.ico.
-  // Add apple-touch-icon.png and icon.png to src/app/ to extend coverage.
+  // Favicon — uses public/logo.svg directly
   icons: {
-    icon: "/favicon.ico",
-    shortcut: "/favicon.ico",
+    icon:      [
+      { url: "/logo.svg", type: "image/svg+xml" },
+      { url: "/logo.svg", sizes: "any" },
+    ],
+    shortcut:  "/logo.svg",
+    apple:     "/logo.svg",
   },
 };
 
@@ -136,6 +141,10 @@ export default async function RootLayout({
           disableTransitionOnChange
           nonce=""
         >
+          {/* Navigation progress bar — shown on every route transition */}
+          <Suspense fallback={null}>
+            <NavigationProgress />
+          </Suspense>
           {children}
         </ThemeProvider>
       </body>

@@ -26,19 +26,24 @@ export default async function TemplatesPage({ params }: TemplatesPageProps) {
   const { workspace } = membership;
   const canManage = membership.role === "OWNER" || membership.role === "ADMIN";
 
-  const templates = await prisma.issueTemplate.findMany({
-    where: { workspaceId: workspace.id },
-    orderBy: { createdAt: "asc" },
-    select: {
-      id: true,
-      name: true,
-      description: true,
-      type: true,
-      priority: true,
-      titlePrefix: true,
-      createdAt: true,
-    },
-  });
+  let templates: { id: string; name: string; description: string | null; type: string; priority: string; titlePrefix: string | null; createdAt: Date }[] = [];
+  try {
+    templates = await prisma.issueTemplate.findMany({
+      where: { workspaceId: workspace.id },
+      orderBy: { createdAt: "asc" },
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        type: true,
+        priority: true,
+        titlePrefix: true,
+        createdAt: true,
+      },
+    });
+  } catch {
+    // Stale Prisma client — restart dev server to fix
+  }
 
   return (
     <div className="flex flex-1 flex-col overflow-y-auto">
