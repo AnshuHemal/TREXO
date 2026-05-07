@@ -65,7 +65,7 @@ export function UserMenu() {
               src={user.image ?? undefined}
               alt={user.name ?? "User avatar"}
             />
-            <AvatarFallback className="text-xs font-semibold">
+            <AvatarFallback className="text-sm font-semibold">
               {initials}
             </AvatarFallback>
           </Avatar>
@@ -82,7 +82,7 @@ export function UserMenu() {
           <span className="truncate font-semibold text-foreground">
             {user.name ?? "User"}
           </span>
-          <span className="truncate text-xs text-muted-foreground">
+          <span className="truncate text-sm text-muted-foreground">
             {user.email}
           </span>
         </DropdownMenuLabel>

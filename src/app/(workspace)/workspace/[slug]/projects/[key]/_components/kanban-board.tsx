@@ -415,7 +415,7 @@ export function KanbanBoard({
                       <div className="flex items-center gap-2 rounded-xl border border-border bg-muted/40 px-3 py-2.5">
                         {(() => { const Icon = icon; return <Icon className={`size-4 shrink-0 ${color}`} />; })()}
                         <span className="text-sm font-semibold text-foreground">{label}</span>
-                        <span className="flex size-5 items-center justify-center rounded-full bg-muted text-xs font-medium text-muted-foreground">
+                        <span className="flex size-5 items-center justify-center rounded-full bg-muted text-sm font-medium text-muted-foreground">
                           {colIssues.length}
                         </span>
                         {WIP_LIMITS[value] !== undefined && colIssues.length > WIP_LIMITS[value] && (
@@ -430,8 +430,8 @@ export function KanbanBoard({
                         <div key={key} className="flex flex-col rounded-xl border border-border bg-muted/40">
                           {groupLabel && (
                             <div className="border-b border-border px-3 py-1.5">
-                              <span className="text-xs font-medium text-muted-foreground">{groupLabel}</span>
-                              <span className="ml-1.5 text-xs text-muted-foreground/60">({groupIssues.length})</span>
+                              <span className="text-sm font-medium text-muted-foreground">{groupLabel}</span>
+                              <span className="ml-1.5 text-sm text-muted-foreground/60">({groupIssues.length})</span>
                             </div>
                           )}
                           <KanbanColumn

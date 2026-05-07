@@ -138,7 +138,7 @@ export function ProjectSettingsForm({
               initial={{ opacity: 0, y: -4 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
-              className="text-xs text-destructive"
+              className="text-sm text-destructive"
             >
               {fieldErrors.name}
             </motion.p>
@@ -212,7 +212,7 @@ export function ProjectSettingsForm({
               initial={{ opacity: 0, y: -4 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
-              className="text-xs text-destructive"
+              className="text-sm text-destructive"
             >
               {fieldErrors.key}
             </motion.p>
@@ -222,7 +222,7 @@ export function ProjectSettingsForm({
               initial={{ opacity: 0, y: -4 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
-              className="text-xs text-destructive"
+              className="text-sm text-destructive"
             >
               This key is already taken.
             </motion.p>
@@ -232,7 +232,7 @@ export function ProjectSettingsForm({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="text-xs text-muted-foreground"
+              className="text-sm text-muted-foreground"
             >
               Uppercase letters only, 2–10 chars. Changing the key will update all issue references.
             </motion.p>
@@ -270,13 +270,13 @@ export function ProjectSettingsForm({
                 initial={{ opacity: 0, y: -4 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0 }}
-                className="text-xs text-destructive"
+                className="text-sm text-destructive"
               >
                 {fieldErrors.description}
               </motion.p>
             )}
           </AnimatePresence>
-          <span className="ml-auto text-xs text-muted-foreground">
+          <span className="ml-auto text-sm text-muted-foreground">
             {description.length}/500
           </span>
         </div>

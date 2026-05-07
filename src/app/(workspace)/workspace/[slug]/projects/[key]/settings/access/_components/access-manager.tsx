@@ -134,7 +134,7 @@ function VisibilityToggle({
                 <p className={cn("text-sm font-semibold", isSelected ? "text-foreground" : "text-muted-foreground")}>
                   {v === "PUBLIC" ? "Public" : "Private"}
                 </p>
-                <p className="mt-0.5 text-xs text-muted-foreground">
+                <p className="mt-0.5 text-sm text-muted-foreground">
                   {v === "PUBLIC"
                     ? "All workspace members can access this project"
                     : "Only invited members can access this project"}
@@ -148,19 +148,19 @@ function VisibilityToggle({
       <AnimatePresence mode="wait">
         {status === "saving" && (
           <motion.p key="saving" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="flex items-center gap-1.5 text-xs text-muted-foreground">
+            className="flex items-center gap-1.5 text-sm text-muted-foreground">
             <Loader2 className="size-3.5 animate-spin" />Saving…
           </motion.p>
         )}
         {status === "saved" && (
           <motion.p key="saved" initial={{ opacity: 0, x: -4 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }}
-            className="flex items-center gap-1.5 text-xs text-primary">
+            className="flex items-center gap-1.5 text-sm text-primary">
             <CheckCircle2 className="size-3.5" />Visibility updated
           </motion.p>
         )}
         {status === "error" && (
           <motion.p key="error" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="flex items-center gap-1.5 text-xs text-destructive">
+            className="flex items-center gap-1.5 text-sm text-destructive">
             <AlertCircle className="size-3.5" />Failed to update visibility
           </motion.p>
         )}
@@ -212,12 +212,12 @@ function MemberRow({
     >
       <Avatar className="size-8 shrink-0">
         <AvatarImage src={member.image ?? undefined} />
-        <AvatarFallback className="text-xs font-semibold">{getInitials(member.name)}</AvatarFallback>
+        <AvatarFallback className="text-sm font-semibold">{getInitials(member.name)}</AvatarFallback>
       </Avatar>
 
       <div className="flex flex-1 flex-col gap-0.5 min-w-0">
         <span className="text-sm font-medium text-foreground truncate">{member.name}</span>
-        <span className="text-xs text-muted-foreground truncate">{member.email}</span>
+        <span className="text-sm text-muted-foreground truncate">{member.email}</span>
       </div>
 
       {canManage ? (
@@ -226,19 +226,19 @@ function MemberRow({
           onValueChange={(v) => handleRoleChange(v as ProjectRole)}
           disabled={isPending}
         >
-          <SelectTrigger className="h-7 w-28 text-xs">
+          <SelectTrigger className="h-7 w-28 text-sm">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
             {(Object.entries(ROLE_CONFIG) as [ProjectRole, typeof ROLE_CONFIG[ProjectRole]][]).map(([role, cfg]) => (
               <SelectItem key={role} value={role}>
-                <span className={cn("text-xs", cfg.color)}>{cfg.label}</span>
+                <span className={cn("text-sm", cfg.color)}>{cfg.label}</span>
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
       ) : (
-        <Badge variant="outline" className={cn("text-xs", roleCfg.color)}>
+        <Badge variant="outline" className={cn("text-sm", roleCfg.color)}>
           {roleCfg.label}
         </Badge>
       )}
@@ -321,7 +321,7 @@ export function AccessManager({
       {/* Visibility */}
       <div>
         <h3 className="mb-1 text-sm font-semibold text-foreground">Visibility</h3>
-        <p className="mb-4 text-xs text-muted-foreground">
+        <p className="mb-4 text-sm text-muted-foreground">
           Control who can see and access this project.
         </p>
         <VisibilityToggle
@@ -336,7 +336,7 @@ export function AccessManager({
         <div className="mb-4 flex items-center justify-between">
           <div>
             <h3 className="text-sm font-semibold text-foreground">Project members</h3>
-            <p className="mt-0.5 text-xs text-muted-foreground">
+            <p className="mt-0.5 text-sm text-muted-foreground">
               {initialVisibility === "PRIVATE"
                 ? "Only these members can access the project."
                 : "These members have explicit roles. All workspace members can also access."}
@@ -367,14 +367,14 @@ export function AccessManager({
             >
               <div className="flex items-center gap-2 rounded-xl border border-primary/30 bg-card p-3">
                 <Select value={addingUserId} onValueChange={setAddingUserId}>
-                  <SelectTrigger className="h-8 flex-1 text-xs">
+                  <SelectTrigger className="h-8 flex-1 text-sm">
                     <SelectValue placeholder="Select member…" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="none" disabled>Select a member</SelectItem>
                     {availableToAdd.map((m) => (
                       <SelectItem key={m.userId} value={m.userId}>
-                        <span className="flex items-center gap-2 text-xs">
+                        <span className="flex items-center gap-2 text-sm">
                           <Avatar className="size-4">
                             <AvatarImage src={m.image ?? undefined} />
                             <AvatarFallback className="text-[8px]">{getInitials(m.name)}</AvatarFallback>
@@ -387,13 +387,13 @@ export function AccessManager({
                 </Select>
 
                 <Select value={addingRole} onValueChange={(v) => setAddingRole(v as ProjectRole)}>
-                  <SelectTrigger className="h-8 w-28 text-xs">
+                  <SelectTrigger className="h-8 w-28 text-sm">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
                     {(Object.entries(ROLE_CONFIG) as [ProjectRole, typeof ROLE_CONFIG[ProjectRole]][]).map(([role, cfg]) => (
                       <SelectItem key={role} value={role}>
-                        <span className={cn("text-xs", cfg.color)}>{cfg.label}</span>
+                        <span className={cn("text-sm", cfg.color)}>{cfg.label}</span>
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -417,7 +417,7 @@ export function AccessManager({
                 </Button>
               </div>
               {addError && (
-                <p className="mt-1.5 text-xs text-destructive">{addError}</p>
+                <p className="mt-1.5 text-sm text-destructive">{addError}</p>
               )}
             </motion.div>
           )}
@@ -432,7 +432,7 @@ export function AccessManager({
           >
             <Users className="size-8 text-muted-foreground/30" />
             <p className="text-sm text-muted-foreground">No explicit members yet</p>
-            <p className="text-xs text-muted-foreground/60">
+            <p className="text-sm text-muted-foreground/60">
               {initialVisibility === "PUBLIC"
                 ? "All workspace members have access."
                 : "Add members to grant access to this private project."}
@@ -457,13 +457,13 @@ export function AccessManager({
 
         {/* Role legend */}
         <div className="mt-4 rounded-lg border border-border bg-muted/30 p-3">
-          <div className="mb-2 flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
+          <div className="mb-2 flex items-center gap-1.5 text-sm font-medium text-muted-foreground">
             <Shield className="size-3.5" />
             Role permissions
           </div>
           <div className="flex flex-col gap-1.5">
             {(Object.entries(ROLE_CONFIG) as [ProjectRole, typeof ROLE_CONFIG[ProjectRole]][]).map(([role, cfg]) => (
-              <div key={role} className="flex items-center gap-2 text-xs">
+              <div key={role} className="flex items-center gap-2 text-sm">
                 <span className={cn("w-12 font-medium", cfg.color)}>{cfg.label}</span>
                 <span className="text-muted-foreground">{cfg.description}</span>
               </div>

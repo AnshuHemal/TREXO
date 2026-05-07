@@ -109,12 +109,12 @@ export function ProfileForm({ initialName, initialEmail, initialImage }: Profile
         </div>
         <div className="flex flex-col gap-1">
           <p className="text-sm font-medium text-foreground">Profile photo</p>
-          <p className="text-xs text-muted-foreground">PNG, JPG or WebP. Max 2 MB.</p>
+          <p className="text-sm text-muted-foreground">PNG, JPG or WebP. Max 2 MB.</p>
           {imageFile && (
             <button
               type="button"
               onClick={() => { setImage(initialImage); setImageFile(null); }}
-              className="text-xs text-destructive hover:underline"
+              className="text-sm text-destructive hover:underline"
             >
               Remove
             </button>
@@ -148,7 +148,7 @@ export function ProfileForm({ initialName, initialEmail, initialImage }: Profile
           disabled
           className="max-w-sm cursor-not-allowed opacity-60"
         />
-        <p className="text-xs text-muted-foreground">
+        <p className="text-sm text-muted-foreground">
           Email changes require OTP verification and are not yet supported in the UI.
         </p>
       </div>

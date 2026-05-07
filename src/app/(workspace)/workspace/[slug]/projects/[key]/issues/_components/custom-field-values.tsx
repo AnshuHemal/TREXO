@@ -57,7 +57,7 @@ function FieldEditor({
           onChange={(e) => onChange(e.target.value || null)}
           placeholder="—"
           disabled={disabled}
-          className="h-7 text-xs"
+          className="h-7 text-sm"
         />
       );
 
@@ -69,7 +69,7 @@ function FieldEditor({
           onChange={(e) => onChange(e.target.value ? Number(e.target.value) : null)}
           placeholder="—"
           disabled={disabled}
-          className="h-7 text-xs"
+          className="h-7 text-sm"
         />
       );
 
@@ -80,7 +80,7 @@ function FieldEditor({
           value={strVal}
           onChange={(e) => onChange(e.target.value || null)}
           disabled={disabled}
-          className="h-7 text-xs"
+          className="h-7 text-sm"
         />
       );
 
@@ -93,7 +93,7 @@ function FieldEditor({
             onChange={(e) => onChange(e.target.value || null)}
             placeholder="https://…"
             disabled={disabled}
-            className="h-7 flex-1 text-xs"
+            className="h-7 flex-1 text-sm"
           />
           {strVal && (
             <a
@@ -116,7 +116,7 @@ function FieldEditor({
           onValueChange={(v) => onChange(v === "none" ? null : v)}
           disabled={disabled}
         >
-          <SelectTrigger className="h-7 text-xs">
+          <SelectTrigger className="h-7 text-sm">
             <SelectValue placeholder="—" />
           </SelectTrigger>
           <SelectContent>
@@ -125,7 +125,7 @@ function FieldEditor({
             </SelectItem>
             {(field.options ?? []).map((opt) => (
               <SelectItem key={opt} value={opt}>
-                <span className="text-xs">{opt}</span>
+                <span className="text-sm">{opt}</span>
               </SelectItem>
             ))}
           </SelectContent>
@@ -165,7 +165,7 @@ export function CustomFieldValues({
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between">
-        <span className="text-xs font-medium text-muted-foreground">Custom Fields</span>
+        <span className="text-sm font-medium text-muted-foreground">Custom Fields</span>
         {isPending && <Loader2 className="size-3 animate-spin text-muted-foreground" />}
       </div>
 

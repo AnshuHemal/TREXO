@@ -166,7 +166,7 @@ export function ProjectNotificationsForm({
               <p className="text-sm font-semibold text-foreground">
                 {muted ? "Project notifications muted" : "Mute this project"}
               </p>
-              <p className="mt-0.5 text-xs text-muted-foreground">
+              <p className="mt-0.5 text-sm text-muted-foreground">
                 {muted
                   ? `You won't receive any notifications from ${projectName} until you unmute it.`
                   : `Stop all notifications from ${projectName}. You can unmute at any time.`
@@ -176,7 +176,7 @@ export function ProjectNotificationsForm({
                 <motion.div
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: "auto" }}
-                  className="mt-2 flex items-center gap-1.5 text-xs font-medium text-destructive"
+                  className="mt-2 flex items-center gap-1.5 text-sm font-medium text-destructive"
                 >
                   <ShieldAlert className="size-3.5" />
                   All notifications from this project are suppressed
@@ -206,7 +206,7 @@ export function ProjectNotificationsForm({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -4 }}
               transition={{ duration: 0.2 }}
-              className="flex items-center gap-2 rounded-lg border border-emerald-500/20 bg-emerald-500/10 px-3 py-2 text-xs font-medium text-emerald-600 dark:text-emerald-400"
+              className="flex items-center gap-2 rounded-lg border border-emerald-500/20 bg-emerald-500/10 px-3 py-2 text-sm font-medium text-emerald-600 dark:text-emerald-400"
             >
               <CheckCircle2 className="size-3.5" />
               {muted ? "Project muted — you won't receive notifications from this project." : "Project unmuted — notifications restored."}
@@ -219,7 +219,7 @@ export function ProjectNotificationsForm({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -4 }}
               transition={{ duration: 0.2 }}
-              className="flex items-center gap-2 rounded-lg border border-destructive/20 bg-destructive/10 px-3 py-2 text-xs font-medium text-destructive"
+              className="flex items-center gap-2 rounded-lg border border-destructive/20 bg-destructive/10 px-3 py-2 text-sm font-medium text-destructive"
             >
               <AlertCircle className="size-3.5" />
               {errorMsg}
@@ -235,7 +235,7 @@ export function ProjectNotificationsForm({
             <p className="text-sm font-semibold text-foreground">
               Notification types affected
             </p>
-            <p className="mt-0.5 text-xs text-muted-foreground">
+            <p className="mt-0.5 text-sm text-muted-foreground">
               When muted, all of the following are suppressed for this project.
             </p>
           </div>
@@ -263,7 +263,7 @@ export function ProjectNotificationsForm({
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="text-sm font-medium text-foreground">{label}</p>
-                    <p className="text-xs text-muted-foreground">{description}</p>
+                    <p className="text-sm text-muted-foreground">{description}</p>
                   </div>
                   <div className="shrink-0">
                     {muted ? (
@@ -298,13 +298,13 @@ export function ProjectNotificationsForm({
               <p className="text-sm font-medium text-foreground">
                 Some notification types are disabled globally
               </p>
-              <p className="mt-0.5 text-xs text-muted-foreground">
+              <p className="mt-0.5 text-sm text-muted-foreground">
                 Your workspace-level notification preferences override project settings.
                 Even if this project is unmuted, globally disabled types won't fire.
               </p>
               <Link
                 href="/settings/notifications"
-                className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"
+                className="mt-2 inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline"
               >
                 Manage global preferences
                 <ExternalLink className="size-3" />
@@ -320,7 +320,7 @@ export function ProjectNotificationsForm({
           <Info className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
           <div>
             <p className="text-sm font-medium text-foreground">How project muting works</p>
-            <ul className="mt-1.5 flex flex-col gap-1 text-xs text-muted-foreground">
+            <ul className="mt-1.5 flex flex-col gap-1 text-sm text-muted-foreground">
               <li className="flex items-start gap-1.5">
                 <span className="mt-1 size-1 shrink-0 rounded-full bg-muted-foreground/50" />
                 Muting is per-user — other team members are not affected.

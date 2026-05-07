@@ -192,21 +192,21 @@ export function SprintCard({
         {/* Sprint name + status */}
         <div className="flex flex-1 items-center gap-2.5 min-w-0">
           <span className="font-semibold text-foreground truncate">{sprint.name}</span>
-          <Badge className={cn("text-xs shrink-0", STATUS_COLORS[sprint.status])}>
+          <Badge className={cn("text-sm shrink-0", STATUS_COLORS[sprint.status])}>
             {sprint.status === "IN_PROGRESS" ? "Active" : sprint.status.charAt(0) + sprint.status.slice(1).toLowerCase()}
           </Badge>
         </div>
 
         {/* Dates */}
         {(sprint.startDate || sprint.endDate) && (
-          <div className="hidden items-center gap-1 text-xs text-muted-foreground sm:flex">
+          <div className="hidden items-center gap-1 text-sm text-muted-foreground sm:flex">
             <Calendar className="size-3.5" />
             {formatDate(sprint.startDate)} – {formatDate(sprint.endDate) ?? "No end date"}
           </div>
         )}
 
         {/* Issue count + progress + points */}
-        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <span>{sprint.issues.length} {sprint.issues.length === 1 ? "issue" : "issues"}</span>
           {sprint.issues.length > 0 && (
             <span className="text-primary font-medium">{progress}%</span>
@@ -222,19 +222,19 @@ export function SprintCard({
         {/* Actions */}
         <div className="flex items-center gap-1">
           {sprint.status === "PLANNED" && (
-            <Button size="sm" className="h-7 px-2.5 text-xs" onClick={handleStart} disabled={isPending}>
+            <Button size="sm" className="h-7 px-2.5 text-sm" onClick={handleStart} disabled={isPending}>
               {isPending ? <Loader2 className="size-3.5 animate-spin" /> : <><Play className="mr-1 size-3.5" />Start</>}
             </Button>
           )}
 
           {sprint.status === "ACTIVE" && (
-            <Button size="sm" variant="outline" className="h-7 px-2.5 text-xs" onClick={() => setShowCompleteDialog(true)} disabled={isPending}>
+            <Button size="sm" variant="outline" className="h-7 px-2.5 text-sm" onClick={() => setShowCompleteDialog(true)} disabled={isPending}>
               <CheckCircle2 className="mr-1 size-3.5" />Complete
             </Button>
           )}
 
           {sprint.status === "COMPLETED" && (
-            <Button size="sm" variant="outline" className="h-7 gap-1.5 px-2.5 text-xs" asChild>
+            <Button size="sm" variant="outline" className="h-7 gap-1.5 px-2.5 text-sm" asChild>
               <Link href={`/workspace/${workspaceSlug}/projects/${projectKey}/sprints/${sprint.id}/report`}>
                 <BarChart3 className="size-3.5" />
                 View report
@@ -297,7 +297,7 @@ export function SprintCard({
       {sprint.goal && isExpanded && (
         <div className="flex items-start gap-2 border-t border-border bg-muted/30 px-4 py-2.5">
           <Target className="mt-0.5 size-3.5 shrink-0 text-muted-foreground" />
-          <p className="text-xs text-muted-foreground">{sprint.goal}</p>
+          <p className="text-sm text-muted-foreground">{sprint.goal}</p>
         </div>
       )}
 
@@ -340,11 +340,11 @@ export function SprintCard({
                       <div key={issue.id} className="flex items-center gap-3 px-4 py-2.5 hover:bg-muted/30 transition-colors">
                         <PriorityIcon className={cn("size-3.5 shrink-0", priority.color)} />
                         <TypeIcon className={cn("size-3.5 shrink-0", type.color)} />
-                        <span className="w-16 shrink-0 font-mono text-xs text-muted-foreground">{projectKey}-{issue.key}</span>
+                        <span className="w-16 shrink-0 font-mono text-sm text-muted-foreground">{projectKey}-{issue.key}</span>
                         <span className="flex-1 truncate text-sm text-foreground">{issue.title}</span>
                         <div className="flex items-center gap-1.5 shrink-0">
                           <StatusIcon className={cn("size-3.5", status.color)} />
-                          <span className="hidden text-xs text-muted-foreground sm:block">{status.label}</span>
+                          <span className="hidden text-sm text-muted-foreground sm:block">{status.label}</span>
                         </div>
                         {issue.assignee && (
                           <Avatar className="size-5 shrink-0">
@@ -385,7 +385,7 @@ export function SprintCard({
                           disabled={isPending}
                           className="flex items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm hover:bg-accent transition-colors disabled:opacity-50"
                         >
-                          <span className="font-mono text-xs text-muted-foreground">{projectKey}-{issue.key}</span>
+                          <span className="font-mono text-sm text-muted-foreground">{projectKey}-{issue.key}</span>
                           <span className="flex-1 truncate text-foreground">{issue.title}</span>
                         </button>
                       ))}
@@ -394,7 +394,7 @@ export function SprintCard({
 
                   <button
                     onClick={() => setShowAddIssue((v) => !v)}
-                    className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors py-1"
+                    className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors py-1"
                   >
                     <Plus className="size-3.5" />
                     {showAddIssue ? "Cancel" : "Add issue"}

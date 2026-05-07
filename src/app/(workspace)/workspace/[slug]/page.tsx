@@ -270,7 +270,7 @@ export default async function WorkspacePage({ params }: WorkspacePageProps) {
                   </div>
                 </div>
                 <p className="mt-3 text-3xl font-bold tracking-tight text-foreground">{value}</p>
-                <p className="mt-1 text-xs text-muted-foreground">{description}</p>
+                <p className="mt-1 text-sm text-muted-foreground">{description}</p>
               </div>
             ))}
           </div>

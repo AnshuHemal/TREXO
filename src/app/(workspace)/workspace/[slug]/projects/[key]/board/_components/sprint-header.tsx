@@ -95,7 +95,7 @@ export function SprintHeader({ sprint, otherSprints, onCompleted }: SprintHeader
           <div className="hidden h-5 w-px bg-border sm:block" />
 
           {/* Dates */}
-          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+          <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
             <Calendar className="size-3.5 shrink-0" />
             <span>{formatDate(sprint.startDate)}</span>
             <span>–</span>
@@ -129,7 +129,7 @@ export function SprintHeader({ sprint, otherSprints, onCompleted }: SprintHeader
           <div className="hidden h-5 w-px bg-border sm:block" />
 
           {/* Progress stats */}
-          <div className="flex items-center gap-2 text-xs">
+          <div className="flex items-center gap-2 text-sm">
             <span className="text-muted-foreground">
               <span className="font-semibold text-foreground">{sprint.doneIssues}</span>
               /{sprint.totalIssues} done
@@ -145,7 +145,7 @@ export function SprintHeader({ sprint, otherSprints, onCompleted }: SprintHeader
           {sprint.goal && (
             <button
               onClick={() => setGoalExpanded((v) => !v)}
-              className="flex items-center gap-1 text-xs text-muted-foreground transition-colors hover:text-foreground"
+              className="flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
             >
               <Target className="size-3.5" />
               Goal
@@ -161,7 +161,7 @@ export function SprintHeader({ sprint, otherSprints, onCompleted }: SprintHeader
             <Button
               size="sm"
               variant="outline"
-              className="h-8 gap-1.5 text-xs"
+              className="h-8 gap-1.5 text-sm"
               onClick={() => setShowCompleteDialog(true)}
             >
               <CheckCircle2 className="size-3.5" />
@@ -182,7 +182,7 @@ export function SprintHeader({ sprint, otherSprints, onCompleted }: SprintHeader
             >
               <div className="flex items-start gap-2 border-t border-border bg-muted/30 px-4 py-2.5">
                 <Target className="mt-0.5 size-3.5 shrink-0 text-muted-foreground" />
-                <p className="text-xs text-muted-foreground">{sprint.goal}</p>
+                <p className="text-sm text-muted-foreground">{sprint.goal}</p>
               </div>
             </motion.div>
           )}

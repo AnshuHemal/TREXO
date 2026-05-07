@@ -194,13 +194,13 @@ export function GeneralSettingsForm({
         </div>
         <div className="flex flex-col gap-1">
           <p className="text-sm font-medium text-foreground">Workspace logo</p>
-          <p className="text-xs text-muted-foreground">PNG, JPG, WebP or SVG. Max 2 MB.</p>
+          <p className="text-sm text-muted-foreground">PNG, JPG, WebP or SVG. Max 2 MB.</p>
           {logo && (
             <button
               type="button"
               onClick={handleRemoveLogo}
               disabled={logoSaving}
-              className="text-xs text-destructive hover:underline disabled:opacity-50"
+              className="text-sm text-destructive hover:underline disabled:opacity-50"
             >
               Remove logo
             </button>
@@ -209,7 +209,7 @@ export function GeneralSettingsForm({
             <motion.p
               initial={{ opacity: 0, y: -4 }}
               animate={{ opacity: 1, y: 0 }}
-              className="text-xs text-destructive"
+              className="text-sm text-destructive"
             >
               {logoError}
             </motion.p>
@@ -238,7 +238,7 @@ export function GeneralSettingsForm({
               initial={{ opacity: 0, y: -4 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
-              className="text-xs text-destructive"
+              className="text-sm text-destructive"
             >
               {fieldErrors.name}
             </motion.p>
@@ -317,7 +317,7 @@ export function GeneralSettingsForm({
               initial={{ opacity: 0, y: -4 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
-              className="text-xs text-destructive"
+              className="text-sm text-destructive"
             >
               {fieldErrors.slug}
             </motion.p>
@@ -327,7 +327,7 @@ export function GeneralSettingsForm({
               initial={{ opacity: 0, y: -4 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
-              className="text-xs text-destructive"
+              className="text-sm text-destructive"
             >
               This URL is already taken.
             </motion.p>
@@ -337,7 +337,7 @@ export function GeneralSettingsForm({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="text-xs text-muted-foreground"
+              className="text-sm text-muted-foreground"
             >
               Only lowercase letters, numbers, and hyphens.
             </motion.p>

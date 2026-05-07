@@ -146,7 +146,7 @@ export function NotificationsForm({ initialPrefs }: NotificationsFormProps) {
         <Bell className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
         <div>
           <p className="text-sm font-medium text-foreground">In-app notifications only</p>
-          <p className="mt-0.5 text-xs text-muted-foreground">
+          <p className="mt-0.5 text-sm text-muted-foreground">
             These preferences control the bell icon in the topbar. Email notifications are coming soon.
           </p>
         </div>
@@ -154,12 +154,12 @@ export function NotificationsForm({ initialPrefs }: NotificationsFormProps) {
 
       {/* Quick actions */}
       <div className="flex items-center gap-2">
-        <span className="text-xs text-muted-foreground">Quick select:</span>
+        <span className="text-sm text-muted-foreground">Quick select:</span>
         <button
           type="button"
           onClick={handleEnableAll}
           disabled={allEnabled || isPending}
-          className="text-xs text-primary hover:underline disabled:opacity-40 disabled:no-underline"
+          className="text-sm text-primary hover:underline disabled:opacity-40 disabled:no-underline"
         >
           Enable all
         </button>
@@ -168,7 +168,7 @@ export function NotificationsForm({ initialPrefs }: NotificationsFormProps) {
           type="button"
           onClick={handleDisableAll}
           disabled={allDisabled || isPending}
-          className="text-xs text-muted-foreground hover:text-foreground hover:underline disabled:opacity-40 disabled:no-underline"
+          className="text-sm text-muted-foreground hover:text-foreground hover:underline disabled:opacity-40 disabled:no-underline"
         >
           Disable all
         </button>
@@ -203,7 +203,7 @@ export function NotificationsForm({ initialPrefs }: NotificationsFormProps) {
                 )}>
                   {label}
                 </span>
-                <span className="text-xs text-muted-foreground">{description}</span>
+                <span className="text-sm text-muted-foreground">{description}</span>
               </div>
             </div>
             <Toggle

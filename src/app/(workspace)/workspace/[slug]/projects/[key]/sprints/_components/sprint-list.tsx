@@ -124,7 +124,7 @@ function BacklogSection({
         className="flex w-full items-center gap-3 px-4 py-3 text-left hover:bg-muted/30 transition-colors"
       >
         <span className="font-semibold text-foreground">Backlog</span>
-        <span className="flex size-5 items-center justify-center rounded-full bg-muted text-xs font-medium text-muted-foreground">
+        <span className="flex size-5 items-center justify-center rounded-full bg-muted text-sm font-medium text-muted-foreground">
           {issues.length}
         </span>
         <motion.span
@@ -148,10 +148,10 @@ function BacklogSection({
             <div className="divide-y divide-border">
               {issues.map((issue) => (
                 <div key={issue.id} className="flex items-center gap-3 px-4 py-2.5 hover:bg-muted/30 transition-colors">
-                  <span className="font-mono text-xs text-muted-foreground">{projectKey}-{issue.key}</span>
+                  <span className="font-mono text-sm text-muted-foreground">{projectKey}-{issue.key}</span>
                   <span className="flex-1 truncate text-sm text-foreground">{issue.title}</span>
                   {issue.assignee && (
-                    <span className="text-xs text-muted-foreground">{issue.assignee.name}</span>
+                    <span className="text-sm text-muted-foreground">{issue.assignee.name}</span>
                   )}
                 </div>
               ))}

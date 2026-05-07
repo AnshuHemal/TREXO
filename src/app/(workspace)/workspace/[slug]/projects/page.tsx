@@ -124,7 +124,7 @@ export default async function ProjectsPage({ params }: ProjectsPageProps) {
                     <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-sm font-bold text-primary">
                       {project.key.slice(0, 2)}
                     </div>
-                    <span className="rounded-md bg-muted px-2 py-0.5 text-xs font-mono font-medium text-muted-foreground">
+                    <span className="rounded-md bg-muted px-2 py-0.5 text-sm font-mono font-medium text-muted-foreground">
                       {project.key}
                     </span>
                   </div>
@@ -146,7 +146,7 @@ export default async function ProjectsPage({ params }: ProjectsPageProps) {
                   )}
 
                   {/* Issue count */}
-                  <div className="mt-4 flex items-center gap-1.5 text-xs text-muted-foreground">
+                  <div className="mt-4 flex items-center gap-1.5 text-sm text-muted-foreground">
                     <FolderKanban className="size-3.5" />
                     <span>
                       {project._count.issues}{" "}

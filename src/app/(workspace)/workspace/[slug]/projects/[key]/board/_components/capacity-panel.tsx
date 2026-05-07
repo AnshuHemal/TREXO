@@ -77,13 +77,13 @@ function MemberCapacityBar({
           </AvatarFallback>
         </Avatar>
         <div className="min-w-0 flex-1">
-          <p className="truncate text-xs font-semibold text-foreground">{member.name}</p>
+          <p className="truncate text-sm font-semibold text-foreground">{member.name}</p>
           <p className="text-[10px] text-muted-foreground">
             {issueCount} {issueCount === 1 ? "issue" : "issues"}
           </p>
         </div>
         <div className="flex shrink-0 flex-col items-end gap-0.5">
-          <span className={cn("text-xs font-bold tabular-nums", textColor)}>
+          <span className={cn("text-sm font-bold tabular-nums", textColor)}>
             {used}/{capacity}
           </span>
           <span className="text-[10px] text-muted-foreground">pts</span>
@@ -202,7 +202,7 @@ export function CapacityPanel({ issues, members, defaultCapacity = 20 }: Capacit
                   className="overflow-hidden border-b border-border bg-muted/30 px-4 py-3"
                 >
                   <div className="flex items-center gap-3">
-                    <label className="text-xs font-medium text-muted-foreground whitespace-nowrap">
+                    <label className="text-sm font-medium text-muted-foreground whitespace-nowrap">
                       Capacity per member
                     </label>
                     <div className="flex items-center gap-1.5 rounded-lg border border-border bg-background px-2.5 py-1">
@@ -213,9 +213,9 @@ export function CapacityPanel({ issues, members, defaultCapacity = 20 }: Capacit
                         max={200}
                         value={capacity}
                         onChange={(e) => setCapacity(Math.max(1, parseInt(e.target.value) || 1))}
-                        className="w-12 bg-transparent text-center text-xs font-semibold text-foreground focus:outline-none"
+                        className="w-12 bg-transparent text-center text-sm font-semibold text-foreground focus:outline-none"
                       />
-                      <span className="text-xs text-muted-foreground">pts/sprint</span>
+                      <span className="text-sm text-muted-foreground">pts/sprint</span>
                     </div>
                   </div>
                 </motion.div>
@@ -224,7 +224,7 @@ export function CapacityPanel({ issues, members, defaultCapacity = 20 }: Capacit
 
             {/* Team summary */}
             <div className="border-b border-border px-4 py-3">
-              <div className="flex items-center justify-between text-xs text-muted-foreground">
+              <div className="flex items-center justify-between text-sm text-muted-foreground">
                 <span>Team total</span>
                 <span className={cn(
                   "font-bold tabular-nums",
@@ -261,7 +261,7 @@ export function CapacityPanel({ issues, members, defaultCapacity = 20 }: Capacit
               {visibleStats.length === 0 ? (
                 <div className="flex flex-col items-center gap-2 py-8 text-center">
                   <Users className="size-7 text-muted-foreground/30" />
-                  <p className="text-xs text-muted-foreground">No issues assigned yet</p>
+                  <p className="text-sm text-muted-foreground">No issues assigned yet</p>
                 </div>
               ) : (
                 visibleStats.map(({ member, used, issueCount }, i) => (

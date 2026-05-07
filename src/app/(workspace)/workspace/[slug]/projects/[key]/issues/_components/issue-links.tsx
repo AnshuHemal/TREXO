@@ -156,7 +156,7 @@ function AddLinkDialog({
         <div className="flex flex-col gap-4 py-1">
           {/* Link type */}
           <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-medium text-muted-foreground">Relationship type</label>
+            <label className="text-sm font-medium text-muted-foreground">Relationship type</label>
             <Select value={linkType} onValueChange={(v) => setLinkType(v as LinkType)}>
               <SelectTrigger className="h-9">
                 <SelectValue />
@@ -175,7 +175,7 @@ function AddLinkDialog({
 
             {/* Relationship preview */}
             <div className={cn(
-              "flex items-center gap-2 rounded-lg px-3 py-2 text-xs",
+              "flex items-center gap-2 rounded-lg px-3 py-2 text-sm",
               selectedTypeConfig.bg,
             )}>
               <SelectedIcon className={cn("size-3.5 shrink-0", selectedTypeConfig.color)} />
@@ -189,7 +189,7 @@ function AddLinkDialog({
 
           {/* Search */}
           <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-medium text-muted-foreground">Search issues</label>
+            <label className="text-sm font-medium text-muted-foreground">Search issues</label>
             <div className="relative">
               <Search className="absolute left-3 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
               <Input
@@ -257,7 +257,7 @@ function AddLinkDialog({
                   className="flex flex-col items-center gap-1.5 rounded-xl border border-dashed border-border py-6 text-center"
                 >
                   <Search className="size-5 text-muted-foreground/40" />
-                  <p className="text-xs text-muted-foreground">No issues found for &ldquo;{query}&rdquo;</p>
+                  <p className="text-sm text-muted-foreground">No issues found for &ldquo;{query}&rdquo;</p>
                 </motion.div>
               )}
             </AnimatePresence>
@@ -266,7 +266,7 @@ function AddLinkDialog({
               <motion.p
                 initial={{ opacity: 0, y: -4 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="text-xs text-destructive"
+                className="text-sm text-destructive"
               >
                 {error}
               </motion.p>
@@ -333,7 +333,7 @@ function LinkedIssueRow({
       </button>
 
       {/* Status */}
-      <div className="flex shrink-0 items-center gap-1 text-xs text-muted-foreground">
+      <div className="flex shrink-0 items-center gap-1 text-sm text-muted-foreground">
         <StatusIcon className={cn("size-3.5", status.color)} />
         <span className="hidden sm:block">{status.label}</span>
       </div>
@@ -454,11 +454,11 @@ export function IssueLinks({ issueId, projectId, initialLinks, onOpenIssue }: Is
                 className="flex flex-col items-center gap-2 rounded-xl border border-dashed border-border py-6 text-center"
               >
                 <Link2 className="size-5 text-muted-foreground/40" />
-                <p className="text-xs text-muted-foreground">No linked issues yet.</p>
+                <p className="text-sm text-muted-foreground">No linked issues yet.</p>
                 <Button
                   variant="outline"
                   size="sm"
-                  className="h-7 gap-1.5 text-xs"
+                  className="h-7 gap-1.5 text-sm"
                   onClick={() => setDialogOpen(true)}
                 >
                   <Plus className="size-3.5" />

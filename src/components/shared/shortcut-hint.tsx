@@ -78,7 +78,7 @@ export function ShortcutHint({
             )}
           >
             {label && (
-              <span className="text-xs text-foreground">{label}</span>
+              <span className="text-sm text-foreground">{label}</span>
             )}
             <div className="flex items-center gap-1">
               {parts.map((k, i) => (

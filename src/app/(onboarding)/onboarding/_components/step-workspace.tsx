@@ -141,7 +141,7 @@ export function StepWorkspace({ onComplete }: StepWorkspaceProps) {
           />
           <AnimatePresence mode="wait">
             {fieldErrors.name && (
-              <motion.p key="name-err" initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="text-xs text-destructive">
+              <motion.p key="name-err" initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="text-sm text-destructive">
                 {fieldErrors.name}
               </motion.p>
             )}
@@ -195,13 +195,13 @@ export function StepWorkspace({ onComplete }: StepWorkspaceProps) {
 
           <AnimatePresence mode="wait">
             {fieldErrors.slug ? (
-              <motion.p key="fe" initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="text-xs text-destructive">{fieldErrors.slug}</motion.p>
+              <motion.p key="fe" initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="text-sm text-destructive">{fieldErrors.slug}</motion.p>
             ) : slugStatus === "taken" ? (
-              <motion.p key="tk" initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="text-xs text-destructive">This URL is already taken.</motion.p>
+              <motion.p key="tk" initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="text-sm text-destructive">This URL is already taken.</motion.p>
             ) : slugStatus === "available" ? (
-              <motion.p key="av" initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="text-xs text-primary">This URL is available.</motion.p>
+              <motion.p key="av" initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="text-sm text-primary">This URL is available.</motion.p>
             ) : (
-              <motion.p key="ht" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="text-xs text-muted-foreground">Only lowercase letters, numbers, and hyphens.</motion.p>
+              <motion.p key="ht" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="text-sm text-muted-foreground">Only lowercase letters, numbers, and hyphens.</motion.p>
             )}
           </AnimatePresence>
         </FadeIn>

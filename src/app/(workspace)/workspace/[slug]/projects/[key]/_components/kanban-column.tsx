@@ -93,7 +93,7 @@ export function KanbanColumn({
           <Icon className={cn("size-4 shrink-0", iconColor)} />
           <span className="text-sm font-semibold text-foreground">{label}</span>
           <span className={cn(
-            "flex size-5 items-center justify-center rounded-full text-xs font-medium",
+            "flex size-5 items-center justify-center rounded-full text-sm font-medium",
             isWipExceeded
               ? "bg-destructive/10 text-destructive"
               : "bg-muted text-muted-foreground",
@@ -120,7 +120,7 @@ export function KanbanColumn({
         <motion.div
           initial={{ opacity: 0, height: 0 }}
           animate={{ opacity: 1, height: "auto" }}
-          className="mx-2 mb-2 flex items-center gap-1.5 rounded-md bg-destructive/10 px-2.5 py-1.5 text-xs text-destructive"
+          className="mx-2 mb-2 flex items-center gap-1.5 rounded-md bg-destructive/10 px-2.5 py-1.5 text-sm text-destructive"
         >
           <span className="font-medium">WIP limit exceeded</span>
           <span className="text-destructive/70">({issues.length}/{wipLimit})</span>
@@ -178,7 +178,7 @@ export function KanbanColumn({
                   className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
                 />
                 <div className="mt-2 flex items-center gap-1.5">
-                  <Button type="submit" size="sm" className="h-6 px-2 text-xs" disabled={!newTitle.trim()}>
+                  <Button type="submit" size="sm" className="h-6 px-2 text-sm" disabled={!newTitle.trim()}>
                     Create
                   </Button>
                   <Button
@@ -201,7 +201,7 @@ export function KanbanColumn({
       {!isCreating && (
         <button
           onClick={handleStartCreate}
-          className="flex items-center gap-1.5 rounded-b-xl px-3 py-2 text-xs text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+          className="flex items-center gap-1.5 rounded-b-xl px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
         >
           <Plus className="size-3.5" />
           Add issue

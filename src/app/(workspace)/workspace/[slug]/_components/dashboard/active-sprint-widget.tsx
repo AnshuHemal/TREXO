@@ -75,13 +75,13 @@ export function ActiveSprintWidget({ sprint }: ActiveSprintWidgetProps) {
               <Timer className="size-4 text-primary" />
             </div>
             <div>
-              <p className="text-xs text-muted-foreground">{sprint.projectName}</p>
+              <p className="text-sm text-muted-foreground">{sprint.projectName}</p>
               <h3 className="text-sm font-semibold text-foreground">{sprint.name}</h3>
             </div>
           </div>
           <Link
             href={`/workspace/${sprint.workspaceSlug}/projects/${sprint.projectKey}/sprints`}
-            className="flex items-center gap-1 text-xs text-muted-foreground hover:text-primary transition-colors shrink-0"
+            className="flex items-center gap-1 text-sm text-muted-foreground hover:text-primary transition-colors shrink-0"
           >
             View <ArrowRight className="size-3" />
           </Link>
@@ -89,12 +89,12 @@ export function ActiveSprintWidget({ sprint }: ActiveSprintWidgetProps) {
 
         {/* Goal */}
         {sprint.goal && (
-          <p className="mb-4 text-xs text-muted-foreground line-clamp-2">{sprint.goal}</p>
+          <p className="mb-4 text-sm text-muted-foreground line-clamp-2">{sprint.goal}</p>
         )}
 
         {/* Progress */}
         <div className="mb-3 flex flex-col gap-1.5">
-          <div className="flex items-center justify-between text-xs">
+          <div className="flex items-center justify-between text-sm">
             <span className="text-muted-foreground">{done}/{total} issues done</span>
             <span className="font-semibold text-foreground">{pct}%</span>
           </div>
@@ -107,7 +107,7 @@ export function ActiveSprintWidget({ sprint }: ActiveSprintWidgetProps) {
             />
           </div>
           {totalPoints > 0 && (
-            <div className="flex items-center justify-between text-xs">
+            <div className="flex items-center justify-between text-sm">
               <span className="flex items-center gap-1 text-muted-foreground">
                 <Zap className="size-3" />
                 {donePoints}/{totalPoints} points
@@ -118,7 +118,7 @@ export function ActiveSprintWidget({ sprint }: ActiveSprintWidgetProps) {
         </div>
 
         {/* Dates */}
-        <div className="flex items-center justify-between text-xs text-muted-foreground">
+        <div className="flex items-center justify-between text-sm text-muted-foreground">
           <div className="flex items-center gap-1">
             <CalendarDays className="size-3.5" />
             <span>{formatDate(sprint.startDate)} – {formatDate(sprint.endDate)}</span>

@@ -165,7 +165,7 @@ export function CreateSprintDialog({
               />
               <AnimatePresence mode="wait">
                 {fieldErrors.name && (
-                  <motion.p key="ne" initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="text-xs text-destructive">
+                  <motion.p key="ne" initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="text-sm text-destructive">
                     {fieldErrors.name}
                   </motion.p>
                 )}

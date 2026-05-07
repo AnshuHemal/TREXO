@@ -100,7 +100,7 @@ function IssueRow({
       <TypeIcon     className={cn("size-4 shrink-0", type.color)} />
 
       {/* Issue key */}
-      <span className="w-20 shrink-0 font-mono text-xs text-muted-foreground">
+      <span className="w-20 shrink-0 font-mono text-sm text-muted-foreground">
         {issue.project.key}-{issue.key}
       </span>
 
@@ -112,12 +112,12 @@ function IssueRow({
       {/* Status */}
       <div className="flex shrink-0 items-center gap-1.5">
         <StatusIcon className={cn("size-3.5", status.color)} />
-        <span className="hidden text-xs text-muted-foreground sm:block">{status.label}</span>
+        <span className="hidden text-sm text-muted-foreground sm:block">{status.label}</span>
       </div>
 
       {/* Comment count */}
       {issue.commentCount > 0 && (
-        <div className="flex shrink-0 items-center gap-1 text-xs text-muted-foreground">
+        <div className="flex shrink-0 items-center gap-1 text-sm text-muted-foreground">
           <MessageSquare className="size-3.5" />
           {issue.commentCount}
         </div>
@@ -179,7 +179,7 @@ function ProjectGroup({
 
         <span className="text-sm font-semibold text-foreground">{project.name}</span>
 
-        <span className="flex size-5 items-center justify-center rounded-full bg-muted text-xs font-medium text-muted-foreground">
+        <span className="flex size-5 items-center justify-center rounded-full bg-muted text-sm font-medium text-muted-foreground">
           {issues.length}
         </span>
       </button>
@@ -296,7 +296,7 @@ export function MyIssuesClient({
             value={statusFilter}
             onValueChange={(v) => setStatusFilter(v as "open" | "all")}
           >
-            <SelectTrigger className="h-8 w-28 text-xs">
+            <SelectTrigger className="h-8 w-28 text-sm">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -307,7 +307,7 @@ export function MyIssuesClient({
         </div>
 
         {/* Issue count */}
-        <span className="text-xs text-muted-foreground">
+        <span className="text-sm text-muted-foreground">
           {filtered.length} {filtered.length === 1 ? "issue" : "issues"}
         </span>
       </div>

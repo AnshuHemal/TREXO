@@ -74,7 +74,7 @@ function ColorPicker({
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder="#6366f1"
-          className="h-7 w-28 font-mono text-xs"
+          className="h-7 w-28 font-mono text-sm"
           maxLength={7}
         />
       </div>
@@ -153,12 +153,12 @@ function LabelRow({
             />
           </div>
           <ColorPicker value={color} onChange={setColor} />
-          {error && <p className="text-xs text-destructive">{error}</p>}
+          {error && <p className="text-sm text-destructive">{error}</p>}
           <div className="flex items-center gap-2">
-            <Button size="sm" className="h-7 gap-1.5 px-2.5 text-xs" onClick={handleSave} disabled={isPending || !name.trim()}>
+            <Button size="sm" className="h-7 gap-1.5 px-2.5 text-sm" onClick={handleSave} disabled={isPending || !name.trim()}>
               {isPending ? <Loader2 className="size-3.5 animate-spin" /> : <><Check className="size-3" />Save</>}
             </Button>
-            <Button size="sm" variant="ghost" className="h-7 px-2.5 text-xs" onClick={handleCancel} disabled={isPending}>
+            <Button size="sm" variant="ghost" className="h-7 px-2.5 text-sm" onClick={handleCancel} disabled={isPending}>
               Cancel
             </Button>
           </div>
@@ -167,7 +167,7 @@ function LabelRow({
         <div className="flex items-center gap-3 px-4 py-3">
           <div className="size-3.5 shrink-0 rounded-full" style={{ backgroundColor: label.color }} />
           <span className="flex-1 text-sm font-medium text-foreground">{label.name}</span>
-          <span className="text-xs text-muted-foreground">
+          <span className="text-sm text-muted-foreground">
             {label._count.issues} {label._count.issues === 1 ? "issue" : "issues"}
           </span>
           {canManage && (
@@ -280,12 +280,12 @@ export function LabelsManager({ labels: initialLabels, workspaceId, canManage }:
                 />
               </div>
               <ColorPicker value={newColor} onChange={setNewColor} />
-              {createError && <p className="text-xs text-destructive">{createError}</p>}
+              {createError && <p className="text-sm text-destructive">{createError}</p>}
               <div className="flex items-center gap-2">
-                <Button size="sm" className="h-7 gap-1.5 px-2.5 text-xs" onClick={handleCreate} disabled={isPending || !newName.trim()}>
+                <Button size="sm" className="h-7 gap-1.5 px-2.5 text-sm" onClick={handleCreate} disabled={isPending || !newName.trim()}>
                   {isPending ? <Loader2 className="size-3.5 animate-spin" /> : <><Plus className="size-3" />Create label</>}
                 </Button>
-                <Button size="sm" variant="ghost" className="h-7 px-2.5 text-xs" onClick={() => { setIsCreating(false); setNewName(""); setNewColor("#6366f1"); }}>
+                <Button size="sm" variant="ghost" className="h-7 px-2.5 text-sm" onClick={() => { setIsCreating(false); setNewName(""); setNewColor("#6366f1"); }}>
                   Cancel
                 </Button>
               </div>

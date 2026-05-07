@@ -58,7 +58,7 @@ function SubTaskProgress({ subTasks }: { subTasks: SubTaskItem[] }) {
           transition={{ duration: 0.4, ease: "easeOut" }}
         />
       </div>
-      <span className="shrink-0 text-xs text-muted-foreground tabular-nums">
+      <span className="shrink-0 text-sm text-muted-foreground tabular-nums">
         {done}/{total}
       </span>
     </div>
@@ -133,7 +133,7 @@ function SubTaskRow({
       {/* Status */}
       <div className="hidden shrink-0 items-center gap-1 sm:flex">
         <StatusIcon className={cn("size-3.5", status.color)} />
-        <span className="text-xs text-muted-foreground">{status.label}</span>
+        <span className="text-sm text-muted-foreground">{status.label}</span>
       </div>
 
       {/* Assignee */}
@@ -228,7 +228,7 @@ export function SubTaskList({
           <GitBranch className="size-4" />
           Sub-tasks
           {totalCount > 0 && (
-            <span className="ml-1 text-xs font-normal text-muted-foreground">
+            <span className="ml-1 text-sm font-normal text-muted-foreground">
               ({doneCount}/{totalCount})
             </span>
           )}
@@ -245,7 +245,7 @@ export function SubTaskList({
           type="button"
           variant="ghost"
           size="sm"
-          className="h-7 gap-1.5 px-2 text-xs text-muted-foreground hover:text-foreground"
+          className="h-7 gap-1.5 px-2 text-sm text-muted-foreground hover:text-foreground"
           onClick={() => { setIsCreating(true); setIsExpanded(true); }}
         >
           <Plus className="size-3.5" />
@@ -324,14 +324,14 @@ export function SubTaskList({
                       </Button>
                     </div>
                   </div>
-                  {error && <p className="mt-1 text-xs text-destructive">{error}</p>}
+                  {error && <p className="mt-1 text-sm text-destructive">{error}</p>}
                 </motion.div>
               )}
             </AnimatePresence>
 
             {/* Empty state */}
             {subTasks.length === 0 && !isCreating && (
-              <p className="text-xs text-muted-foreground">
+              <p className="text-sm text-muted-foreground">
                 No sub-tasks yet.{" "}
                 <button
                   type="button"

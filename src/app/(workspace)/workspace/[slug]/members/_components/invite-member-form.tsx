@@ -91,7 +91,7 @@ export function InviteMemberForm({
               initial={{ opacity: 0, y: -4 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
-              className="text-xs text-destructive"
+              className="text-sm text-destructive"
             >
               {fieldError}
             </motion.p>

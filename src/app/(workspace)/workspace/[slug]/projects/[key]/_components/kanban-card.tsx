@@ -86,7 +86,7 @@ function QuickEditDropdown<T extends string>({
                     type="button"
                     onClick={(e) => { e.stopPropagation(); onSelect(value); setOpen(false); }}
                     className={cn(
-                      "flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-left text-xs transition-colors hover:bg-accent",
+                      "flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-left text-sm transition-colors hover:bg-accent",
                       value === currentValue && "bg-primary/10 text-primary",
                     )}
                   >
@@ -156,7 +156,7 @@ function AssigneeQuickEdit({
                 <button
                   type="button"
                   onClick={(e) => { e.stopPropagation(); onSelect(null); setOpen(false); }}
-                  className="flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs transition-colors hover:bg-accent"
+                  className="flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-sm transition-colors hover:bg-accent"
                 >
                   <div className="size-5 rounded-full border border-dashed border-border" />
                   <span className="text-muted-foreground">Unassigned</span>
@@ -167,7 +167,7 @@ function AssigneeQuickEdit({
                     type="button"
                     onClick={(e) => { e.stopPropagation(); onSelect(m.id); setOpen(false); }}
                     className={cn(
-                      "flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs transition-colors hover:bg-accent",
+                      "flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-sm transition-colors hover:bg-accent",
                       issue.assigneeId === m.id && "bg-primary/10 text-primary",
                     )}
                   >
@@ -368,7 +368,7 @@ export function KanbanCard({
             </motion.span>
           )}
           {issue.commentCount > 0 && (
-            <div className="flex items-center gap-1 text-xs text-muted-foreground">
+            <div className="flex items-center gap-1 text-sm text-muted-foreground">
               <MessageSquare className="size-3" />
               {issue.commentCount}
             </div>

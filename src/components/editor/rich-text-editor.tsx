@@ -109,7 +109,7 @@ export function RichTextEditor({
             Mention.configure({
               HTMLAttributes: {
                 class:
-                  "mention inline-flex items-center rounded-md bg-primary/10 px-1.5 py-0.5 text-xs font-semibold text-primary cursor-default",
+                  "mention inline-flex items-center rounded-md bg-primary/10 px-1.5 py-0.5 text-sm font-semibold text-primary cursor-default",
               },
               renderLabel({ node }) {
                 return `@${node.attrs.label ?? node.attrs.id}`;

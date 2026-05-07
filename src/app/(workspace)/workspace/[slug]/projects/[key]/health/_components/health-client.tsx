@@ -103,13 +103,13 @@ function StatCard({
       <div className="rounded-xl border border-border bg-card p-5">
         <div className="flex items-start justify-between">
           <div className="min-w-0 flex-1">
-            <p className="text-xs font-medium text-muted-foreground">{label}</p>
+            <p className="text-sm font-medium text-muted-foreground">{label}</p>
             <div className="mt-1.5 flex items-baseline gap-2">
               <p className={cn("text-2xl font-bold", color)}>{value}</p>
               {trend === "up" && <TrendingUp className="size-3.5 text-emerald-500" />}
               {trend === "down" && <TrendingDown className="size-3.5 text-destructive" />}
             </div>
-            {sub && <p className="mt-0.5 text-xs text-muted-foreground">{sub}</p>}
+            {sub && <p className="mt-0.5 text-sm text-muted-foreground">{sub}</p>}
           </div>
           <div className={cn("flex size-9 shrink-0 items-center justify-center rounded-xl", iconBg)}>
             <Icon className={cn("size-5", color)} />
@@ -132,9 +132,9 @@ function ChartTooltip({
   if (!active || !payload?.length) return null;
   return (
     <div className="rounded-xl border border-border bg-popover px-3.5 py-2.5 shadow-xl">
-      {label && <p className="mb-2 text-xs font-semibold text-foreground">{label}</p>}
+      {label && <p className="mb-2 text-sm font-semibold text-foreground">{label}</p>}
       {payload.map((p) => (
-        <div key={p.name} className="flex items-center gap-2 text-xs">
+        <div key={p.name} className="flex items-center gap-2 text-sm">
           <span className="size-2 rounded-full" style={{ background: p.color }} />
           <span className="capitalize text-muted-foreground">{p.name}:</span>
           <span className="font-semibold text-foreground">{p.value}</span>
@@ -181,7 +181,7 @@ function DonutChart({
               const p = payload[0];
               const pct = total > 0 ? Math.round(((p.value as number) / total) * 100) : 0;
               return (
-                <div className="rounded-xl border border-border bg-popover px-3 py-2 shadow-xl text-xs">
+                <div className="rounded-xl border border-border bg-popover px-3 py-2 shadow-xl text-sm">
                   <p className="font-semibold text-foreground">{p.name}</p>
                   <p className="text-muted-foreground">{p.value as number} issues ({pct}%)</p>
                 </div>
@@ -221,7 +221,7 @@ function SectionHeader({
       </div>
       <div>
         <h2 className="text-sm font-semibold text-foreground">{title}</h2>
-        {sub && <p className="text-xs text-muted-foreground">{sub}</p>}
+        {sub && <p className="text-sm text-muted-foreground">{sub}</p>}
       </div>
     </div>
   );
@@ -314,7 +314,7 @@ export function HealthClient({
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-6 py-3">
         <div>
           <h1 className="text-base font-bold text-foreground">Project Health</h1>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-sm text-muted-foreground">
             {project.name} · {totalIssues} total issues
           </p>
         </div>
@@ -326,11 +326,11 @@ export function HealthClient({
           : "border-destructive/20 bg-destructive/10",
         )}>
           <div className={cn("size-2 rounded-full", healthBg)} />
-          <span className={cn("text-xs font-semibold", healthColor)}>
+          <span className={cn("text-sm font-semibold", healthColor)}>
             {healthLabel}
           </span>
-          <span className="text-xs text-muted-foreground">·</span>
-          <span className={cn("text-xs font-bold tabular-nums", healthColor)}>
+          <span className="text-sm text-muted-foreground">·</span>
+          <span className={cn("text-sm font-bold tabular-nums", healthColor)}>
             {healthScore}/100
           </span>
         </div>
@@ -419,12 +419,12 @@ export function HealthClient({
                             <div key={s.status} className="flex items-center justify-between gap-2">
                               <div className="flex items-center gap-1.5 min-w-0">
                                 <Icon className={cn("size-3 shrink-0", cfg?.color)} />
-                                <span className="truncate text-xs text-muted-foreground">
+                                <span className="truncate text-sm text-muted-foreground">
                                   {cfg?.label ?? s.status}
                                 </span>
                               </div>
                               <div className="flex items-center gap-1.5 shrink-0">
-                                <span className="text-xs font-semibold text-foreground">{s.count}</span>
+                                <span className="text-sm font-semibold text-foreground">{s.count}</span>
                                 <span className="text-[10px] text-muted-foreground/60">({pct}%)</span>
                               </div>
                             </div>
@@ -495,7 +495,7 @@ export function HealthClient({
                         const pct = total > 0 ? Math.round((p.value / total) * 100) : 0;
                         return (
                           <div key={p.name} className="flex items-center gap-3">
-                            <span className="w-20 shrink-0 text-xs text-muted-foreground">{p.name}</span>
+                            <span className="w-20 shrink-0 text-sm text-muted-foreground">{p.name}</span>
                             <div className="flex-1 h-1.5 rounded-full bg-border overflow-hidden">
                               <motion.div
                                 className="h-full rounded-full"
@@ -505,7 +505,7 @@ export function HealthClient({
                                 transition={{ duration: 0.6, ease: "easeOut", delay: 0.2 }}
                               />
                             </div>
-                            <span className="w-8 shrink-0 text-right text-xs font-semibold text-foreground">
+                            <span className="w-8 shrink-0 text-right text-sm font-semibold text-foreground">
                               {p.value}
                             </span>
                           </div>
@@ -535,7 +535,7 @@ export function HealthClient({
                     key={v}
                     onClick={() => setTrendView(v)}
                     className={cn(
-                      "rounded-md px-2.5 py-1 text-xs font-medium transition-all",
+                      "rounded-md px-2.5 py-1 text-sm font-medium transition-all",
                       trendView === v
                         ? "bg-background text-foreground shadow-sm"
                         : "text-muted-foreground hover:text-foreground",
@@ -647,12 +647,12 @@ export function HealthClient({
                             <div key={t.type} className="flex items-center justify-between gap-2">
                               <div className="flex items-center gap-1.5 min-w-0">
                                 <Icon className={cn("size-3 shrink-0", cfg?.color)} />
-                                <span className="truncate text-xs text-muted-foreground">
+                                <span className="truncate text-sm text-muted-foreground">
                                   {cfg?.label ?? t.type}
                                 </span>
                               </div>
                               <div className="flex items-center gap-1.5 shrink-0">
-                                <span className="text-xs font-semibold text-foreground">{t.count}</span>
+                                <span className="text-sm font-semibold text-foreground">{t.count}</span>
                                 <span className="text-[10px] text-muted-foreground/60">({pct}%)</span>
                               </div>
                             </div>
@@ -710,7 +710,7 @@ export function HealthClient({
                         {/* Rank */}
                         <span className="w-5 shrink-0 text-center text-sm">
                           {medal ?? (
-                            <span className="text-xs font-medium text-muted-foreground">
+                            <span className="text-sm font-medium text-muted-foreground">
                               {i + 1}
                             </span>
                           )}
@@ -772,12 +772,12 @@ export function HealthClient({
                   <p className="text-sm font-semibold text-foreground">
                     Average cycle time: <span className="text-amber-500">{avgCycleTime} days</span>
                   </p>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-sm text-muted-foreground">
                     Measured from issue creation to first DONE transition · {cycleTimeSampleSize} issues sampled
                   </p>
                 </div>
                 <div className={cn(
-                  "rounded-full px-3 py-1 text-xs font-semibold",
+                  "rounded-full px-3 py-1 text-sm font-semibold",
                   avgCycleTime <= 3  ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
                   : avgCycleTime <= 7  ? "bg-primary/10 text-primary"
                   : avgCycleTime <= 14 ? "bg-amber-500/10 text-amber-600 dark:text-amber-400"

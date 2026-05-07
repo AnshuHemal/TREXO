@@ -420,7 +420,7 @@ export function RoadmapClient({
                   key={v}
                   onClick={() => { setView(v); if (v !== "issues") setGroup("none"); }}
                   className={cn(
-                    "flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-all",
+                    "flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-all",
                     view === v
                       ? "bg-background text-foreground shadow-sm"
                       : "text-muted-foreground hover:text-foreground",
@@ -436,7 +436,7 @@ export function RoadmapClient({
           {/* Group by (issues only) */}
           {view === "issues" && (
             <Select value={group} onValueChange={(v) => setGroup(v as GroupMode)}>
-              <SelectTrigger className={cn("h-8 w-40 text-xs", group !== "none" && "border-primary text-primary")}>
+              <SelectTrigger className={cn("h-8 w-40 text-sm", group !== "none" && "border-primary text-primary")}>
                 <Users className="mr-1.5 size-3.5" />
                 <SelectValue />
               </SelectTrigger>
@@ -448,7 +448,7 @@ export function RoadmapClient({
             </Select>
           )}
 
-          <div className="hidden items-center gap-1 text-xs text-muted-foreground sm:flex">
+          <div className="hidden items-center gap-1 text-sm text-muted-foreground sm:flex">
             <Info className="size-3.5" />
             <span>Drag bars to reschedule</span>
           </div>
@@ -463,7 +463,7 @@ export function RoadmapClient({
                 key={z}
                 onClick={() => setZoom(z)}
                 className={cn(
-                  "rounded-md px-2.5 py-1.5 text-xs font-medium transition-all",
+                  "rounded-md px-2.5 py-1.5 text-sm font-medium transition-all",
                   zoom === z
                     ? "bg-background text-foreground shadow-sm"
                     : "text-muted-foreground hover:text-foreground",
@@ -476,7 +476,7 @@ export function RoadmapClient({
 
           <div className="h-4 w-px bg-border" />
 
-          <Button variant="outline" size="sm" className="h-7 gap-1.5 text-xs" onClick={scrollToToday}>
+          <Button variant="outline" size="sm" className="h-7 gap-1.5 text-sm" onClick={scrollToToday}>
             <Calendar className="size-3.5" />
             Today
           </Button>
@@ -498,7 +498,7 @@ export function RoadmapClient({
         <div className="shrink-0 border-r border-border bg-background" style={{ width: LABEL_WIDTH }}>
           {/* Header spacer */}
           <div className="flex items-end border-b border-border px-4 pb-2" style={{ height: HEADER_HEIGHT }}>
-            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            <span className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
               {view === "sprints" ? "Sprint" : view === "epics" ? "Epic" : "Issue"}
             </span>
           </div>
@@ -776,13 +776,13 @@ function SprintBar({ sprint, left, width, colors, progress, onMouseDown, tooltip
             style={{ minWidth: 220 }}
           >
             <p className="mb-1 text-sm font-semibold text-foreground">{sprint.name}</p>
-            {sprint.goal && <p className="mb-2 text-xs text-muted-foreground line-clamp-2">{sprint.goal}</p>}
-            <div className="flex items-center justify-between text-xs text-muted-foreground">
+            {sprint.goal && <p className="mb-2 text-sm text-muted-foreground line-clamp-2">{sprint.goal}</p>}
+            <div className="flex items-center justify-between text-sm text-muted-foreground">
               <span>{sprint.startDate ? formatDate(new Date(sprint.startDate)) : "—"}</span>
               <span>→</span>
               <span>{sprint.endDate ? formatDate(new Date(sprint.endDate)) : "—"}</span>
             </div>
-            <div className="mt-2 flex items-center justify-between text-xs">
+            <div className="mt-2 flex items-center justify-between text-sm">
               <span className="text-muted-foreground">{sprint.doneCount}/{sprint.issueCount} done</span>
               <span className={cn("font-semibold", colors.text)}>{getStatusLabel(sprint.status)}</span>
             </div>
@@ -820,7 +820,7 @@ function SprintBar({ sprint, left, width, colors, progress, onMouseDown, tooltip
           />
         )}
 
-        <span className={cn("relative z-10 truncate text-xs font-semibold", colors.text)}>
+        <span className={cn("relative z-10 truncate text-sm font-semibold", colors.text)}>
           {sprint.name}
         </span>
         {sprint.issueCount > 0 && (
@@ -870,12 +870,12 @@ function EpicBar({
               <p className="text-sm font-semibold text-foreground">{epic.title}</p>
             </div>
             <p className="mb-2 font-mono text-[11px] text-muted-foreground">{projectKey}-{epic.key}</p>
-            <div className="flex items-center justify-between text-xs">
+            <div className="flex items-center justify-between text-sm">
               <span className="text-muted-foreground">{epic.doneSubTaskCount}/{epic.subTaskCount} sub-tasks</span>
               <span className="font-semibold text-purple-600 dark:text-purple-400">{getStatusLabel(epic.status)}</span>
             </div>
             {epic.dueDate && (
-              <p className="mt-1 text-xs text-muted-foreground">Due {formatDate(new Date(epic.dueDate))}</p>
+              <p className="mt-1 text-sm text-muted-foreground">Due {formatDate(new Date(epic.dueDate))}</p>
             )}
             {epic.subTaskCount > 0 && (
               <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-border">
@@ -895,7 +895,7 @@ function EpicBar({
         {progress > 0 && (
           <div className="absolute left-0 top-0 h-full rounded-lg bg-purple-500/20" style={{ width: `${progress}%` }} />
         )}
-        <span className="relative z-10 truncate text-xs font-semibold text-purple-600 dark:text-purple-400">
+        <span className="relative z-10 truncate text-sm font-semibold text-purple-600 dark:text-purple-400">
           {epic.title}
         </span>
         {epic.subTaskCount > 0 && (
@@ -949,7 +949,7 @@ function IssueBar({
               <p className="text-sm font-semibold text-foreground">{issue.title}</p>
             </div>
             <p className="mb-2 font-mono text-[11px] text-muted-foreground">{projectKey}-{issue.key}</p>
-            <div className="flex items-center justify-between text-xs">
+            <div className="flex items-center justify-between text-sm">
               <span className="flex items-center gap-1 text-muted-foreground">
                 <PriorityIcon className={cn("size-3", priorityCfg.color)} />
                 {priorityCfg.label}
@@ -960,10 +960,10 @@ function IssueBar({
               </span>
             </div>
             {issue.dueDate && (
-              <p className="mt-1 text-xs text-muted-foreground">Due {formatDate(new Date(issue.dueDate))}</p>
+              <p className="mt-1 text-sm text-muted-foreground">Due {formatDate(new Date(issue.dueDate))}</p>
             )}
             {issue.assignee && (
-              <div className="mt-2 flex items-center gap-1.5 text-xs text-muted-foreground">
+              <div className="mt-2 flex items-center gap-1.5 text-sm text-muted-foreground">
                 <Avatar className="size-4">
                   <AvatarImage src={issue.assignee.image ?? undefined} />
                   <AvatarFallback className="text-[8px]">{getInitials(issue.assignee.name)}</AvatarFallback>
@@ -985,7 +985,7 @@ function IssueBar({
         onMouseLeave={() => setTooltip(null)}
       >
         <TypeIcon className={cn("mr-1.5 size-3 shrink-0", typeCfg.color)} />
-        <span className="relative z-10 truncate text-xs font-medium">
+        <span className="relative z-10 truncate text-sm font-medium">
           {issue.title}
         </span>
         <a
@@ -1074,7 +1074,7 @@ function GroupLabelHeader({
           <AvatarFallback className="text-[8px]">{getInitials(label)}</AvatarFallback>
         </Avatar>
       )}
-      <span className="text-xs font-semibold text-foreground">{label}</span>
+      <span className="text-sm font-semibold text-foreground">{label}</span>
       <span className="flex size-4 items-center justify-center rounded-full bg-muted text-[10px] font-medium text-muted-foreground">
         {count}
       </span>
@@ -1087,7 +1087,7 @@ function GroupLabelHeader({
 function NoDatePlaceholder() {
   return (
     <div className="absolute inset-0 flex items-center px-4">
-      <span className="text-xs italic text-muted-foreground/40">No dates set</span>
+      <span className="text-sm italic text-muted-foreground/40">No dates set</span>
     </div>
   );
 }

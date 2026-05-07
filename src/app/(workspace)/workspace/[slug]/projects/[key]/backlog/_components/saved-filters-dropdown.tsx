@@ -146,12 +146,12 @@ function SaveFilterDialog({
               maxLength={60}
               className="h-9"
             />
-            <p className="text-xs text-muted-foreground">{name.length}/60</p>
+            <p className="text-sm text-muted-foreground">{name.length}/60</p>
           </div>
 
           {/* Filter preview */}
           <div className="rounded-lg border border-border bg-muted/30 p-3">
-            <p className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+            <p className="mb-2 text-sm font-medium uppercase tracking-wide text-muted-foreground">
               Filters being saved
             </p>
             <FilterPreview filters={currentFilters} />
@@ -168,7 +168,7 @@ function SaveFilterDialog({
                 <p className="text-sm font-medium text-foreground">
                   {isShared ? "Shared with workspace" : "Personal view"}
                 </p>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-sm text-muted-foreground">
                   {isShared
                     ? "All workspace members can see and use this view"
                     : "Only visible to you"
@@ -185,7 +185,7 @@ function SaveFilterDialog({
                 initial={{ opacity: 0, y: -4 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0 }}
-                className="text-xs text-destructive"
+                className="text-sm text-destructive"
               >
                 {error}
               </motion.p>
@@ -280,7 +280,7 @@ function EditFilterDialog({
                 <p className="text-sm font-medium">
                   {isShared ? "Shared with workspace" : "Personal view"}
                 </p>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-sm text-muted-foreground">
                   {isShared ? "Visible to all workspace members" : "Only visible to you"}
                 </p>
               </div>
@@ -294,7 +294,7 @@ function EditFilterDialog({
                 initial={{ opacity: 0, y: -4 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0 }}
-                className="text-xs text-destructive"
+                className="text-sm text-destructive"
               >
                 {error}
               </motion.p>
@@ -335,7 +335,7 @@ function FilterPreview({ filters }: { filters: FilterState }) {
     chips.push({ label: "Group by", value: filters.groupBy });
 
   if (chips.length === 0) {
-    return <p className="text-xs italic text-muted-foreground">No active filters</p>;
+    return <p className="text-sm italic text-muted-foreground">No active filters</p>;
   }
 
   return (
@@ -475,7 +475,7 @@ export function SavedFiltersDropdown({
             variant="outline"
             size="sm"
             className={cn(
-              "h-8 gap-1.5 text-xs",
+              "h-8 gap-1.5 text-sm",
               activeFilterId && "border-primary bg-primary/5 text-primary",
             )}
           >
@@ -505,7 +505,7 @@ export function SavedFiltersDropdown({
             <Button
               variant="outline"
               size="sm"
-              className="h-8 w-full justify-start gap-2 text-xs"
+              className="h-8 w-full justify-start gap-2 text-sm"
               onClick={() => { setSaveOpen(true); setDropdownOpen(false); }}
               disabled={!hasActiveFilters}
             >
@@ -576,7 +576,7 @@ export function SavedFiltersDropdown({
           {savedFilters.length === 0 && (
             <div className="flex flex-col items-center gap-2 py-6 text-center">
               <Bookmark className="size-6 text-muted-foreground/40" />
-              <p className="text-xs text-muted-foreground">No saved views yet.</p>
+              <p className="text-sm text-muted-foreground">No saved views yet.</p>
               <p className="text-[11px] text-muted-foreground/70">
                 Apply filters then save them as a view.
               </p>

@@ -39,7 +39,7 @@ export default async function SettingsLayout({
         {/* Sidebar nav */}
         <FadeIn direction="down" delay={0.05} className="w-48 shrink-0">
           <nav className="flex flex-col gap-1" aria-label="Settings navigation">
-            <p className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            <p className="mb-2 px-3 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
               Settings
             </p>
             {[

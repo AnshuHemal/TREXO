@@ -41,7 +41,7 @@ export default function LoginPage() {
         {/* Divider */}
         <FadeIn direction="none" delay={0.15} className="my-6 flex items-center gap-3">
           <Separator className="flex-1" />
-          <span className="text-xs text-muted-foreground">or</span>
+          <span className="text-sm text-muted-foreground">or</span>
           <Separator className="flex-1" />
         </FadeIn>
 

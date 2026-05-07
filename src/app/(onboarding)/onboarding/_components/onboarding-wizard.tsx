@@ -107,7 +107,7 @@ export function OnboardingWizard() {
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
-                            className={`text-xs font-bold ${isCurrent ? "text-primary-foreground" : "text-muted-foreground"}`}
+                            className={`text-sm font-bold ${isCurrent ? "text-primary-foreground" : "text-muted-foreground"}`}
                           >
                             {i + 1}
                           </motion.span>
@@ -176,7 +176,7 @@ export function OnboardingWizard() {
 
       {/* Step counter below card */}
       <FadeIn direction="none" delay={0.2}>
-        <p className="text-center text-xs text-muted-foreground">
+        <p className="text-center text-sm text-muted-foreground">
           Step {currentIndex + 1} of {STEPS.length}
         </p>
       </FadeIn>

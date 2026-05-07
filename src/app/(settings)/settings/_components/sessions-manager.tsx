@@ -109,7 +109,7 @@ export function SessionsManager({ sessions: initialSessions, currentToken }: Ses
                     </Badge>
                   )}
                 </div>
-                <span className="text-xs text-muted-foreground">
+                <span className="text-sm text-muted-foreground">
                   {session.ipAddress ? `${session.ipAddress} · ` : ""}
                   Signed in {formatDate(session.createdAt)}
                 </span>

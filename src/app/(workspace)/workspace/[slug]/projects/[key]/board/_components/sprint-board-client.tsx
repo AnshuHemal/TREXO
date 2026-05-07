@@ -485,7 +485,7 @@ export function SprintBoardClient({
                       <div className="flex items-center gap-2 rounded-xl border border-border bg-muted/40 px-3 py-2.5">
                         {(() => { const Icon = icon; return <Icon className={`size-4 shrink-0 ${color}`} />; })()}
                         <span className="text-sm font-semibold text-foreground">{label}</span>
-                        <span className="flex size-5 items-center justify-center rounded-full bg-muted text-xs font-medium text-muted-foreground">
+                        <span className="flex size-5 items-center justify-center rounded-full bg-muted text-sm font-medium text-muted-foreground">
                           {colIssues.length}
                         </span>
                       </div>
@@ -493,8 +493,8 @@ export function SprintBoardClient({
                         <div key={key} className="flex flex-col rounded-xl border border-border bg-muted/40">
                           {groupLabel && (
                             <div className="border-b border-border px-3 py-1.5">
-                              <span className="text-xs font-medium text-muted-foreground">{groupLabel}</span>
-                              <span className="ml-1.5 text-xs text-muted-foreground/60">({groupIssues.length})</span>
+                              <span className="text-sm font-medium text-muted-foreground">{groupLabel}</span>
+                              <span className="ml-1.5 text-sm text-muted-foreground/60">({groupIssues.length})</span>
                             </div>
                           )}
                           <KanbanColumn
@@ -561,7 +561,7 @@ export function SprintBoardClient({
             <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-primary/30 bg-card px-4 py-2.5 shadow-2xl shadow-primary/10">
               {/* Count */}
               <div className="flex items-center gap-2">
-                <span className="flex h-6 min-w-6 items-center justify-center rounded-full bg-primary px-2 text-xs font-bold text-primary-foreground">
+                <span className="flex h-6 min-w-6 items-center justify-center rounded-full bg-primary px-2 text-sm font-bold text-primary-foreground">
                   {selectedIds.size}
                 </span>
                 <span className="text-sm font-medium text-foreground">
@@ -572,11 +572,11 @@ export function SprintBoardClient({
 
               {/* Status */}
               <Select onValueChange={(v) => handleBulkUpdate("status", v)} disabled={isBulkPending}>
-                <SelectTrigger className="h-7 w-32 text-xs"><SelectValue placeholder="Set status" /></SelectTrigger>
+                <SelectTrigger className="h-7 w-32 text-sm"><SelectValue placeholder="Set status" /></SelectTrigger>
                 <SelectContent>
                   {ISSUE_STATUSES.map(({ value, label, icon: Icon, color }) => (
                     <SelectItem key={value} value={value}>
-                      <span className="flex items-center gap-2 text-xs"><Icon className={cn("size-3.5", color)} />{label}</span>
+                      <span className="flex items-center gap-2 text-sm"><Icon className={cn("size-3.5", color)} />{label}</span>
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -584,11 +584,11 @@ export function SprintBoardClient({
 
               {/* Priority */}
               <Select onValueChange={(v) => handleBulkUpdate("priority", v)} disabled={isBulkPending}>
-                <SelectTrigger className="h-7 w-32 text-xs"><SelectValue placeholder="Set priority" /></SelectTrigger>
+                <SelectTrigger className="h-7 w-32 text-sm"><SelectValue placeholder="Set priority" /></SelectTrigger>
                 <SelectContent>
                   {ISSUE_PRIORITIES.map(({ value, label, icon: Icon, color }) => (
                     <SelectItem key={value} value={value}>
-                      <span className="flex items-center gap-2 text-xs"><Icon className={cn("size-3.5", color)} />{label}</span>
+                      <span className="flex items-center gap-2 text-sm"><Icon className={cn("size-3.5", color)} />{label}</span>
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -596,12 +596,12 @@ export function SprintBoardClient({
 
               {/* Assignee */}
               <Select onValueChange={(v) => handleBulkUpdate("assigneeId", v === "none" ? null : v)} disabled={isBulkPending}>
-                <SelectTrigger className="h-7 w-36 text-xs"><SelectValue placeholder="Assign to…" /></SelectTrigger>
+                <SelectTrigger className="h-7 w-36 text-sm"><SelectValue placeholder="Assign to…" /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="none"><span className="text-xs text-muted-foreground">Unassigned</span></SelectItem>
+                  <SelectItem value="none"><span className="text-sm text-muted-foreground">Unassigned</span></SelectItem>
                   {members.map((m) => (
                     <SelectItem key={m.id} value={m.id}>
-                      <span className="flex items-center gap-2 text-xs">
+                      <span className="flex items-center gap-2 text-sm">
                         <Avatar className="size-4">
                           <AvatarFallback className="text-[8px]">{m.name.slice(0, 2).toUpperCase()}</AvatarFallback>
                         </Avatar>
@@ -619,7 +619,7 @@ export function SprintBoardClient({
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
                     <Button variant="ghost" size="sm"
-                      className="h-7 gap-1.5 px-2 text-xs text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                      className="h-7 gap-1.5 px-2 text-sm text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
                       disabled={isBulkPending}>
                       <Trash2 className="size-3.5" />Delete
                     </Button>
@@ -642,7 +642,7 @@ export function SprintBoardClient({
 
                 {/* Clear */}
                 <Button variant="ghost" size="sm"
-                  className="h-7 gap-1 px-2 text-xs text-muted-foreground hover:text-foreground"
+                  className="h-7 gap-1 px-2 text-sm text-muted-foreground hover:text-foreground"
                   onClick={clearSelection}>
                   <X className="size-3.5" />Clear
                 </Button>

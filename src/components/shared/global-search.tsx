@@ -507,7 +507,7 @@ export function GlobalSearch({
       {/* ── Trigger button ─────────────────────────────────────────────── */}
       <button
         onClick={() => setOpen(true)}
-        className="hidden h-8 w-52 items-center justify-between gap-2 rounded-md border border-border bg-muted/40 px-3 text-xs text-muted-foreground transition-colors hover:bg-muted sm:flex"
+        className="hidden h-8 w-52 items-center justify-between gap-2 rounded-md border border-border bg-muted/40 px-3 text-sm text-muted-foreground transition-colors hover:bg-muted sm:flex"
         aria-label="Open command palette"
       >
         <span className="flex items-center gap-2">
@@ -595,7 +595,7 @@ export function GlobalSearch({
                   <div className="flex flex-col items-center gap-2 py-12 text-center">
                     <Search className="size-8 text-muted-foreground/30" />
                     <p className="text-sm font-medium text-foreground">No results for "{query}"</p>
-                    <p className="text-xs text-muted-foreground">Try a different search term</p>
+                    <p className="text-sm text-muted-foreground">Try a different search term</p>
                   </div>
                 )}
 
@@ -626,7 +626,7 @@ export function GlobalSearch({
                               <HighlightMatch text={action.label} query={query} />
                             </p>
                             {action.description && (
-                              <p className="text-xs text-muted-foreground">{action.description}</p>
+                              <p className="text-sm text-muted-foreground">{action.description}</p>
                             )}
                           </div>
                           {action.shortcut && (
@@ -657,7 +657,7 @@ export function GlobalSearch({
                           onMouseEnter={() => setActiveIndex(idx)}
                         >
                           <Clock className="size-4 shrink-0 text-muted-foreground/50" />
-                          <span className="w-16 shrink-0 font-mono text-xs text-muted-foreground">
+                          <span className="w-16 shrink-0 font-mono text-sm text-muted-foreground">
                             {r.key}
                           </span>
                           <span className="flex-1 truncate text-sm text-foreground">{r.title}</span>
@@ -695,7 +695,7 @@ export function GlobalSearch({
                                 <PriorityIcon className={cn("size-3.5", priorityCfg.color)} />
                                 <TypeIcon className={cn("size-3.5", typeCfg.color)} />
                               </div>
-                              <span className="w-16 shrink-0 font-mono text-xs text-muted-foreground">
+                              <span className="w-16 shrink-0 font-mono text-sm text-muted-foreground">
                                 {issue.project.key}-{issue.key}
                               </span>
                               <span className="flex-1 truncate text-sm text-foreground">
@@ -703,7 +703,7 @@ export function GlobalSearch({
                               </span>
                               <div className="flex shrink-0 items-center gap-1.5">
                                 <StatusIcon className={cn("size-3.5", statusCfg.color)} />
-                                <span className="hidden text-xs text-muted-foreground sm:block">
+                                <span className="hidden text-sm text-muted-foreground sm:block">
                                   {statusCfg.label}
                                 </span>
                               </div>
@@ -736,14 +736,14 @@ export function GlobalSearch({
                               onClick={() => activateItem({ kind: "project", data: project })}
                               onMouseEnter={() => setActiveIndex(idx)}
                             >
-                              <div className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-xs font-bold text-primary">
+                              <div className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-sm font-bold text-primary">
                                 {project.key.charAt(0)}
                               </div>
                               <div className="min-w-0 flex-1">
                                 <p className="truncate text-sm font-medium text-foreground">
                                   <HighlightMatch text={project.name} query={query} />
                                 </p>
-                                <p className="text-xs text-muted-foreground">
+                                <p className="text-sm text-muted-foreground">
                                   {project._count.issues} issues
                                 </p>
                               </div>
@@ -771,7 +771,7 @@ export function GlobalSearch({
                             >
                               <Avatar className="size-7 shrink-0">
                                 <AvatarImage src={member.image ?? undefined} />
-                                <AvatarFallback className="text-xs font-semibold">
+                                <AvatarFallback className="text-sm font-semibold">
                                   {getInitials(member.name)}
                                 </AvatarFallback>
                               </Avatar>
@@ -779,11 +779,11 @@ export function GlobalSearch({
                                 <p className="truncate text-sm font-medium text-foreground">
                                   <HighlightMatch text={member.name} query={query} />
                                 </p>
-                                <p className="text-xs text-muted-foreground truncate">
+                                <p className="text-sm text-muted-foreground truncate">
                                   {member.email}
                                 </p>
                               </div>
-                              <span className="shrink-0 text-xs text-muted-foreground">
+                              <span className="shrink-0 text-sm text-muted-foreground">
                                 View workload
                               </span>
                               <ArrowRight className="size-3.5 shrink-0 text-muted-foreground/40" />

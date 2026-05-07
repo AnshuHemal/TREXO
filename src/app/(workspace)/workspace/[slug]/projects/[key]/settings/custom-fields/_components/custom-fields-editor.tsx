@@ -80,7 +80,7 @@ function FieldRow({
         </div>
 
         {/* Type icon */}
-        <div className={cn("flex size-7 shrink-0 items-center justify-center rounded-lg text-xs font-bold", TYPE_COLORS[field.type])}>
+        <div className={cn("flex size-7 shrink-0 items-center justify-center rounded-lg text-sm font-bold", TYPE_COLORS[field.type])}>
           <Icon className="size-3.5" />
         </div>
 
@@ -97,7 +97,7 @@ function FieldRow({
           value={field.type}
           onValueChange={(v) => onUpdate(field.id, { type: v as CustomFieldType, options: v === "dropdown" ? (field.options ?? []) : undefined })}
         >
-          <SelectTrigger className="h-7 w-32 text-xs">
+          <SelectTrigger className="h-7 w-32 text-sm">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -105,7 +105,7 @@ function FieldRow({
               const TIcon = TYPE_ICONS[t];
               return (
                 <SelectItem key={t} value={t}>
-                  <span className="flex items-center gap-2 text-xs">
+                  <span className="flex items-center gap-2 text-sm">
                     <TIcon className="size-3.5" />
                     {FIELD_TYPE_LABELS[t]}
                   </span>
@@ -159,7 +159,7 @@ function FieldRow({
             transition={{ duration: 0.18 }}
             className="overflow-hidden border-t border-border bg-muted/20 px-4 py-3"
           >
-            <p className="mb-2 text-xs font-medium text-muted-foreground">Options</p>
+            <p className="mb-2 text-sm font-medium text-muted-foreground">Options</p>
             <div className="flex flex-col gap-1.5">
               {(field.options ?? []).map((opt) => (
                 <motion.div
@@ -169,7 +169,7 @@ function FieldRow({
                   exit={{ opacity: 0, x: -4 }}
                   className="flex items-center gap-2"
                 >
-                  <span className="flex-1 rounded-lg border border-border bg-background px-2.5 py-1 text-xs text-foreground">
+                  <span className="flex-1 rounded-lg border border-border bg-background px-2.5 py-1 text-sm text-foreground">
                     {opt}
                   </span>
                   <button
@@ -187,9 +187,9 @@ function FieldRow({
                   onChange={(e) => setOptionDraft(e.target.value)}
                   onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addOption(); } }}
                   placeholder="Add option…"
-                  className="h-7 flex-1 text-xs"
+                  className="h-7 flex-1 text-sm"
                 />
-                <Button size="sm" className="h-7 px-2.5 text-xs" onClick={addOption} disabled={!optionDraft.trim()}>
+                <Button size="sm" className="h-7 px-2.5 text-sm" onClick={addOption} disabled={!optionDraft.trim()}>
                   <Plus className="size-3" />
                 </Button>
               </div>
@@ -271,7 +271,7 @@ export function CustomFieldsEditor({ projectId, initialConfig }: CustomFieldsEdi
                 Drag to reorder. Fields appear in the issue detail sidebar.
               </p>
             </div>
-            <span className="flex items-center gap-1.5 rounded-lg border border-border bg-muted/30 px-2.5 py-1.5 text-xs text-muted-foreground">
+            <span className="flex items-center gap-1.5 rounded-lg border border-border bg-muted/30 px-2.5 py-1.5 text-sm text-muted-foreground">
               {fields.length} {fields.length === 1 ? "field" : "fields"}
             </span>
           </div>
@@ -282,7 +282,7 @@ export function CustomFieldsEditor({ projectId, initialConfig }: CustomFieldsEdi
                 <Plus className="size-6 text-muted-foreground/40" />
               </div>
               <p className="text-sm font-medium text-foreground">No custom fields yet</p>
-              <p className="text-xs text-muted-foreground">Add a field below to get started.</p>
+              <p className="text-sm text-muted-foreground">Add a field below to get started.</p>
             </div>
           ) : (
             <Reorder.Group
@@ -314,7 +314,7 @@ export function CustomFieldsEditor({ projectId, initialConfig }: CustomFieldsEdi
                   type="button"
                   onClick={() => addField(type)}
                   className={cn(
-                    "flex items-center gap-1.5 rounded-lg border border-dashed px-3 py-1.5 text-xs font-medium transition-all",
+                    "flex items-center gap-1.5 rounded-lg border border-dashed px-3 py-1.5 text-sm font-medium transition-all",
                     "border-border text-muted-foreground hover:border-primary/40 hover:text-primary hover:bg-primary/5",
                   )}
                 >
@@ -334,7 +334,7 @@ export function CustomFieldsEditor({ projectId, initialConfig }: CustomFieldsEdi
           <Info className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
           <div>
             <p className="text-sm font-medium text-foreground">How custom fields work</p>
-            <ul className="mt-1.5 flex flex-col gap-1 text-xs text-muted-foreground">
+            <ul className="mt-1.5 flex flex-col gap-1 text-sm text-muted-foreground">
               <li className="flex items-start gap-1.5">
                 <span className="mt-1 size-1 shrink-0 rounded-full bg-muted-foreground/50" />
                 Fields appear in the issue detail sidebar under "Custom Fields".
@@ -358,13 +358,13 @@ export function CustomFieldsEditor({ projectId, initialConfig }: CustomFieldsEdi
           <AnimatePresence mode="wait">
             {saveError && (
               <motion.p key="err" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                className="flex items-center gap-1.5 text-xs text-destructive">
+                className="flex items-center gap-1.5 text-sm text-destructive">
                 <AlertCircle className="size-3.5" />{saveError}
               </motion.p>
             )}
             {saveSuccess && (
               <motion.p key="ok" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                className="flex items-center gap-1.5 text-xs text-emerald-600 dark:text-emerald-400">
+                className="flex items-center gap-1.5 text-sm text-emerald-600 dark:text-emerald-400">
                 <Check className="size-3.5" />Saved
               </motion.p>
             )}

@@ -380,7 +380,7 @@ export function SprintPlanningClient({
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-5 py-3">
           <div>
             <h1 className="text-base font-bold text-foreground">Sprint Planning</h1>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-sm text-muted-foreground">
               Drag issues from the backlog into a sprint. Set capacity to track load.
             </p>
           </div>
@@ -389,13 +389,13 @@ export function SprintPlanningClient({
             {/* Sprint selector */}
             {sprints.length > 0 && (
               <Select value={selectedSprintId} onValueChange={setSelectedSprintId}>
-                <SelectTrigger className="h-8 w-48 text-xs">
+                <SelectTrigger className="h-8 w-48 text-sm">
                   <SelectValue placeholder="Select sprint" />
                 </SelectTrigger>
                 <SelectContent>
                   {sprints.map((s) => (
                     <SelectItem key={s.id} value={s.id}>
-                      <span className="flex items-center gap-2 text-xs">
+                      <span className="flex items-center gap-2 text-sm">
                         <span className={cn(
                           "size-1.5 rounded-full",
                           s.status === "ACTIVE" ? "bg-primary" : "bg-muted-foreground",
@@ -414,16 +414,16 @@ export function SprintPlanningClient({
             {/* Capacity per member */}
             <div className="flex items-center gap-1.5 rounded-lg border border-border bg-muted/40 px-3 py-1.5">
               <Users className="size-3.5 text-muted-foreground" />
-              <span className="text-xs text-muted-foreground">Capacity/member:</span>
+              <span className="text-sm text-muted-foreground">Capacity/member:</span>
               <input
                 type="number"
                 min={1}
                 max={200}
                 value={capacityPerMember}
                 onChange={(e) => setCapacityPerMember(Math.max(1, parseInt(e.target.value) || 1))}
-                className="w-12 bg-transparent text-center text-xs font-semibold text-foreground focus:outline-none"
+                className="w-12 bg-transparent text-center text-sm font-semibold text-foreground focus:outline-none"
               />
-              <span className="text-xs text-muted-foreground">pts</span>
+              <span className="text-sm text-muted-foreground">pts</span>
             </div>
           </div>
         </div>
@@ -440,11 +440,11 @@ export function SprintPlanningClient({
                 <div className="flex items-center gap-2">
                   <Layers className="size-4 text-muted-foreground" />
                   <span className="text-sm font-semibold text-foreground">Backlog</span>
-                  <span className="flex size-5 items-center justify-center rounded-full bg-muted text-xs font-medium text-muted-foreground">
+                  <span className="flex size-5 items-center justify-center rounded-full bg-muted text-sm font-medium text-muted-foreground">
                     {filteredBacklog.length}
                   </span>
                 </div>
-                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <span className="flex items-center gap-1">
                     <Zap className="size-3 text-primary" />
                     {totalPoints(filteredBacklog)} pts
@@ -466,7 +466,7 @@ export function SprintPlanningClient({
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                     placeholder="Search…"
-                    className="h-7 pl-8 text-xs"
+                    className="h-7 pl-8 text-sm"
                   />
                   {search && (
                     <button onClick={() => setSearch("")}
@@ -477,14 +477,14 @@ export function SprintPlanningClient({
                 </div>
 
                 <Select value={filterPriority} onValueChange={setFilterPriority}>
-                  <SelectTrigger className={cn("h-7 w-28 text-xs", filterPriority !== "all" && "border-primary text-primary")}>
+                  <SelectTrigger className={cn("h-7 w-28 text-sm", filterPriority !== "all" && "border-primary text-primary")}>
                     <SelectValue placeholder="Priority" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All priorities</SelectItem>
                     {ISSUE_PRIORITIES.map(({ value, label, icon: Icon, color }) => (
                       <SelectItem key={value} value={value}>
-                        <span className="flex items-center gap-2 text-xs">
+                        <span className="flex items-center gap-2 text-sm">
                           <Icon className={cn("size-3.5", color)} />{label}
                         </span>
                       </SelectItem>
@@ -524,7 +524,7 @@ export function SprintPlanningClient({
                   <p className="text-sm font-medium text-foreground">
                     {hasFilters ? "No issues match filters" : "Backlog is empty"}
                   </p>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-sm text-muted-foreground">
                     {hasFilters ? "Try clearing filters" : "All issues are in sprints"}
                   </p>
                 </div>
@@ -569,7 +569,7 @@ export function SprintPlanningClient({
                   <Target className="size-7 text-muted-foreground/40" />
                 </div>
                 <p className="text-sm font-medium text-foreground">No active or planned sprints</p>
-                <p className="text-xs text-muted-foreground">Create a sprint first to start planning.</p>
+                <p className="text-sm text-muted-foreground">Create a sprint first to start planning.</p>
                 <Button variant="outline" size="sm" asChild>
                   <a href={`/workspace/${workspaceSlug}/projects/${project.key}/sprints`}>
                     <Plus className="mr-1.5 size-3.5" />Go to Sprints
@@ -601,7 +601,7 @@ export function SprintPlanningClient({
                         </h2>
                       </div>
                       {selectedSprint.goal && (
-                        <p className="mt-0.5 truncate text-xs text-muted-foreground">
+                        <p className="mt-0.5 truncate text-sm text-muted-foreground">
                           {selectedSprint.goal}
                         </p>
                       )}
@@ -612,7 +612,7 @@ export function SprintPlanningClient({
                         </div>
                       )}
                     </div>
-                    <div className="flex shrink-0 flex-col items-end gap-1 text-xs text-muted-foreground">
+                    <div className="flex shrink-0 flex-col items-end gap-1 text-sm text-muted-foreground">
                       <span className="flex items-center gap-1">
                         <Layers className="size-3.5" />
                         <strong className="text-foreground">{selectedSprint.issues.length}</strong> issues
@@ -688,7 +688,7 @@ export function SprintPlanningClient({
                     <div className="flex flex-col items-center gap-2 py-16 text-center">
                       <Target className="size-8 text-muted-foreground/30" />
                       <p className="text-sm font-medium text-foreground">Drop issues here</p>
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-sm text-muted-foreground">
                         Drag from the backlog or click the → button
                       </p>
                     </div>

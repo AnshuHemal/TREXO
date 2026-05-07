@@ -179,7 +179,7 @@ function IssueRowItem({
       {visibleColumns.priority && <PriorityIcon className={cn("size-3.5 shrink-0", priority.color)} />}
       {visibleColumns.type     && <TypeIcon     className={cn("size-3.5 shrink-0", type.color)} />}
 
-      <span className="w-16 shrink-0 font-mono text-xs text-muted-foreground">
+      <span className="w-16 shrink-0 font-mono text-sm text-muted-foreground">
         {projectKey}-{issue.key}
       </span>
 
@@ -212,7 +212,7 @@ function IssueRowItem({
 
       <div className="flex shrink-0 items-center gap-1.5" onClick={onClick}>
         <StatusIcon className={cn("size-3.5", status.color)} />
-        <span className="hidden text-xs text-muted-foreground sm:block">{status.label}</span>
+        <span className="hidden text-sm text-muted-foreground sm:block">{status.label}</span>
       </div>
 
       {/* Blocked badge */}
@@ -224,7 +224,7 @@ function IssueRowItem({
       )}
 
       {issue.commentCount > 0 && (
-        <div className="flex shrink-0 items-center gap-1 text-xs text-muted-foreground" onClick={onClick}>
+        <div className="flex shrink-0 items-center gap-1 text-sm text-muted-foreground" onClick={onClick}>
           <MessageSquare className="size-3.5" />
           {issue.commentCount}
         </div>
@@ -261,13 +261,13 @@ function IssueRowItem({
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-44">
-                <DropdownMenuLabel className="text-xs text-muted-foreground">Add to sprint</DropdownMenuLabel>
+                <DropdownMenuLabel className="text-sm text-muted-foreground">Add to sprint</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 {sprints.map((s) => (
                   <DropdownMenuItem
                     key={s.id}
                     onClick={() => onAddToSprint?.(issue.id, s.id)}
-                    className="text-xs"
+                    className="text-sm"
                   >
                     <span className={cn(
                       "mr-1.5 size-1.5 rounded-full",
@@ -371,7 +371,7 @@ function GroupSection({
               <ChevronDown className="size-4 text-muted-foreground" />
             </motion.span>
             {label}
-            <span className="text-xs font-normal text-muted-foreground">({issues.length})</span>
+            <span className="text-sm font-normal text-muted-foreground">({issues.length})</span>
           </button>
         </div>
       )}
@@ -440,7 +440,7 @@ function GroupSection({
               <button
                 type="button"
                 onClick={() => { setIsCreating(true); setTimeout(() => inputRef.current?.focus(), 50); }}
-                className="flex items-center gap-1.5 rounded-md px-4 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-accent/40 hover:text-foreground"
+                className="flex items-center gap-1.5 rounded-md px-4 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-accent/40 hover:text-foreground"
               >
                 <Plus className="size-3.5" />
                 Add issue
@@ -478,7 +478,7 @@ function BulkActionBar({
     >
       {/* Count badge */}
       <div className="flex items-center gap-2">
-        <span className="flex h-6 min-w-6 items-center justify-center rounded-full bg-primary px-2 text-xs font-bold text-primary-foreground">
+        <span className="flex h-6 min-w-6 items-center justify-center rounded-full bg-primary px-2 text-sm font-bold text-primary-foreground">
           {selectedCount}
         </span>
         <span className="text-sm font-medium text-foreground">
@@ -490,13 +490,13 @@ function BulkActionBar({
 
       {/* Status */}
       <Select onValueChange={(v) => onBulkUpdate("status", v)} disabled={isPending}>
-        <SelectTrigger className="h-7 w-32 text-xs">
+        <SelectTrigger className="h-7 w-32 text-sm">
           <SelectValue placeholder="Set status" />
         </SelectTrigger>
         <SelectContent>
           {ISSUE_STATUSES.map(({ value, label, icon: Icon, color }) => (
             <SelectItem key={value} value={value}>
-              <span className="flex items-center gap-2 text-xs">
+              <span className="flex items-center gap-2 text-sm">
                 <Icon className={cn("size-3.5", color)} />{label}
               </span>
             </SelectItem>
@@ -506,13 +506,13 @@ function BulkActionBar({
 
       {/* Priority */}
       <Select onValueChange={(v) => onBulkUpdate("priority", v)} disabled={isPending}>
-        <SelectTrigger className="h-7 w-32 text-xs">
+        <SelectTrigger className="h-7 w-32 text-sm">
           <SelectValue placeholder="Set priority" />
         </SelectTrigger>
         <SelectContent>
           {ISSUE_PRIORITIES.map(({ value, label, icon: Icon, color }) => (
             <SelectItem key={value} value={value}>
-              <span className="flex items-center gap-2 text-xs">
+              <span className="flex items-center gap-2 text-sm">
                 <Icon className={cn("size-3.5", color)} />{label}
               </span>
             </SelectItem>
@@ -522,14 +522,14 @@ function BulkActionBar({
 
       {/* Assignee */}
       <Select onValueChange={(v) => onBulkUpdate("assigneeId", v === "none" ? null : v)} disabled={isPending}>
-        <SelectTrigger className="h-7 w-36 text-xs">
+        <SelectTrigger className="h-7 w-36 text-sm">
           <SelectValue placeholder="Assign to…" />
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="none">Unassigned</SelectItem>
           {members.map((m) => (
             <SelectItem key={m.id} value={m.id}>
-              <span className="flex items-center gap-2 text-xs">
+              <span className="flex items-center gap-2 text-sm">
                 <Avatar className="size-4">
                   <AvatarImage src={m.image ?? undefined} />
                   <AvatarFallback className="text-[8px]">{getInitials(m.name)}</AvatarFallback>
@@ -544,16 +544,16 @@ function BulkActionBar({
       {/* Move to sprint */}
       {sprints.length > 0 && (
         <Select onValueChange={(v) => onBulkSprint(v === "backlog" ? null : v)} disabled={isPending}>
-          <SelectTrigger className="h-7 w-36 text-xs">
+          <SelectTrigger className="h-7 w-36 text-sm">
             <SelectValue placeholder="Move to sprint…" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="backlog">
-              <span className="text-xs text-muted-foreground">Remove from sprint</span>
+              <span className="text-sm text-muted-foreground">Remove from sprint</span>
             </SelectItem>
             {sprints.map((s) => (
               <SelectItem key={s.id} value={s.id}>
-                <span className="flex items-center gap-2 text-xs">
+                <span className="flex items-center gap-2 text-sm">
                   <span className={cn(
                     "size-1.5 rounded-full",
                     s.status === "ACTIVE" ? "bg-primary" : "bg-muted-foreground",
@@ -578,7 +578,7 @@ function BulkActionBar({
             <Button
               variant="ghost"
               size="sm"
-              className="h-7 gap-1.5 px-2 text-xs text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+              className="h-7 gap-1.5 px-2 text-sm text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
               disabled={isPending}
             >
               <Trash2 className="size-3.5" />
@@ -605,7 +605,7 @@ function BulkActionBar({
         <Button
           variant="ghost"
           size="sm"
-          className="h-7 gap-1 px-2 text-xs text-muted-foreground hover:text-foreground"
+          className="h-7 gap-1 px-2 text-sm text-muted-foreground hover:text-foreground"
           onClick={onClear}
         >
           <X className="size-3.5" />
@@ -633,7 +633,7 @@ function ActiveFilterBanner({
     >
       <div className="flex flex-1 items-center gap-2">
         <div className="size-1.5 rounded-full bg-primary animate-pulse" />
-        <span className="text-xs font-medium text-primary">
+        <span className="text-sm font-medium text-primary">
           Active view: <span className="font-semibold">{filterName}</span>
         </span>
         {isShared && (
@@ -645,7 +645,7 @@ function ActiveFilterBanner({
       <Button
         variant="ghost"
         size="sm"
-        className="h-6 gap-1 px-2 text-xs text-primary/70 hover:text-primary hover:bg-primary/10"
+        className="h-6 gap-1 px-2 text-sm text-primary/70 hover:text-primary hover:bg-primary/10"
         onClick={onClear}
       >
         <X className="size-3" />
@@ -996,7 +996,7 @@ export function BacklogClient({
 
           {/* Group by */}
           <Select value={groupBy} onValueChange={(v) => { setGroupBy(v as GroupBy); setActiveFilterId(null); }}>
-            <SelectTrigger className={cn("h-8 w-auto min-w-[10rem] text-xs", groupBy !== "none" && "border-primary text-primary")}>
+            <SelectTrigger className={cn("h-8 w-auto min-w-[10rem] text-sm", groupBy !== "none" && "border-primary text-primary")}>
               <Layers className="mr-1.5 size-3.5" />
               <SelectValue />
             </SelectTrigger>
@@ -1011,12 +1011,12 @@ export function BacklogClient({
           {/* Sort */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className={cn("h-8 gap-1.5 text-xs", sortKey !== "default" && "border-primary text-primary")}>
+              <Button variant="outline" size="sm" className={cn("h-8 gap-1.5 text-sm", sortKey !== "default" && "border-primary text-primary")}>
                 <ArrowUpDown className="size-3.5" />Sort
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start" className="w-44">
-              <DropdownMenuLabel className="text-xs text-muted-foreground">Sort by</DropdownMenuLabel>
+              <DropdownMenuLabel className="text-sm text-muted-foreground">Sort by</DropdownMenuLabel>
               <DropdownMenuSeparator />
               {[
                 { key: "default",   label: "Default" },
@@ -1029,7 +1029,7 @@ export function BacklogClient({
                 <DropdownMenuItem
                   key={key}
                   onClick={() => { setSortKey(key as SortKey); setActiveFilterId(null); }}
-                  className={cn("text-xs", sortKey === key && "text-primary font-medium")}
+                  className={cn("text-sm", sortKey === key && "text-primary font-medium")}
                 >
                   {label}{sortKey === key && <span className="ml-auto">✓</span>}
                 </DropdownMenuItem>
@@ -1039,7 +1039,7 @@ export function BacklogClient({
 
           {/* Due date filter */}
           <Select value={dueDateFilter} onValueChange={(v) => { setDueDateFilter(v as DueDateFilter); setActiveFilterId(null); }}>
-            <SelectTrigger className={cn("h-8 w-36 text-xs", dueDateFilter !== "all" && "border-primary text-primary")}>
+            <SelectTrigger className={cn("h-8 w-36 text-sm", dueDateFilter !== "all" && "border-primary text-primary")}>
               <CalendarDays className="mr-1.5 size-3.5" />
               <SelectValue />
             </SelectTrigger>
@@ -1054,18 +1054,18 @@ export function BacklogClient({
           {/* Column visibility */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs">
+              <Button variant="outline" size="sm" className="h-8 gap-1.5 text-sm">
                 <Eye className="size-3.5" />Columns
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start" className="w-40">
-              <DropdownMenuLabel className="text-xs text-muted-foreground">Show columns</DropdownMenuLabel>
+              <DropdownMenuLabel className="text-sm text-muted-foreground">Show columns</DropdownMenuLabel>
               <DropdownMenuSeparator />
               {(["type", "priority", "assignee", "dueDate"] as const).map((col) => (
                 <DropdownMenuItem
                   key={col}
                   onClick={() => setVisibleColumns((prev) => ({ ...prev, [col]: !prev[col] }))}
-                  className="flex items-center justify-between text-xs"
+                  className="flex items-center justify-between text-sm"
                 >
                   {col === "dueDate" ? "Due date" : col.charAt(0).toUpperCase() + col.slice(1)}
                   {visibleColumns[col]
@@ -1080,7 +1080,7 @@ export function BacklogClient({
           {/* Epic filter */}
           {epics.length > 0 && (
             <Select value={filterEpic} onValueChange={(v) => { setFilterEpic(v); setActiveFilterId(null); }}>
-              <SelectTrigger className={cn("h-8 w-36 text-xs", filterEpic !== "all" && "border-purple-500 text-purple-600 dark:text-purple-400")}>
+              <SelectTrigger className={cn("h-8 w-36 text-sm", filterEpic !== "all" && "border-purple-500 text-purple-600 dark:text-purple-400")}>
                 <Zap className="mr-1 size-3 shrink-0 text-purple-500" />
                 <SelectValue />
               </SelectTrigger>
@@ -1089,7 +1089,7 @@ export function BacklogClient({
                 <SelectItem value="none">No epic</SelectItem>
                 {epics.map((e) => (
                   <SelectItem key={e.id} value={e.id}>
-                    <span className="flex items-center gap-1.5 text-xs">
+                    <span className="flex items-center gap-1.5 text-sm">
                       <Zap className="size-3 text-purple-500" />
                       {project.key}-{e.key} {e.title}
                     </span>
@@ -1117,7 +1117,7 @@ export function BacklogClient({
             <Button
               variant="ghost"
               size="sm"
-              className="h-8 gap-1 px-2 text-xs text-muted-foreground hover:text-foreground"
+              className="h-8 gap-1 px-2 text-sm text-muted-foreground hover:text-foreground"
               onClick={clearFilters}
             >
               <X className="size-3.5" />Clear
@@ -1203,7 +1203,7 @@ export function BacklogClient({
             <p className="text-sm font-semibold text-foreground">
               {search || hasActiveFilters ? "No issues match your filters" : "Backlog is empty"}
             </p>
-            <p className="mt-1 text-xs text-muted-foreground max-w-xs">
+            <p className="mt-1 text-sm text-muted-foreground max-w-xs">
               {search || hasActiveFilters
                 ? "Try adjusting or clearing your filters."
                 : "Add issues to the backlog to start planning your sprints."}
@@ -1227,7 +1227,7 @@ export function BacklogClient({
         ) : (
           <div className="flex flex-col gap-4">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-muted-foreground">
+              <span className="text-sm font-medium text-muted-foreground">
                 {filtered.length} {filtered.length === 1 ? "issue" : "issues"}
                 {selectedCount > 0 && ` · ${selectedCount} selected`}
               </span>

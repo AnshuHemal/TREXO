@@ -45,7 +45,7 @@ export default async function AuthLayout({
       </main>
 
       {/* Footer */}
-      <FadeIn direction="none" delay={0.35} className="relative z-10 mt-8 flex items-center gap-4 text-xs text-muted-foreground">
+      <FadeIn direction="none" delay={0.35} className="relative z-10 mt-8 flex items-center gap-4 text-sm text-muted-foreground">
         <Link href="/privacy" className="hover:text-foreground transition-colors">
           Privacy
         </Link>

@@ -34,7 +34,7 @@ export function ProjectGrid({
           <FolderKanban className="size-6 text-primary" />
         </div>
         <h3 className="mt-3 text-sm font-semibold text-foreground">No projects yet</h3>
-        <p className="mt-1 max-w-xs text-xs text-muted-foreground">
+        <p className="mt-1 max-w-xs text-sm text-muted-foreground">
           Create your first project to start tracking issues and sprints.
         </p>
         {canCreate && (
@@ -58,7 +58,7 @@ export function ProjectGrid({
               <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-sm font-bold text-primary">
                 {project.key.slice(0, 2)}
               </div>
-              <span className="rounded-md bg-muted px-2 py-0.5 text-xs font-mono font-medium text-muted-foreground">
+              <span className="rounded-md bg-muted px-2 py-0.5 text-sm font-mono font-medium text-muted-foreground">
                 {project.key}
               </span>
             </div>
@@ -72,7 +72,7 @@ export function ProjectGrid({
             ) : (
               <p className="mt-1 text-sm text-muted-foreground/50 italic">No description</p>
             )}
-            <div className="mt-4 flex items-center gap-1.5 text-xs text-muted-foreground">
+            <div className="mt-4 flex items-center gap-1.5 text-sm text-muted-foreground">
               <FolderKanban className="size-3.5" />
               <span>
                 {project._count.issues}{" "}

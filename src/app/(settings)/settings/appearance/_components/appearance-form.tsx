@@ -210,7 +210,7 @@ export function AppearanceForm({ currentTheme }: AppearanceFormProps) {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -4 }}
               transition={{ duration: 0.15 }}
-              className="mt-4 text-xs text-muted-foreground"
+              className="mt-4 text-sm text-muted-foreground"
             >
               Saving preference…
             </motion.p>
@@ -222,7 +222,7 @@ export function AppearanceForm({ currentTheme }: AppearanceFormProps) {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -4 }}
               transition={{ duration: 0.2 }}
-              className="mt-4 flex items-center gap-2 text-xs font-medium text-emerald-600 dark:text-emerald-400"
+              className="mt-4 flex items-center gap-2 text-sm font-medium text-emerald-600 dark:text-emerald-400"
             >
               <CheckCircle2 className="size-3.5" />
               Theme saved — syncs to all your devices
@@ -235,7 +235,7 @@ export function AppearanceForm({ currentTheme }: AppearanceFormProps) {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -4 }}
               transition={{ duration: 0.2 }}
-              className="mt-4 flex items-center gap-2 text-xs font-medium text-destructive"
+              className="mt-4 flex items-center gap-2 text-sm font-medium text-destructive"
             >
               <AlertCircle className="size-3.5" />
               {errorMsg ?? "Failed to save theme."}
@@ -254,7 +254,7 @@ export function AppearanceForm({ currentTheme }: AppearanceFormProps) {
         <Monitor className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
         <div>
           <p className="text-sm font-medium text-foreground">Synced across devices</p>
-          <p className="mt-0.5 text-xs text-muted-foreground">
+          <p className="mt-0.5 text-sm text-muted-foreground">
             Your theme preference is stored in your account. When you sign in on a new device,
             your chosen theme loads automatically — no need to set it again.
           </p>

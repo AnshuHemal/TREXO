@@ -113,7 +113,7 @@ function ReactionPill({
       whileHover={{ scale: 1.08 }}
       whileTap={{ scale: 0.95 }}
       className={cn(
-        "flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-medium transition-all",
+        "flex items-center gap-1 rounded-full border px-2 py-0.5 text-sm font-medium transition-all",
         "disabled:cursor-not-allowed disabled:opacity-60",
         hasReacted
           ? "border-primary/40 bg-primary/10 text-primary"
@@ -264,7 +264,7 @@ export function CommentEntry({
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <span className="text-sm font-semibold text-foreground">{comment.author.name}</span>
-            <span className="text-xs text-muted-foreground/60">{formatRelative(comment.createdAt)}</span>
+            <span className="text-sm text-muted-foreground/60">{formatRelative(comment.createdAt)}</span>
             {isEdited && (
               <span className="text-[10px] text-muted-foreground/40">(edited)</span>
             )}
@@ -347,7 +347,7 @@ export function CommentEntry({
             />
             <div className="flex items-center gap-2">
               <Button
-                size="sm" className="h-7 px-2.5 text-xs"
+                size="sm" className="h-7 px-2.5 text-sm"
                 onClick={handleSaveEdit}
                 disabled={isPending || !editBody.trim()}
               >
@@ -357,7 +357,7 @@ export function CommentEntry({
                 }
               </Button>
               <Button
-                size="sm" variant="ghost" className="h-7 px-2.5 text-xs"
+                size="sm" variant="ghost" className="h-7 px-2.5 text-sm"
                 onClick={() => { setIsEditing(false); setEditBody(comment.body); }}
               >
                 Cancel

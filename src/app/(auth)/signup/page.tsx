@@ -40,7 +40,7 @@ export default function SignupPage() {
         {/* Divider */}
         <FadeIn direction="none" delay={0.15} className="my-6 flex items-center gap-3">
           <Separator className="flex-1" />
-          <span className="text-xs text-muted-foreground">or</span>
+          <span className="text-sm text-muted-foreground">or</span>
           <Separator className="flex-1" />
         </FadeIn>
 
@@ -51,7 +51,7 @@ export default function SignupPage() {
 
         {/* Terms */}
         <FadeIn direction="none" delay={0.25}>
-          <p className="mt-5 text-center text-xs text-muted-foreground">
+          <p className="mt-5 text-center text-sm text-muted-foreground">
             By signing up you agree to our{" "}
             <Link href="/terms" className="underline underline-offset-4 hover:text-foreground transition-colors">
               Terms

@@ -99,7 +99,7 @@ export function ReconnectBanner({ show }: ReconnectBannerProps) {
         >
           <div className="flex items-center gap-2.5 rounded-full border border-amber-200 bg-amber-50 px-4 py-2 shadow-lg dark:border-amber-800/50 dark:bg-amber-950/80">
             <WifiOff className="size-3.5 text-amber-600 dark:text-amber-400" />
-            <span className="text-xs font-medium text-amber-700 dark:text-amber-300">
+            <span className="text-sm font-medium text-amber-700 dark:text-amber-300">
               Connection lost — reconnecting…
             </span>
             <motion.div
@@ -130,7 +130,7 @@ export function LiveUpdateToast({ message, show }: LiveUpdateToastProps) {
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: 8, scale: 0.95 }}
           transition={{ duration: 0.2 }}
-          className="flex items-center gap-2 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2 text-xs font-medium text-primary shadow-sm"
+          className="flex items-center gap-2 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2 text-sm font-medium text-primary shadow-sm"
         >
           <Wifi className="size-3.5 shrink-0" />
           {message}

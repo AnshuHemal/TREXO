@@ -96,7 +96,7 @@ function LogEntryRow({
                 value={timeInput}
                 onChange={(e) => { setTimeInput(e.target.value); setError(null); }}
                 placeholder="e.g. 1h 30m"
-                className="h-7 w-28 text-xs"
+                className="h-7 w-28 text-sm"
                 autoFocus
                 onKeyDown={(e) => { if (e.key === "Enter") handleSave(); if (e.key === "Escape") setIsEditing(false); }}
               />
@@ -104,15 +104,15 @@ function LogEntryRow({
                 value={desc}
                 onChange={(e) => setDesc(e.target.value)}
                 placeholder="What did you work on? (optional)"
-                className="h-7 flex-1 text-xs"
+                className="h-7 flex-1 text-sm"
               />
             </div>
-            {error && <p className="text-xs text-destructive">{error}</p>}
+            {error && <p className="text-sm text-destructive">{error}</p>}
             <div className="flex items-center gap-1.5">
-              <Button size="sm" className="h-6 px-2 text-xs" onClick={handleSave} disabled={isPending}>
+              <Button size="sm" className="h-6 px-2 text-sm" onClick={handleSave} disabled={isPending}>
                 {isPending ? <Loader2 className="size-3 animate-spin" /> : <><Check className="mr-1 size-3" />Save</>}
               </Button>
-              <Button size="sm" variant="ghost" className="h-6 px-2 text-xs" onClick={() => setIsEditing(false)}>
+              <Button size="sm" variant="ghost" className="h-6 px-2 text-sm" onClick={() => setIsEditing(false)}>
                 Cancel
               </Button>
             </div>
@@ -120,12 +120,12 @@ function LogEntryRow({
         ) : (
           <>
             <div className="flex items-center gap-2">
-              <span className="text-xs font-semibold text-foreground">{formatMinutes(log.minutes)}</span>
-              <span className="text-xs text-muted-foreground">by {log.user.name}</span>
-              <span className="text-xs text-muted-foreground/60">{formatDate(log.loggedAt)}</span>
+              <span className="text-sm font-semibold text-foreground">{formatMinutes(log.minutes)}</span>
+              <span className="text-sm text-muted-foreground">by {log.user.name}</span>
+              <span className="text-sm text-muted-foreground/60">{formatDate(log.loggedAt)}</span>
             </div>
             {log.description && (
-              <p className="text-xs text-muted-foreground">{log.description}</p>
+              <p className="text-sm text-muted-foreground">{log.description}</p>
             )}
           </>
         )}
@@ -241,17 +241,17 @@ function LogTimeForm({
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="mb-2 flex items-center gap-1.5 text-xs text-destructive"
+          className="mb-2 flex items-center gap-1.5 text-sm text-destructive"
         >
           <AlertCircle className="size-3.5" />{error}
         </motion.p>
       )}
 
       <div className="flex items-center gap-2">
-        <Button type="submit" size="sm" className="h-7 gap-1.5 px-3 text-xs" disabled={!timeInput.trim() || isPending}>
+        <Button type="submit" size="sm" className="h-7 gap-1.5 px-3 text-sm" disabled={!timeInput.trim() || isPending}>
           {isPending ? <Loader2 className="size-3.5 animate-spin" /> : <><Timer className="size-3.5" />Log time</>}
         </Button>
-        <Button type="button" variant="ghost" size="sm" className="h-7 px-2 text-xs" onClick={onCancel}>
+        <Button type="button" variant="ghost" size="sm" className="h-7 px-2 text-sm" onClick={onCancel}>
           Cancel
         </Button>
         <span className="ml-auto text-[10px] text-muted-foreground">
@@ -393,11 +393,11 @@ export function TimeLogSection({
 
               {/* Log entries */}
               {isLoading ? (
-                <div className="flex items-center gap-2 py-2 text-xs text-muted-foreground">
+                <div className="flex items-center gap-2 py-2 text-sm text-muted-foreground">
                   <Loader2 className="size-3.5 animate-spin" />Loading…
                 </div>
               ) : logs.length === 0 && !isAdding ? (
-                <p className="text-xs text-muted-foreground">No time logged yet.</p>
+                <p className="text-sm text-muted-foreground">No time logged yet.</p>
               ) : (
                 <div className="flex flex-col gap-1.5">
                   <AnimatePresence mode="popLayout">

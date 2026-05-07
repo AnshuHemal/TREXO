@@ -54,11 +54,11 @@ function StatCard({ label, value, icon: Icon, sub }: {
   return (
     <motion.div variants={fadeUpVariants} className="rounded-xl border border-border bg-card p-5">
       <div className="flex items-center justify-between">
-        <p className="text-xs font-medium text-muted-foreground">{label}</p>
+        <p className="text-sm font-medium text-muted-foreground">{label}</p>
         <Icon className="size-4 text-muted-foreground" />
       </div>
       <p className="mt-3 text-2xl font-bold tracking-tight text-foreground">{value}</p>
-      {sub && <p className="mt-0.5 text-xs text-muted-foreground">{sub}</p>}
+      {sub && <p className="mt-0.5 text-sm text-muted-foreground">{sub}</p>}
     </motion.div>
   );
 }
@@ -108,14 +108,14 @@ export function TimeReportClient({ logs, members, projectKey }: TimeReportClient
         <Filter className="size-3.5 shrink-0 text-muted-foreground" />
 
         <Select value={filterMember} onValueChange={setFilterMember}>
-          <SelectTrigger className={cn("h-8 w-auto min-w-[9rem] text-xs", filterMember !== "all" && "border-primary text-primary")}>
+          <SelectTrigger className={cn("h-8 w-auto min-w-[9rem] text-sm", filterMember !== "all" && "border-primary text-primary")}>
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All members</SelectItem>
             {members.map((m) => (
               <SelectItem key={m.id} value={m.id}>
-                <span className="flex items-center gap-2 text-xs">
+                <span className="flex items-center gap-2 text-sm">
                   <Avatar className="size-4">
                     <AvatarImage src={m.image ?? undefined} />
                     <AvatarFallback className="text-[8px]">{getInitials(m.name)}</AvatarFallback>
@@ -128,7 +128,7 @@ export function TimeReportClient({ logs, members, projectKey }: TimeReportClient
         </Select>
 
         <Select value={filterPeriod} onValueChange={setFilterPeriod}>
-          <SelectTrigger className={cn("h-8 w-auto min-w-[8rem] text-xs", filterPeriod !== "all" && "border-primary text-primary")}>
+          <SelectTrigger className={cn("h-8 w-auto min-w-[8rem] text-sm", filterPeriod !== "all" && "border-primary text-primary")}>
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -139,7 +139,7 @@ export function TimeReportClient({ logs, members, projectKey }: TimeReportClient
         </Select>
 
         {hasFilters && (
-          <Button variant="ghost" size="sm" className="h-8 gap-1 px-2 text-xs text-muted-foreground"
+          <Button variant="ghost" size="sm" className="h-8 gap-1 px-2 text-sm text-muted-foreground"
             onClick={() => { setFilterMember("all"); setFilterPeriod("all"); }}>
             <X className="size-3.5" />Clear
           </Button>
@@ -207,7 +207,7 @@ export function TimeReportClient({ logs, members, projectKey }: TimeReportClient
         <div className="border-b border-border px-5 py-3.5">
           <p className="text-sm font-semibold text-foreground">
             All entries
-            <span className="ml-2 text-xs font-normal text-muted-foreground">({filtered.length})</span>
+            <span className="ml-2 text-sm font-normal text-muted-foreground">({filtered.length})</span>
           </p>
         </div>
 
@@ -215,7 +215,7 @@ export function TimeReportClient({ logs, members, projectKey }: TimeReportClient
           <div className="flex flex-col items-center justify-center gap-2 py-16 text-center">
             <Clock className="size-10 text-muted-foreground/30" />
             <p className="text-sm text-muted-foreground">No time logged yet.</p>
-            <p className="text-xs text-muted-foreground/60">
+            <p className="text-sm text-muted-foreground/60">
               Open any issue and click the + next to &ldquo;Time tracking&rdquo; to log time.
             </p>
           </div>
@@ -236,17 +236,17 @@ export function TimeReportClient({ logs, members, projectKey }: TimeReportClient
 
                 <div className="flex flex-1 flex-col gap-0.5 min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className="font-mono text-xs text-muted-foreground shrink-0">
+                    <span className="font-mono text-sm text-muted-foreground shrink-0">
                       {projectKey}-{log.issue.key}
                     </span>
                     <span className="truncate text-sm text-foreground">{log.issue.title}</span>
                   </div>
                   {log.description && (
-                    <p className="truncate text-xs text-muted-foreground">{log.description}</p>
+                    <p className="truncate text-sm text-muted-foreground">{log.description}</p>
                   )}
                 </div>
 
-                <div className="flex shrink-0 items-center gap-3 text-xs text-muted-foreground">
+                <div className="flex shrink-0 items-center gap-3 text-sm text-muted-foreground">
                   <span className="flex items-center gap-1">
                     <CalendarDays className="size-3" />
                     {formatDate(log.loggedAt)}

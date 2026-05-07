@@ -96,7 +96,7 @@ export function ActivityFeedFull({ activities, workspaceSlug }: ActivityFeedFull
         <div key={label}>
           {/* Day label */}
           <div className="mb-3 flex items-center gap-3">
-            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            <span className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
               {label}
             </span>
             <div className="flex-1 h-px bg-border" />
@@ -127,11 +127,11 @@ export function ActivityFeedFull({ activities, workspaceSlug }: ActivityFeedFull
 
                   {a.fromValue && a.toValue && (
                     <>
-                      <span className="rounded bg-muted px-1.5 py-0.5 text-xs font-medium text-muted-foreground">
+                      <span className="rounded bg-muted px-1.5 py-0.5 text-sm font-medium text-muted-foreground">
                         {formatActivityValue(a.fromValue)}
                       </span>
                       <ArrowRight className="size-3 text-muted-foreground" />
-                      <span className="rounded bg-muted px-1.5 py-0.5 text-xs font-medium text-muted-foreground">
+                      <span className="rounded bg-muted px-1.5 py-0.5 text-sm font-medium text-muted-foreground">
                         {formatActivityValue(a.toValue)}
                       </span>
                     </>
@@ -140,7 +140,7 @@ export function ActivityFeedFull({ activities, workspaceSlug }: ActivityFeedFull
                   {a.issue && (
                     <span className="text-sm text-muted-foreground">
                       on{" "}
-                      <span className="font-mono text-xs text-foreground">
+                      <span className="font-mono text-sm text-foreground">
                         {a.issue.project.key}-{a.issue.key}
                       </span>
                       {" "}

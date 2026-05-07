@@ -153,7 +153,7 @@ function ActivityRow({
       {/* Actor avatar */}
       <Avatar className="mt-0.5 size-8 shrink-0 ring-2 ring-background">
         <AvatarImage src={entry.actor.image ?? undefined} />
-        <AvatarFallback className="text-xs font-semibold">
+        <AvatarFallback className="text-sm font-semibold">
           {getInitials(entry.actor.name)}
         </AvatarFallback>
       </Avatar>
@@ -195,7 +195,7 @@ function ActivityRow({
         {entry.issue && (
           <a
             href={`/workspace/${workspaceSlug}/projects/${entry.issue.project.key}/backlog`}
-            className="flex items-center gap-1.5 text-xs text-muted-foreground transition-colors hover:text-primary"
+            className="flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-primary"
           >
             <div className="flex size-4 shrink-0 items-center justify-center rounded bg-primary/10 text-[9px] font-bold text-primary">
               {entry.issue.project.key.charAt(0)}
@@ -250,7 +250,7 @@ function FilterBar({
     <FadeIn delay={0.05}>
       <div className="rounded-xl border border-border bg-card p-4">
         <div className="flex flex-wrap items-center gap-3">
-          <div className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
+          <div className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground">
             <Filter className="size-3.5" />
             Filters
           </div>
@@ -264,7 +264,7 @@ function FilterBar({
           >
             <SelectTrigger
               className={cn(
-                "h-8 w-40 text-xs",
+                "h-8 w-40 text-sm",
                 activeActorId && "border-primary text-primary",
               )}
             >
@@ -274,7 +274,7 @@ function FilterBar({
               <SelectItem value="all">All members</SelectItem>
               {members.map((m) => (
                 <SelectItem key={m.id} value={m.id}>
-                  <span className="flex items-center gap-2 text-xs">
+                  <span className="flex items-center gap-2 text-sm">
                     <Avatar className="size-4">
                       <AvatarImage src={m.image ?? undefined} />
                       <AvatarFallback className="text-[8px]">{getInitials(m.name)}</AvatarFallback>
@@ -293,7 +293,7 @@ function FilterBar({
           >
             <SelectTrigger
               className={cn(
-                "h-8 w-40 text-xs",
+                "h-8 w-40 text-sm",
                 activeProjectId && "border-primary text-primary",
               )}
             >
@@ -303,7 +303,7 @@ function FilterBar({
               <SelectItem value="all">All projects</SelectItem>
               {projects.map((p) => (
                 <SelectItem key={p.id} value={p.id}>
-                  <span className="flex items-center gap-2 text-xs">
+                  <span className="flex items-center gap-2 text-sm">
                     <div className="flex size-4 shrink-0 items-center justify-center rounded bg-primary/10 text-[9px] font-bold text-primary">
                       {p.key.charAt(0)}
                     </div>
@@ -321,7 +321,7 @@ function FilterBar({
           >
             <SelectTrigger
               className={cn(
-                "h-8 w-44 text-xs",
+                "h-8 w-44 text-sm",
                 activeType && "border-primary text-primary",
               )}
             >
@@ -331,7 +331,7 @@ function FilterBar({
               <SelectItem value="all">All actions</SelectItem>
               {ACTIVITY_TYPES.map(({ value, label, icon: Icon, color }) => (
                 <SelectItem key={value} value={value}>
-                  <span className="flex items-center gap-2 text-xs">
+                  <span className="flex items-center gap-2 text-sm">
                     <Icon className={cn("size-3.5", color)} />
                     {label}
                   </span>
@@ -347,18 +347,18 @@ function FilterBar({
               value={activeFrom ?? ""}
               onChange={(e) => onFilter("from", e.target.value || null)}
               className={cn(
-                "h-8 w-36 text-xs",
+                "h-8 w-36 text-sm",
                 activeFrom && "border-primary text-primary",
               )}
               placeholder="From"
             />
-            <span className="text-xs text-muted-foreground">–</span>
+            <span className="text-sm text-muted-foreground">–</span>
             <Input
               type="date"
               value={activeTo ?? ""}
               onChange={(e) => onFilter("to", e.target.value || null)}
               className={cn(
-                "h-8 w-36 text-xs",
+                "h-8 w-36 text-sm",
                 activeTo && "border-primary text-primary",
               )}
               placeholder="To"
@@ -377,7 +377,7 @@ function FilterBar({
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="h-8 gap-1.5 px-2 text-xs text-muted-foreground hover:text-foreground"
+                  className="h-8 gap-1.5 px-2 text-sm text-muted-foreground hover:text-foreground"
                   onClick={onClear}
                 >
                   <RotateCcw className="size-3.5" />
@@ -494,7 +494,7 @@ function Pagination({
   return (
     <FadeIn delay={0.1}>
       <div className="flex items-center justify-between rounded-xl border border-border bg-card px-5 py-3">
-        <span className="text-xs text-muted-foreground">
+        <span className="text-sm text-muted-foreground">
           Showing {start.toLocaleString()}–{end.toLocaleString()} of {totalCount.toLocaleString()} events
         </span>
 
@@ -512,7 +512,7 @@ function Pagination({
 
           {pages.map((p, i) =>
             p === "…" ? (
-              <span key={`ellipsis-${i}`} className="px-1 text-xs text-muted-foreground">
+              <span key={`ellipsis-${i}`} className="px-1 text-sm text-muted-foreground">
                 …
               </span>
             ) : (
@@ -520,7 +520,7 @@ function Pagination({
                 key={p}
                 variant={p === currentPage ? "default" : "outline"}
                 size="icon"
-                className="size-8 text-xs"
+                className="size-8 text-sm"
                 onClick={() => onPage(p as number)}
                 aria-label={`Page ${p}`}
                 aria-current={p === currentPage ? "page" : undefined}

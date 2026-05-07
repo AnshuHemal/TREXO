@@ -66,7 +66,7 @@ export function DangerZone({ workspaceId, workspaceName }: DangerZoneProps) {
     <div className="flex items-center justify-between">
       <div>
         <p className="text-sm font-medium text-foreground">Delete workspace</p>
-        <p className="text-xs text-muted-foreground">
+        <p className="text-sm text-muted-foreground">
           Permanently delete this workspace and all its data. This cannot be undone.
         </p>
       </div>

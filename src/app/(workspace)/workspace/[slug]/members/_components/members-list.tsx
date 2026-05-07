@@ -102,7 +102,7 @@ function MemberRow({
           src={member.user.image ?? undefined}
           alt={member.user.name}
         />
-        <AvatarFallback className="text-xs font-semibold">
+        <AvatarFallback className="text-sm font-semibold">
           {getInitials(member.user.name)}
         </AvatarFallback>
       </Avatar>
@@ -112,10 +112,10 @@ function MemberRow({
         <span className="truncate text-sm font-medium text-foreground">
           {member.user.name}
           {isCurrentUser && (
-            <span className="ml-1.5 text-xs text-muted-foreground">(you)</span>
+            <span className="ml-1.5 text-sm text-muted-foreground">(you)</span>
           )}
         </span>
-        <span className="truncate text-xs text-muted-foreground">
+        <span className="truncate text-sm text-muted-foreground">
           {member.user.email}
         </span>
       </div>
@@ -139,7 +139,7 @@ function MemberRow({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-44">
-            <DropdownMenuLabel className="text-xs font-medium text-muted-foreground">
+            <DropdownMenuLabel className="text-sm font-medium text-muted-foreground">
               Change role
             </DropdownMenuLabel>
             {ASSIGNABLE_ROLES.filter((r) => r !== member.role).map((role) => (

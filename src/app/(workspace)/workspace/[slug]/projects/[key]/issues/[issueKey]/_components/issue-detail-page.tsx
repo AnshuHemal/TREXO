@@ -131,7 +131,7 @@ function EstimateField({
           disabled={disabled}
           onClick={() => onChange(value === opt.value ? null : opt.value)}
           className={cn(
-            "flex items-center gap-1 rounded-md border px-2 py-1 text-xs font-medium transition-colors disabled:opacity-50",
+            "flex items-center gap-1 rounded-md border px-2 py-1 text-sm font-medium transition-colors disabled:opacity-50",
             value === opt.value
               ? "border-primary bg-primary/10 text-primary"
               : "border-border bg-card text-muted-foreground hover:border-primary/50 hover:text-foreground",
@@ -151,7 +151,7 @@ function EstimateField({
 function SidebarField({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="flex flex-col gap-1.5">
-      <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{label}</span>
+      <span className="text-sm font-medium uppercase tracking-wide text-muted-foreground">{label}</span>
       {children}
     </div>
   );
@@ -166,7 +166,7 @@ function ActivityEntry({ activity }: { activity: ActivityItem }) {
         <AvatarImage src={activity.actor.image ?? undefined} />
         <AvatarFallback className="text-[10px]">{getInitials(activity.actor.name)}</AvatarFallback>
       </Avatar>
-      <div className="flex flex-1 flex-wrap items-baseline gap-1 text-xs text-muted-foreground min-w-0">
+      <div className="flex flex-1 flex-wrap items-baseline gap-1 text-sm text-muted-foreground min-w-0">
         <span className="font-medium text-foreground">{activity.actor.name}</span>
         <span>{formatActivityType(activity.type)}</span>
         {activity.fromValue && activity.toValue && (
@@ -385,7 +385,7 @@ export function IssueDetailPage({
           {/* Delete */}
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <Button variant="ghost" size="sm" className="h-8 gap-1.5 text-xs text-muted-foreground hover:text-destructive">
+              <Button variant="ghost" size="sm" className="h-8 gap-1.5 text-sm text-muted-foreground hover:text-destructive">
                 <Trash2 className="size-3.5" />
                 Delete
               </Button>
@@ -421,7 +421,7 @@ export function IssueDetailPage({
                   if (!typeConf) return null;
                   const Icon = typeConf.icon;
                   return (
-                    <span className={cn("flex items-center gap-1.5 rounded-md border border-border bg-muted/40 px-2 py-0.5 text-xs font-medium", typeConf.color)}>
+                    <span className={cn("flex items-center gap-1.5 rounded-md border border-border bg-muted/40 px-2 py-0.5 text-sm font-medium", typeConf.color)}>
                       <Icon className="size-3.5" />
                       {typeConf.label}
                     </span>
@@ -440,7 +440,7 @@ export function IssueDetailPage({
                       initial={{ opacity: 0, scale: 0.9 }}
                       animate={{ opacity: 1, scale: 1 }}
                       className={cn(
-                        "flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold",
+                        "flex items-center gap-1 rounded-full px-2.5 py-0.5 text-sm font-semibold",
                         overdueBadge
                           ? "bg-destructive/10 text-destructive"
                           : "bg-amber-500/10 text-amber-600 dark:text-amber-400",
@@ -493,7 +493,7 @@ export function IssueDetailPage({
                     members={members}
                   />
                   {isSavingDesc && (
-                    <span className="mt-1.5 flex items-center gap-1 text-xs text-muted-foreground">
+                    <span className="mt-1.5 flex items-center gap-1 text-sm text-muted-foreground">
                       <Loader2 className="size-3 animate-spin" /> Saving…
                     </span>
                   )}
@@ -563,7 +563,7 @@ export function IssueDetailPage({
                 <h3 className="flex items-center gap-2 text-sm font-semibold text-foreground">
                   <MessageSquare className="size-4" />
                   Activity
-                  <span className="ml-1 text-xs font-normal text-muted-foreground">
+                  <span className="ml-1 text-sm font-normal text-muted-foreground">
                     {timeline.length} {timeline.length === 1 ? "entry" : "entries"}
                   </span>
                 </h3>
@@ -618,14 +618,14 @@ export function IssueDetailPage({
                     </div>
                     <div className="flex items-center justify-end gap-2">
                       <Button
-                        type="button" variant="ghost" size="sm" className="h-7 px-2.5 text-xs"
+                        type="button" variant="ghost" size="sm" className="h-7 px-2.5 text-sm"
                         onClick={() => setCommentBody("")}
                         disabled={!commentBody.trim() || isSubmittingComment}
                       >
                         Cancel
                       </Button>
                       <Button
-                        type="submit" size="sm" className="h-7 px-2.5 text-xs"
+                        type="submit" size="sm" className="h-7 px-2.5 text-sm"
                         disabled={!commentBody.trim() || isSubmittingComment}
                       >
                         {isSubmittingComment
@@ -646,13 +646,13 @@ export function IssueDetailPage({
 
               <SidebarField label="Status">
                 <Select value={issue.status} onValueChange={(v) => handleFieldUpdate("status", v)} disabled={isPending}>
-                  <SelectTrigger className="h-8 text-xs">
+                  <SelectTrigger className="h-8 text-sm">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
                     {ISSUE_STATUSES.map(({ value, label, icon: Icon, color }) => (
                       <SelectItem key={value} value={value}>
-                        <span className="flex items-center gap-2 text-xs">
+                        <span className="flex items-center gap-2 text-sm">
                           <Icon className={cn("size-3.5", color)} />{label}
                         </span>
                       </SelectItem>
@@ -663,13 +663,13 @@ export function IssueDetailPage({
 
               <SidebarField label="Priority">
                 <Select value={issue.priority} onValueChange={(v) => handleFieldUpdate("priority", v)} disabled={isPending}>
-                  <SelectTrigger className="h-8 text-xs">
+                  <SelectTrigger className="h-8 text-sm">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
                     {ISSUE_PRIORITIES.map(({ value, label, icon: Icon, color }) => (
                       <SelectItem key={value} value={value}>
-                        <span className="flex items-center gap-2 text-xs">
+                        <span className="flex items-center gap-2 text-sm">
                           <Icon className={cn("size-3.5", color)} />{label}
                         </span>
                       </SelectItem>
@@ -680,13 +680,13 @@ export function IssueDetailPage({
 
               <SidebarField label="Type">
                 <Select value={issue.type} onValueChange={(v) => handleFieldUpdate("type", v)} disabled={isPending}>
-                  <SelectTrigger className="h-8 text-xs">
+                  <SelectTrigger className="h-8 text-sm">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
                     {ISSUE_TYPES.map(({ value, label, icon: Icon, color }) => (
                       <SelectItem key={value} value={value}>
-                        <span className="flex items-center gap-2 text-xs">
+                        <span className="flex items-center gap-2 text-sm">
                           <Icon className={cn("size-3.5", color)} />{label}
                         </span>
                       </SelectItem>
@@ -701,14 +701,14 @@ export function IssueDetailPage({
                   onValueChange={(v) => handleFieldUpdate("assigneeId", v === "none" ? null : v)}
                   disabled={isPending}
                 >
-                  <SelectTrigger className="h-8 text-xs">
+                  <SelectTrigger className="h-8 text-sm">
                     <SelectValue placeholder="Unassigned" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="none">Unassigned</SelectItem>
                     {members.map((m) => (
                       <SelectItem key={m.id} value={m.id}>
-                        <span className="flex items-center gap-2 text-xs">
+                        <span className="flex items-center gap-2 text-sm">
                           <Avatar className="size-4">
                             <AvatarImage src={m.image ?? undefined} />
                             <AvatarFallback className="text-[8px]">{getInitials(m.name)}</AvatarFallback>
@@ -760,7 +760,7 @@ export function IssueDetailPage({
                       });
                     }}
                     disabled={isPending}
-                    className="h-8 flex-1 text-xs"
+                    className="h-8 flex-1 text-sm"
                   />
                   {dueDate && (
                     <button
@@ -780,7 +780,7 @@ export function IssueDetailPage({
                   <motion.span
                     initial={{ opacity: 0, y: -4 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="flex items-center gap-1 text-xs font-semibold text-destructive"
+                    className="flex items-center gap-1 text-sm font-semibold text-destructive"
                   >
                     <CalendarDays className="size-3" />
                     {getDueDateLabel(dueDate, issue.status)}
@@ -790,7 +790,7 @@ export function IssueDetailPage({
                   <motion.span
                     initial={{ opacity: 0, y: -4 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="flex items-center gap-1 text-xs font-semibold text-amber-600 dark:text-amber-400"
+                    className="flex items-center gap-1 text-sm font-semibold text-amber-600 dark:text-amber-400"
                   >
                     <CalendarDays className="size-3" />
                     {getDueDateLabel(dueDate, issue.status)}
@@ -819,16 +819,16 @@ export function IssueDetailPage({
                     <AvatarImage src={issue.reporter.image ?? undefined} />
                     <AvatarFallback className="text-[10px]">{getInitials(issue.reporter.name)}</AvatarFallback>
                   </Avatar>
-                  <span className="text-xs text-foreground">{issue.reporter.name}</span>
+                  <span className="text-sm text-foreground">{issue.reporter.name}</span>
                 </div>
               </SidebarField>
 
               <SidebarField label="Created">
-                <span className="text-xs text-muted-foreground">{formatDate(issue.createdAt)}</span>
+                <span className="text-sm text-muted-foreground">{formatDate(issue.createdAt)}</span>
               </SidebarField>
 
               <SidebarField label="Updated">
-                <span className="text-xs text-muted-foreground">{formatDate(issue.updatedAt)}</span>
+                <span className="text-sm text-muted-foreground">{formatDate(issue.updatedAt)}</span>
               </SidebarField>
 
             </div>

@@ -145,7 +145,7 @@ function StarterTemplates({
         </div>
         <div>
           <p className="text-sm font-semibold text-foreground">Starter templates</p>
-          <p className="text-xs text-muted-foreground">Add a pre-built template to get started quickly</p>
+          <p className="text-sm text-muted-foreground">Add a pre-built template to get started quickly</p>
         </div>
       </div>
       <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
@@ -228,7 +228,7 @@ function TemplateForm({ initial, onSave, onCancel, isPending, fieldErrors, serve
           className={cn(fieldErrors.name && "border-destructive")}
         />
         {fieldErrors.name && (
-          <p className="text-xs text-destructive">{fieldErrors.name}</p>
+          <p className="text-sm text-destructive">{fieldErrors.name}</p>
         )}
       </div>
 
@@ -236,7 +236,7 @@ function TemplateForm({ initial, onSave, onCancel, isPending, fieldErrors, serve
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="tpl-prefix">
           Title prefix
-          <span className="ml-1.5 text-xs font-normal text-muted-foreground">(optional — prepended to the issue title)</span>
+          <span className="ml-1.5 text-sm font-normal text-muted-foreground">(optional — prepended to the issue title)</span>
         </Label>
         <Input
           id="tpl-prefix"
@@ -291,7 +291,7 @@ function TemplateForm({ initial, onSave, onCancel, isPending, fieldErrors, serve
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="tpl-desc">
           Description template
-          <span className="ml-1.5 text-xs font-normal text-muted-foreground">(optional — pre-fills the description field)</span>
+          <span className="ml-1.5 text-sm font-normal text-muted-foreground">(optional — pre-fills the description field)</span>
         </Label>
         <Textarea
           id="tpl-desc"
@@ -300,7 +300,7 @@ function TemplateForm({ initial, onSave, onCancel, isPending, fieldErrors, serve
           onChange={(e) => setDescription(e.target.value)}
           disabled={isPending}
           rows={5}
-          className="resize-none font-mono text-xs"
+          className="resize-none font-mono text-sm"
         />
       </div>
 
@@ -452,7 +452,7 @@ function TemplateCard({
             transition={{ duration: 0.2 }}
             className="overflow-hidden border-t border-border"
           >
-            <pre className="whitespace-pre-wrap px-4 py-3 font-mono text-xs text-muted-foreground">
+            <pre className="whitespace-pre-wrap px-4 py-3 font-mono text-sm text-muted-foreground">
               {template.description}
             </pre>
           </motion.div>

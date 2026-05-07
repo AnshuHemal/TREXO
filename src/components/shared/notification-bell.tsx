@@ -197,7 +197,7 @@ export function NotificationBell() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="h-7 gap-1.5 px-2 text-xs text-muted-foreground hover:text-foreground"
+                    className="h-7 gap-1.5 px-2 text-sm text-muted-foreground hover:text-foreground"
                     onClick={() => markRead()}
                     disabled={isLoading}
                   >
@@ -256,12 +256,12 @@ export function NotificationBell() {
                       <div className="flex flex-1 flex-col gap-0.5 min-w-0">
                         <div className="flex items-center gap-1.5">
                           <NotificationIcon type={n.type} />
-                          <p className="truncate text-xs text-foreground">
+                          <p className="truncate text-sm text-foreground">
                             {getNotificationText(n.type, n.actor.name)}
                           </p>
                         </div>
                         {n.issue && (
-                          <p className="truncate text-xs text-muted-foreground">
+                          <p className="truncate text-sm text-muted-foreground">
                             <span className="font-mono">{n.issue.project.key}-{n.issue.key}</span>
                             {" · "}
                             {n.issue.title}
@@ -280,7 +280,7 @@ export function NotificationBell() {
             {/* Footer */}
             <div className="flex items-center justify-between border-t border-border px-4 py-2.5">
               {notifications.length > 0 ? (
-                <p className="text-xs text-muted-foreground">
+                <p className="text-sm text-muted-foreground">
                   {notifications.length} notification{notifications.length !== 1 ? "s" : ""}
                 </p>
               ) : (
@@ -289,7 +289,7 @@ export function NotificationBell() {
               <button
                 type="button"
                 onClick={() => { setOpen(false); window.location.href = "/settings/notifications"; }}
-                className="flex items-center gap-1.5 text-xs text-muted-foreground transition-colors hover:text-foreground"
+                className="flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
               >
                 <Settings2 className="size-3.5" />
                 Manage preferences

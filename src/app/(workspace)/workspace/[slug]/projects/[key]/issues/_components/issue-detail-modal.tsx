@@ -181,7 +181,7 @@ function EstimateField({
             disabled={disabled}
             onClick={() => onChange(isSelected ? null : opt.value)}
             className={cn(
-              "flex items-center gap-1 rounded-md border px-2 py-1 text-xs font-medium transition-all",
+              "flex items-center gap-1 rounded-md border px-2 py-1 text-sm font-medium transition-all",
               isSelected
                 ? "border-primary bg-primary/10 text-primary"
                 : "border-border bg-muted/40 text-muted-foreground hover:border-primary/40 hover:text-foreground",
@@ -203,7 +203,7 @@ function EstimateField({
 function SidebarField({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="flex flex-col gap-1">
-      <span className="text-xs font-medium text-muted-foreground">{label}</span>
+      <span className="text-sm font-medium text-muted-foreground">{label}</span>
       {children}
     </div>
   );
@@ -222,16 +222,16 @@ function ActivityEntry({ activity }: { activity: ActivityItem }) {
         <span>{formatActivityType(activity.type)}</span>
         {activity.fromValue && activity.toValue && (
           <>
-            <span className="rounded bg-muted px-1.5 py-0.5 text-xs font-medium">
+            <span className="rounded bg-muted px-1.5 py-0.5 text-sm font-medium">
               {formatActivityValue(activity.fromValue)}
             </span>
             <span>→</span>
-            <span className="rounded bg-muted px-1.5 py-0.5 text-xs font-medium">
+            <span className="rounded bg-muted px-1.5 py-0.5 text-sm font-medium">
               {formatActivityValue(activity.toValue)}
             </span>
           </>
         )}
-        <span className="text-xs">{formatRelative(activity.createdAt)}</span>
+        <span className="text-sm">{formatRelative(activity.createdAt)}</span>
       </div>
     </div>
   );
@@ -505,7 +505,7 @@ export function IssueDetailModal({
                 <button
                   type="button"
                   onClick={() => handleOpenSubTask(issue.parent!.id)}
-                  className="font-mono text-xs text-muted-foreground hover:text-primary transition-colors"
+                  className="font-mono text-sm text-muted-foreground hover:text-primary transition-colors"
                 >
                   {issue.parent.project.key}-{issue.parent.key}
                 </button>
@@ -579,7 +579,7 @@ export function IssueDetailModal({
                 exit={{ opacity: 0, height: 0 }}
                 transition={{ duration: 0.2 }}
                 className={cn(
-                  "flex items-center gap-2 border-b px-6 py-2 text-xs font-medium",
+                  "flex items-center gap-2 border-b px-6 py-2 text-sm font-medium",
                   overdueBanner
                     ? "border-destructive/20 bg-destructive/5 text-destructive"
                     : "border-amber-500/20 bg-amber-500/5 text-amber-600 dark:text-amber-400",
@@ -634,7 +634,7 @@ export function IssueDetailModal({
                 members={members}
               />
               {isSavingDesc && (
-                <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                <span className="flex items-center gap-1 text-sm text-muted-foreground">
                   <Loader2 className="size-3 animate-spin" /> Saving…
                 </span>
               )}
@@ -688,7 +688,7 @@ export function IssueDetailModal({
               <h3 className="flex items-center gap-2 text-sm font-semibold text-foreground">
                 <MessageSquare className="size-4" />
                 Activity
-                <span className="ml-1 text-xs font-normal text-muted-foreground">
+                <span className="ml-1 text-sm font-normal text-muted-foreground">
                   {timeline.length} {timeline.length === 1 ? "entry" : "entries"}
                 </span>
               </h3>
@@ -746,7 +746,7 @@ export function IssueDetailModal({
                       type="button"
                       variant="ghost"
                       size="sm"
-                      className="h-7 px-2.5 text-xs"
+                      className="h-7 px-2.5 text-sm"
                       onClick={() => setCommentBody("")}
                       disabled={!commentBody.trim() || isSubmittingComment}
                     >
@@ -755,7 +755,7 @@ export function IssueDetailModal({
                     <Button
                       type="submit"
                       size="sm"
-                      className="h-7 px-2.5 text-xs"
+                      className="h-7 px-2.5 text-sm"
                       disabled={!commentBody.trim() || isSubmittingComment}
                     >
                       {isSubmittingComment
@@ -774,13 +774,13 @@ export function IssueDetailModal({
 
             <SidebarField label="Status">
               <Select value={issue.status} onValueChange={(v) => handleFieldUpdate("status", v)} disabled={isPending}>
-                <SelectTrigger className="h-8 text-xs">
+                <SelectTrigger className="h-8 text-sm">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   {ISSUE_STATUSES.map(({ value, label, icon: Icon, color }) => (
                     <SelectItem key={value} value={value}>
-                      <span className="flex items-center gap-2 text-xs">
+                      <span className="flex items-center gap-2 text-sm">
                         <Icon className={cn("size-3.5", color)} />{label}
                       </span>
                     </SelectItem>
@@ -791,13 +791,13 @@ export function IssueDetailModal({
 
             <SidebarField label="Priority">
               <Select value={issue.priority} onValueChange={(v) => handleFieldUpdate("priority", v)} disabled={isPending}>
-                <SelectTrigger className="h-8 text-xs">
+                <SelectTrigger className="h-8 text-sm">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   {ISSUE_PRIORITIES.map(({ value, label, icon: Icon, color }) => (
                     <SelectItem key={value} value={value}>
-                      <span className="flex items-center gap-2 text-xs">
+                      <span className="flex items-center gap-2 text-sm">
                         <Icon className={cn("size-3.5", color)} />{label}
                       </span>
                     </SelectItem>
@@ -808,13 +808,13 @@ export function IssueDetailModal({
 
             <SidebarField label="Type">
               <Select value={issue.type} onValueChange={(v) => handleFieldUpdate("type", v)} disabled={isPending}>
-                <SelectTrigger className="h-8 text-xs">
+                <SelectTrigger className="h-8 text-sm">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   {ISSUE_TYPES.map(({ value, label, icon: Icon, color }) => (
                     <SelectItem key={value} value={value}>
-                      <span className="flex items-center gap-2 text-xs">
+                      <span className="flex items-center gap-2 text-sm">
                         <Icon className={cn("size-3.5", color)} />{label}
                       </span>
                     </SelectItem>
@@ -829,14 +829,14 @@ export function IssueDetailModal({
                 onValueChange={(v) => handleFieldUpdate("assigneeId", v === "none" ? null : v)}
                 disabled={isPending}
               >
-                <SelectTrigger className="h-8 text-xs">
+                <SelectTrigger className="h-8 text-sm">
                   <SelectValue placeholder="Unassigned" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="none">Unassigned</SelectItem>
                   {members.map((m) => (
                     <SelectItem key={m.id} value={m.id}>
-                      <span className="flex items-center gap-2 text-xs">
+                      <span className="flex items-center gap-2 text-sm">
                         <Avatar className="size-4">
                           <AvatarImage src={m.image ?? undefined} />
                           <AvatarFallback className="text-[8px]">{getInitials(m.name)}</AvatarFallback>
@@ -889,7 +889,7 @@ export function IssueDetailModal({
                     });
                   }}
                   disabled={isPending}
-                  className="h-8 flex-1 text-xs"
+                  className="h-8 flex-1 text-sm"
                 />
                 {dueDate && (
                   <button
@@ -912,7 +912,7 @@ export function IssueDetailModal({
                 <motion.span
                   initial={{ opacity: 0, y: -4 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="flex items-center gap-1 text-xs font-semibold text-destructive"
+                  className="flex items-center gap-1 text-sm font-semibold text-destructive"
                 >
                   <CalendarDays className="size-3" />
                   {getDueDateLabel(dueDate, issue.status)}
@@ -922,7 +922,7 @@ export function IssueDetailModal({
                 <motion.span
                   initial={{ opacity: 0, y: -4 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="flex items-center gap-1 text-xs font-semibold text-amber-600 dark:text-amber-400"
+                  className="flex items-center gap-1 text-sm font-semibold text-amber-600 dark:text-amber-400"
                 >
                   <CalendarDays className="size-3" />
                   {getDueDateLabel(dueDate, issue.status)}
@@ -964,16 +964,16 @@ export function IssueDetailModal({
                   <AvatarImage src={issue.reporter.image ?? undefined} />
                   <AvatarFallback className="text-[10px]">{getInitials(issue.reporter.name)}</AvatarFallback>
                 </Avatar>
-                <span className="text-xs text-foreground">{issue.reporter.name}</span>
+                <span className="text-sm text-foreground">{issue.reporter.name}</span>
               </div>
             </SidebarField>
 
             <SidebarField label="Created">
-              <span className="text-xs text-muted-foreground">{formatDate(issue.createdAt)}</span>
+              <span className="text-sm text-muted-foreground">{formatDate(issue.createdAt)}</span>
             </SidebarField>
 
             <SidebarField label="Updated">
-              <span className="text-xs text-muted-foreground">{formatDate(issue.updatedAt)}</span>
+              <span className="text-sm text-muted-foreground">{formatDate(issue.updatedAt)}</span>
             </SidebarField>
 
             {/* Custom fields */}

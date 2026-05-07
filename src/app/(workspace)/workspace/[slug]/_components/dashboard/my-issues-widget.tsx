@@ -39,7 +39,7 @@ export function MyIssuesWidget({ issues, workspaceSlug }: MyIssuesWidgetProps) {
           </div>
           <Link
             href={`/workspace/${workspaceSlug}/my-issues`}
-            className="flex items-center gap-1 text-xs text-muted-foreground hover:text-primary transition-colors"
+            className="flex items-center gap-1 text-sm text-muted-foreground hover:text-primary transition-colors"
           >
             View all <ArrowRight className="size-3" />
           </Link>
@@ -75,7 +75,7 @@ export function MyIssuesWidget({ issues, workspaceSlug }: MyIssuesWidgetProps) {
                   </Link>
                   <div className="flex shrink-0 items-center gap-1">
                     <StatusIcon className={cn("size-3.5", status.color)} />
-                    <span className="hidden text-xs text-muted-foreground sm:block">{status.label}</span>
+                    <span className="hidden text-sm text-muted-foreground sm:block">{status.label}</span>
                   </div>
                 </motion.div>
               );

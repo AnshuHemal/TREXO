@@ -97,7 +97,7 @@ export function ConnectedAccounts({ accounts: initialAccounts }: ConnectedAccoun
               <Icon />
               <div className="flex flex-col">
                 <span className="text-sm font-medium text-foreground">{label}</span>
-                <span className="text-xs text-muted-foreground">
+                <span className="text-sm text-muted-foreground">
                   {connected ? "Connected" : "Not connected"}
                 </span>
               </div>

@@ -27,9 +27,9 @@ function CustomTooltip({ active, payload, label }: {
   if (!active || !payload?.length) return null;
   return (
     <div className="rounded-lg border border-border bg-popover px-3 py-2 shadow-lg">
-      <p className="mb-1.5 text-xs font-semibold text-foreground">{label}</p>
+      <p className="mb-1.5 text-sm font-semibold text-foreground">{label}</p>
       {payload.map((p) => (
-        <div key={p.name} className="flex items-center gap-2 text-xs">
+        <div key={p.name} className="flex items-center gap-2 text-sm">
           <span className="size-2 rounded-full" style={{ background: p.color }} />
           <span className="text-muted-foreground capitalize">{p.name}:</span>
           <span className="font-medium text-foreground">{p.value} pts</span>
@@ -55,7 +55,7 @@ export function VelocityChart({ data }: VelocityChartProps) {
             </div>
             <div>
               <h3 className="text-sm font-semibold text-foreground">Velocity</h3>
-              <p className="text-xs text-muted-foreground">Story points per sprint</p>
+              <p className="text-sm text-muted-foreground">Story points per sprint</p>
             </div>
           </div>
           {hasData && (
@@ -76,7 +76,7 @@ export function VelocityChart({ data }: VelocityChartProps) {
           <div className="flex flex-col items-center justify-center py-8 text-center">
             <Zap className="mb-2 size-8 text-muted-foreground/30" />
             <p className="text-sm text-muted-foreground">No story points set yet</p>
-            <p className="mt-0.5 text-xs text-muted-foreground/60">
+            <p className="mt-0.5 text-sm text-muted-foreground/60">
               Add estimates to issues to track velocity
             </p>
           </div>

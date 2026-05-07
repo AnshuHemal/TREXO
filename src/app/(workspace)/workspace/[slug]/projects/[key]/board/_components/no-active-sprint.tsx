@@ -53,7 +53,7 @@ export function NoActiveSprint({
         {/* Planned sprints to start */}
         {plannedSprints.length > 0 && (
           <div className="mt-8 w-full">
-            <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            <p className="mb-3 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
               Planned sprints
             </p>
             <div className="flex flex-col gap-2">
@@ -67,7 +67,7 @@ export function NoActiveSprint({
                   <span className="text-sm font-medium text-foreground">{sprint.name}</span>
                   <Button
                     size="sm"
-                    className="h-7 gap-1.5 px-3 text-xs"
+                    className="h-7 gap-1.5 px-3 text-sm"
                     onClick={() => handleStartSprint(sprint.id)}
                     disabled={isPending}
                   >

@@ -172,12 +172,12 @@ export function KeyboardShortcutsModal({ open, onClose, shortcuts }: KeyboardSho
                 </div>
                 <div>
                   <h2 className="text-base font-semibold text-foreground">Keyboard Shortcuts</h2>
-                  <p className="text-xs text-muted-foreground">Speed up your workflow</p>
+                  <p className="text-sm text-muted-foreground">Speed up your workflow</p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
                 <Kbd className="text-muted-foreground">?</Kbd>
-                <span className="text-xs text-muted-foreground">to toggle</span>
+                <span className="text-sm text-muted-foreground">to toggle</span>
                 <Button
                   variant="ghost"
                   size="icon"
@@ -209,10 +209,10 @@ export function KeyboardShortcutsModal({ open, onClose, shortcuts }: KeyboardSho
 
             {/* Footer */}
             <div className="flex items-center justify-between border-t border-border bg-muted/20 px-6 py-3">
-              <p className="text-xs text-muted-foreground">
+              <p className="text-sm text-muted-foreground">
                 Shortcuts are disabled when typing in an input field
               </p>
-              <div className="flex items-center gap-3 text-xs text-muted-foreground">
+              <div className="flex items-center gap-3 text-sm text-muted-foreground">
                 <span className="flex items-center gap-1">
                   <Kbd>Esc</Kbd>
                   close

@@ -180,7 +180,7 @@ function TransitionMatrix({
       <div className="flex items-center justify-between rounded-xl border border-border bg-card p-4">
         <div>
           <p className="text-sm font-medium text-foreground">Allow all transitions</p>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-sm text-muted-foreground">
             When enabled, issues can move between any statuses freely.
           </p>
         </div>
@@ -202,12 +202,12 @@ function TransitionMatrix({
           >
             <div className="rounded-xl border border-border bg-card overflow-hidden">
               <div className="border-b border-border bg-muted/30 px-4 py-2.5">
-                <p className="text-xs font-medium text-muted-foreground">
+                <p className="text-sm font-medium text-muted-foreground">
                   Click a cell to allow/deny that transition. Rows = From, Columns = To.
                 </p>
               </div>
               <div className="overflow-x-auto p-4">
-                <table className="w-full border-collapse text-xs">
+                <table className="w-full border-collapse text-sm">
                   <thead>
                     <tr>
                       <th className="w-28 pb-2 text-left text-[11px] font-semibold text-muted-foreground">
@@ -383,7 +383,7 @@ export function WorkflowEditor({
                 Rename labels and drag to reorder board columns. Disabled statuses are hidden from the board.
               </p>
             </div>
-            <div className="flex items-center gap-1.5 rounded-lg border border-border bg-muted/30 px-2.5 py-1.5 text-xs text-muted-foreground">
+            <div className="flex items-center gap-1.5 rounded-lg border border-border bg-muted/30 px-2.5 py-1.5 text-sm text-muted-foreground">
               <Eye className="size-3.5" />
               {enabledCount} visible
             </div>
@@ -410,7 +410,7 @@ export function WorkflowEditor({
 
           <div className="mt-4 flex items-center gap-2 rounded-lg border border-border/50 bg-muted/20 px-3 py-2.5">
             <Info className="size-3.5 shrink-0 text-muted-foreground" />
-            <p className="text-xs text-muted-foreground">
+            <p className="text-sm text-muted-foreground">
               The underlying status values (BACKLOG, TODO, etc.) never change — only display labels and order are customized.
               Issues keep their status when you rename a column.
             </p>
@@ -477,7 +477,7 @@ export function WorkflowEditor({
                   initial={{ opacity: 0, x: 8 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0 }}
-                  className="text-xs text-destructive"
+                  className="text-sm text-destructive"
                 >
                   {saveError}
                 </motion.p>
@@ -487,7 +487,7 @@ export function WorkflowEditor({
                   initial={{ opacity: 0, x: 8 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0 }}
-                  className="flex items-center gap-1 text-xs text-emerald-600 dark:text-emerald-400"
+                  className="flex items-center gap-1 text-sm text-emerald-600 dark:text-emerald-400"
                 >
                   <Check className="size-3.5" />
                   Saved

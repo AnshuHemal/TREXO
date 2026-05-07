@@ -155,7 +155,7 @@ function SortHeader({
   return (
     <th
       className={cn(
-        "select-none whitespace-nowrap px-3 py-2.5 text-left text-xs font-semibold text-muted-foreground",
+        "select-none whitespace-nowrap px-3 py-2.5 text-left text-sm font-semibold text-muted-foreground",
         "cursor-pointer hover:text-foreground transition-colors",
         isActive && "text-foreground",
         className,
@@ -189,13 +189,13 @@ function InlineSelect({
 }) {
   return (
     <Select value={value} onValueChange={onSave} disabled={disabled}>
-      <SelectTrigger className="h-auto w-auto gap-1 border-0 bg-transparent px-1 py-0.5 text-xs shadow-none hover:bg-accent focus:ring-0 [&>svg]:hidden">
+      <SelectTrigger className="h-auto w-auto gap-1 border-0 bg-transparent px-1 py-0.5 text-sm shadow-none hover:bg-accent focus:ring-0 [&>svg]:hidden">
         {trigger}
       </SelectTrigger>
       <SelectContent>
         {options.map(({ value: v, label, icon: Icon, color }) => (
           <SelectItem key={v} value={v}>
-            <span className="flex items-center gap-2 text-xs">
+            <span className="flex items-center gap-2 text-sm">
               {Icon && <Icon className={cn("size-3.5", color)} />}
               {label}
             </span>
@@ -291,7 +291,7 @@ function AssigneeCell({
               <Avatar className="size-5">
                 <AvatarFallback className="text-[9px]">{getInitials(issue.assignee.name)}</AvatarFallback>
               </Avatar>
-              <span className="max-w-[80px] truncate text-xs text-foreground">{issue.assignee.name}</span>
+              <span className="max-w-[80px] truncate text-sm text-foreground">{issue.assignee.name}</span>
             </>
           ) : (
             <div className="size-5 rounded-full border border-dashed border-border" />
@@ -299,11 +299,11 @@ function AssigneeCell({
       </SelectTrigger>
       <SelectContent>
         <SelectItem value="none">
-          <span className="text-xs text-muted-foreground">Unassigned</span>
+          <span className="text-sm text-muted-foreground">Unassigned</span>
         </SelectItem>
         {members.map((m) => (
           <SelectItem key={m.id} value={m.id}>
-            <span className="flex items-center gap-2 text-xs">
+            <span className="flex items-center gap-2 text-sm">
               <Avatar className="size-4">
                 <AvatarFallback className="text-[8px]">{getInitials(m.name)}</AvatarFallback>
               </Avatar>
@@ -344,7 +344,7 @@ function DueDateCell({
           if (e.key === "Escape") setEditing(false);
           if (e.key === "Enter") (e.target as HTMLInputElement).blur();
         }}
-        className="w-28 rounded border border-primary/40 bg-background px-1.5 py-0.5 text-xs focus:outline-none focus:ring-1 focus:ring-primary"
+        className="w-28 rounded border border-primary/40 bg-background px-1.5 py-0.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
         disabled={disabled}
       />
     );
@@ -356,7 +356,7 @@ function DueDateCell({
       onClick={() => setEditing(true)}
       disabled={disabled}
       className={cn(
-        "flex items-center gap-1 rounded px-1.5 py-0.5 text-xs transition-colors hover:bg-accent",
+        "flex items-center gap-1 rounded px-1.5 py-0.5 text-sm transition-colors hover:bg-accent",
         overdue     ? "text-destructive"
         : dueThisWeek ? "text-primary"
         : issue.dueDate ? "text-muted-foreground"
@@ -394,7 +394,7 @@ function EstimateCell({
       onValueChange={(v) => onSave(issue.id, v === "none" ? null : Number(v))}
       disabled={disabled}
     >
-      <SelectTrigger className="h-auto w-auto gap-1 border-0 bg-transparent px-1.5 py-0.5 text-xs shadow-none hover:bg-accent focus:ring-0 [&>svg]:hidden">
+      <SelectTrigger className="h-auto w-auto gap-1 border-0 bg-transparent px-1.5 py-0.5 text-sm shadow-none hover:bg-accent focus:ring-0 [&>svg]:hidden">
           <Zap className="size-3 text-primary" />
           <span className={cn(issue.estimate != null ? "text-foreground" : "text-muted-foreground/40")}>
             {issue.estimate ?? "—"}
@@ -403,7 +403,7 @@ function EstimateCell({
       <SelectContent>
         {ESTIMATE_OPTS.map(({ value, label }) => (
           <SelectItem key={value} value={value}>
-            <span className="text-xs">{label}</span>
+            <span className="text-sm">{label}</span>
           </SelectItem>
         ))}
       </SelectContent>
@@ -459,7 +459,7 @@ function IssueTableRow({
         </button>
       </td>
       <td className="w-20 px-3 py-2.5">
-        <span className="font-mono text-xs text-muted-foreground">{projectKey}-{issue.key}</span>
+        <span className="font-mono text-sm text-muted-foreground">{projectKey}-{issue.key}</span>
       </td>
       {cols.type && (
         <td className="w-10 px-2 py-2.5">
@@ -496,7 +496,7 @@ function IssueTableRow({
             trigger={
               <span className="flex items-center gap-1">
                 <PriorityIcon className={cn("size-3.5", priority.color)} />
-                <span className="hidden text-xs text-muted-foreground lg:block">{priority.label}</span>
+                <span className="hidden text-sm text-muted-foreground lg:block">{priority.label}</span>
               </span>
             }
           />
@@ -510,7 +510,7 @@ function IssueTableRow({
             trigger={
               <span className="flex items-center gap-1">
                 <StatusIcon className={cn("size-3.5", status.color)} />
-                <span className="text-xs text-muted-foreground">{status.label}</span>
+                <span className="text-sm text-muted-foreground">{status.label}</span>
               </span>
             }
           />
@@ -535,24 +535,24 @@ function IssueTableRow({
         <td className="w-28 px-3 py-2.5">
           {issue.sprintName
             ? <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary">{issue.sprintName}</span>
-            : <span className="text-xs text-muted-foreground/40">—</span>}
+            : <span className="text-sm text-muted-foreground/40">—</span>}
         </td>
       )}
       {cols.comments && (
         <td className="w-16 px-3 py-2.5">
           {issue.commentCount > 0
-            ? <span className="flex items-center gap-1 text-xs text-muted-foreground"><MessageSquare className="size-3" />{issue.commentCount}</span>
-            : <span className="text-xs text-muted-foreground/30">—</span>}
+            ? <span className="flex items-center gap-1 text-sm text-muted-foreground"><MessageSquare className="size-3" />{issue.commentCount}</span>
+            : <span className="text-sm text-muted-foreground/30">—</span>}
         </td>
       )}
       {cols.created && (
         <td className="w-28 px-3 py-2.5">
-          <span className="text-xs text-muted-foreground">{formatDate(issue.createdAt)}</span>
+          <span className="text-sm text-muted-foreground">{formatDate(issue.createdAt)}</span>
         </td>
       )}
       {cols.updated && (
         <td className="w-28 px-3 py-2.5">
-          <span className="text-xs text-muted-foreground">{formatDate(issue.updatedAt)}</span>
+          <span className="text-sm text-muted-foreground">{formatDate(issue.updatedAt)}</span>
         </td>
       )}
       <td className="w-10 px-2 py-2.5">
@@ -729,7 +729,7 @@ export function IssueListClient({
               value={filters.search}
               onChange={(e) => setFilters((f) => ({ ...f, search: e.target.value }))}
               placeholder="Search issues…"
-              className="h-8 pl-8 text-xs"
+              className="h-8 pl-8 text-sm"
             />
             {filters.search && (
               <button onClick={() => setFilters((f) => ({ ...f, search: "" }))}
@@ -741,14 +741,14 @@ export function IssueListClient({
 
           {/* Status filter */}
           <Select value={filters.status || "all"} onValueChange={(v) => setFilters((f) => ({ ...f, status: v === "all" ? "" : v }))}>
-            <SelectTrigger className={cn("h-8 w-32 text-xs", filters.status && "border-primary text-primary")}>
+            <SelectTrigger className={cn("h-8 w-32 text-sm", filters.status && "border-primary text-primary")}>
               <SelectValue placeholder="Status" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All statuses</SelectItem>
               {ISSUE_STATUSES.map(({ value, label, icon: Icon, color }) => (
                 <SelectItem key={value} value={value}>
-                  <span className="flex items-center gap-2 text-xs"><Icon className={cn("size-3.5", color)} />{label}</span>
+                  <span className="flex items-center gap-2 text-sm"><Icon className={cn("size-3.5", color)} />{label}</span>
                 </SelectItem>
               ))}
             </SelectContent>
@@ -756,14 +756,14 @@ export function IssueListClient({
 
           {/* Priority filter */}
           <Select value={filters.priority || "all"} onValueChange={(v) => setFilters((f) => ({ ...f, priority: v === "all" ? "" : v }))}>
-            <SelectTrigger className={cn("h-8 w-32 text-xs", filters.priority && "border-primary text-primary")}>
+            <SelectTrigger className={cn("h-8 w-32 text-sm", filters.priority && "border-primary text-primary")}>
               <SelectValue placeholder="Priority" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All priorities</SelectItem>
               {ISSUE_PRIORITIES.map(({ value, label, icon: Icon, color }) => (
                 <SelectItem key={value} value={value}>
-                  <span className="flex items-center gap-2 text-xs"><Icon className={cn("size-3.5", color)} />{label}</span>
+                  <span className="flex items-center gap-2 text-sm"><Icon className={cn("size-3.5", color)} />{label}</span>
                 </SelectItem>
               ))}
             </SelectContent>
@@ -771,7 +771,7 @@ export function IssueListClient({
 
           {/* Assignee filter */}
           <Select value={filters.assignee || "all"} onValueChange={(v) => setFilters((f) => ({ ...f, assignee: v === "all" ? "" : v }))}>
-            <SelectTrigger className={cn("h-8 w-36 text-xs", filters.assignee && "border-primary text-primary")}>
+            <SelectTrigger className={cn("h-8 w-36 text-sm", filters.assignee && "border-primary text-primary")}>
               <SelectValue placeholder="Assignee" />
             </SelectTrigger>
             <SelectContent>
@@ -779,7 +779,7 @@ export function IssueListClient({
               <SelectItem value="unassigned">Unassigned</SelectItem>
               {members.map((m) => (
                 <SelectItem key={m.id} value={m.id}>
-                  <span className="flex items-center gap-2 text-xs">
+                  <span className="flex items-center gap-2 text-sm">
                     <Avatar className="size-4"><AvatarFallback className="text-[8px]">{getInitials(m.name)}</AvatarFallback></Avatar>
                     {m.name}
                   </span>
@@ -790,14 +790,14 @@ export function IssueListClient({
 
           {/* Type filter */}
           <Select value={filters.type || "all"} onValueChange={(v) => setFilters((f) => ({ ...f, type: v === "all" ? "" : v }))}>
-            <SelectTrigger className={cn("h-8 w-28 text-xs", filters.type && "border-primary text-primary")}>
+            <SelectTrigger className={cn("h-8 w-28 text-sm", filters.type && "border-primary text-primary")}>
               <SelectValue placeholder="Type" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All types</SelectItem>
               {ISSUE_TYPES.map(({ value, label, icon: Icon, color }) => (
                 <SelectItem key={value} value={value}>
-                  <span className="flex items-center gap-2 text-xs"><Icon className={cn("size-3.5", color)} />{label}</span>
+                  <span className="flex items-center gap-2 text-sm"><Icon className={cn("size-3.5", color)} />{label}</span>
                 </SelectItem>
               ))}
             </SelectContent>
@@ -807,7 +807,7 @@ export function IssueListClient({
           <AnimatePresence>
             {hasFilters && (
               <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }}>
-                <Button variant="ghost" size="sm" className="h-8 gap-1.5 px-2 text-xs text-muted-foreground"
+                <Button variant="ghost" size="sm" className="h-8 gap-1.5 px-2 text-sm text-muted-foreground"
                   onClick={() => setFilters({ search: "", status: "", priority: "", type: "", assignee: "", sprint: "", epic: "" })}>
                   <RotateCcw className="size-3.5" />Clear
                 </Button>
@@ -820,7 +820,7 @@ export function IssueListClient({
           {/* Column visibility */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs">
+              <Button variant="outline" size="sm" className="h-8 gap-1.5 text-sm">
                 <SlidersHorizontal className="size-3.5" />
                 Columns
                 {colCount < Object.keys(DEFAULT_COLS).length && (
@@ -831,14 +831,14 @@ export function IssueListClient({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-44">
-              <DropdownMenuLabel className="text-xs text-muted-foreground">Toggle columns</DropdownMenuLabel>
+              <DropdownMenuLabel className="text-sm text-muted-foreground">Toggle columns</DropdownMenuLabel>
               <DropdownMenuSeparator />
               {(Object.keys(DEFAULT_COLS) as (keyof VisibleCols)[]).map((key) => (
                 <DropdownMenuCheckboxItem
                   key={key}
                   checked={cols[key]}
                   onCheckedChange={() => toggleCol(key)}
-                  className="text-xs capitalize"
+                  className="text-sm capitalize"
                 >
                   {key === "dueDate" ? "Due date" : key === "comments" ? "Comments" : key === "created" ? "Created" : key === "updated" ? "Updated" : key}
                 </DropdownMenuCheckboxItem>
@@ -858,7 +858,7 @@ export function IssueListClient({
       </div>
 
       {/* ── Stats bar ────────────────────────────────────────────────────── */}
-      <div className="flex items-center gap-4 border-b border-border bg-muted/20 px-5 py-2 text-xs text-muted-foreground">
+      <div className="flex items-center gap-4 border-b border-border bg-muted/20 px-5 py-2 text-sm text-muted-foreground">
         <span>
           <strong className="text-foreground">{filtered.length}</strong>
           {filtered.length !== issues.length && ` of ${issues.length}`} issues
@@ -880,38 +880,38 @@ export function IssueListClient({
             className="overflow-hidden border-b border-primary/20 bg-primary/5 px-5 py-2"
           >
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-xs font-semibold text-primary">{selectedCount} selected</span>
+              <span className="text-sm font-semibold text-primary">{selectedCount} selected</span>
               <div className="h-3 w-px bg-border" />
 
               <Select onValueChange={(v) => handleBulkUpdate("status", v)} disabled={isBulkPending}>
-                <SelectTrigger className="h-7 w-32 text-xs"><SelectValue placeholder="Set status" /></SelectTrigger>
+                <SelectTrigger className="h-7 w-32 text-sm"><SelectValue placeholder="Set status" /></SelectTrigger>
                 <SelectContent>
                   {ISSUE_STATUSES.map(({ value, label, icon: Icon, color }) => (
                     <SelectItem key={value} value={value}>
-                      <span className="flex items-center gap-2 text-xs"><Icon className={cn("size-3.5", color)} />{label}</span>
+                      <span className="flex items-center gap-2 text-sm"><Icon className={cn("size-3.5", color)} />{label}</span>
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
 
               <Select onValueChange={(v) => handleBulkUpdate("priority", v)} disabled={isBulkPending}>
-                <SelectTrigger className="h-7 w-32 text-xs"><SelectValue placeholder="Set priority" /></SelectTrigger>
+                <SelectTrigger className="h-7 w-32 text-sm"><SelectValue placeholder="Set priority" /></SelectTrigger>
                 <SelectContent>
                   {ISSUE_PRIORITIES.map(({ value, label, icon: Icon, color }) => (
                     <SelectItem key={value} value={value}>
-                      <span className="flex items-center gap-2 text-xs"><Icon className={cn("size-3.5", color)} />{label}</span>
+                      <span className="flex items-center gap-2 text-sm"><Icon className={cn("size-3.5", color)} />{label}</span>
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
 
               <Select onValueChange={(v) => handleBulkUpdate("assigneeId", v === "none" ? null : v)} disabled={isBulkPending}>
-                <SelectTrigger className="h-7 w-36 text-xs"><SelectValue placeholder="Assign to…" /></SelectTrigger>
+                <SelectTrigger className="h-7 w-36 text-sm"><SelectValue placeholder="Assign to…" /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="none">Unassigned</SelectItem>
                   {members.map((m) => (
                     <SelectItem key={m.id} value={m.id}>
-                      <span className="flex items-center gap-2 text-xs">
+                      <span className="flex items-center gap-2 text-sm">
                         <Avatar className="size-4"><AvatarFallback className="text-[8px]">{getInitials(m.name)}</AvatarFallback></Avatar>
                         {m.name}
                       </span>
@@ -921,7 +921,7 @@ export function IssueListClient({
               </Select>
 
               {isBulkPending && <Loader2 className="size-3.5 animate-spin text-muted-foreground" />}
-              <Button variant="ghost" size="sm" className="ml-auto h-7 gap-1 px-2 text-xs"
+              <Button variant="ghost" size="sm" className="ml-auto h-7 gap-1 px-2 text-sm"
                 onClick={() => setSelectedIds(new Set())}>
                 <X className="size-3.5" />Clear
               </Button>
@@ -941,7 +941,7 @@ export function IssueListClient({
               <p className="text-sm font-semibold text-foreground">
                 {hasFilters ? "No issues match your filters" : "No issues yet"}
               </p>
-              <p className="mt-1 text-xs text-muted-foreground">
+              <p className="mt-1 text-sm text-muted-foreground">
                 {hasFilters
                   ? "Try adjusting or clearing your filters."
                   : "Create your first issue to get started."}
@@ -976,15 +976,15 @@ export function IssueListClient({
                   </button>
                 </th>
                 <SortHeader field="key" label="Key" sortField={sortField} sortDir={sortDir} onSort={handleSort} className="w-20" />
-                {cols.type && <th className="w-10 px-2 py-2.5 text-left text-xs font-semibold text-muted-foreground">Type</th>}
+                {cols.type && <th className="w-10 px-2 py-2.5 text-left text-sm font-semibold text-muted-foreground">Type</th>}
                 <SortHeader field="title" label="Title" sortField={sortField} sortDir={sortDir} onSort={handleSort} />
                 {cols.priority && <SortHeader field="priority" label="Priority" sortField={sortField} sortDir={sortDir} onSort={handleSort} className="w-24" />}
                 {cols.status   && <SortHeader field="status"   label="Status"   sortField={sortField} sortDir={sortDir} onSort={handleSort} className="w-32" />}
                 {cols.assignee && <SortHeader field="assignee" label="Assignee" sortField={sortField} sortDir={sortDir} onSort={handleSort} className="w-32" />}
                 {cols.dueDate  && <SortHeader field="dueDate"  label="Due date" sortField={sortField} sortDir={sortDir} onSort={handleSort} className="w-28" />}
                 {cols.estimate && <SortHeader field="estimate" label="Points"   sortField={sortField} sortDir={sortDir} onSort={handleSort} className="w-20" />}
-                {cols.sprint   && <th className="w-28 px-3 py-2.5 text-left text-xs font-semibold text-muted-foreground">Sprint</th>}
-                {cols.comments && <th className="w-16 px-3 py-2.5 text-left text-xs font-semibold text-muted-foreground">Comments</th>}
+                {cols.sprint   && <th className="w-28 px-3 py-2.5 text-left text-sm font-semibold text-muted-foreground">Sprint</th>}
+                {cols.comments && <th className="w-16 px-3 py-2.5 text-left text-sm font-semibold text-muted-foreground">Comments</th>}
                 {cols.created  && <SortHeader field="createdAt" label="Created" sortField={sortField} sortDir={sortDir} onSort={handleSort} className="w-28" />}
                 {cols.updated  && <SortHeader field="updatedAt" label="Updated" sortField={sortField} sortDir={sortDir} onSort={handleSort} className="w-28" />}
                 <th className="w-10" />

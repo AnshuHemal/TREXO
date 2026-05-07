@@ -110,7 +110,7 @@ export function StepInvite({ workspaceId, workspaceName, onComplete, onSkip }: S
                   </div>
                   <AnimatePresence>
                     {showError && (
-                      <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }} className="text-xs text-destructive">
+                      <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }} className="text-sm text-destructive">
                         Please enter a valid email address.
                       </motion.p>
                     )}

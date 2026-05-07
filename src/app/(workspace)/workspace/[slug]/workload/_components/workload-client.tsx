@@ -83,14 +83,14 @@ function MemberWorkloadRow({
         className="flex w-full items-center gap-3 px-4 py-4 text-left hover:bg-muted/30 transition-colors"
       >
         <Avatar className="size-9 shrink-0">
-          <AvatarFallback className="text-xs font-semibold">{getInitials(member.name)}</AvatarFallback>
+          <AvatarFallback className="text-sm font-semibold">{getInitials(member.name)}</AvatarFallback>
         </Avatar>
 
         <div className="flex flex-1 flex-col gap-1 min-w-0">
           <div className="flex items-center gap-2">
             <span className="text-sm font-semibold text-foreground truncate">
               {member.name}
-              {isCurrentUser && <span className="ml-1.5 text-xs font-normal text-muted-foreground">(you)</span>}
+              {isCurrentUser && <span className="ml-1.5 text-sm font-normal text-muted-foreground">(you)</span>}
             </span>
             {overdueCount > 0 && (
               <span className="flex items-center gap-0.5 rounded-full bg-destructive/10 px-1.5 py-0.5 text-[10px] font-medium text-destructive">
@@ -110,11 +110,11 @@ function MemberWorkloadRow({
                 transition={{ duration: 0.5, ease: "easeOut", delay: 0.1 }}
               />
             </div>
-            <span className="shrink-0 text-xs text-muted-foreground">
+            <span className="shrink-0 text-sm text-muted-foreground">
               {issues.length} issue{issues.length !== 1 ? "s" : ""}
             </span>
             {totalPoints > 0 && (
-              <span className="flex shrink-0 items-center gap-0.5 text-xs text-muted-foreground">
+              <span className="flex shrink-0 items-center gap-0.5 text-sm text-muted-foreground">
                 <Zap className="size-3 text-primary" />
                 {totalPoints} pts
               </span>
@@ -155,7 +155,7 @@ function MemberWorkloadRow({
                     className="flex items-center gap-3 px-4 py-2.5 hover:bg-muted/20 transition-colors"
                   >
                     <PriorityIcon className={cn("size-3.5 shrink-0", priority.color)} />
-                    <span className="w-16 shrink-0 font-mono text-xs text-muted-foreground">
+                    <span className="w-16 shrink-0 font-mono text-sm text-muted-foreground">
                       {issue.project.key}-{issue.key}
                     </span>
                     <span className="flex-1 truncate text-sm text-foreground">{issue.title}</span>
@@ -234,7 +234,7 @@ export function WorkloadClient({ members, issues, currentUserId }: WorkloadClien
             className="rounded-xl border border-border bg-card p-4"
           >
             <div className="flex items-center justify-between">
-              <p className="text-xs font-medium text-muted-foreground">{label}</p>
+              <p className="text-sm font-medium text-muted-foreground">{label}</p>
               <Icon className="size-4 text-muted-foreground" />
             </div>
             <p className="mt-2 text-2xl font-bold tracking-tight text-foreground">{value}</p>

@@ -63,7 +63,7 @@ export default async function DashboardLayout({
       <FadeIn
         direction="none"
         delay={0.4}
-        className="relative z-10 flex items-center justify-center gap-4 px-6 py-5 text-xs text-muted-foreground"
+        className="relative z-10 flex items-center justify-center gap-4 px-6 py-5 text-sm text-muted-foreground"
       >
         <Link href="/privacy" className="hover:text-foreground transition-colors">Privacy</Link>
         <span aria-hidden>·</span>

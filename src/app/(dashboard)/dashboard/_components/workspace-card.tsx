@@ -84,13 +84,13 @@ export function WorkspaceCard({ workspace }: WorkspaceCardProps) {
           <h3 className="text-base font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-1">
             {workspace.name}
           </h3>
-          <p className="font-mono text-xs text-muted-foreground">
+          <p className="font-mono text-sm text-muted-foreground">
             trexo-web.vercel.app/workspace/{workspace.slug}
           </p>
         </div>
 
         {/* Stats row */}
-        <div className="flex items-center gap-4 text-xs text-muted-foreground">
+        <div className="flex items-center gap-4 text-sm text-muted-foreground">
           <span className="flex items-center gap-1.5">
             <Users className="size-3.5" />
             {workspace.memberCount} {workspace.memberCount === 1 ? "member" : "members"}
@@ -103,7 +103,7 @@ export function WorkspaceCard({ workspace }: WorkspaceCardProps) {
 
         {/* Open arrow */}
         <div className="flex items-center justify-end">
-          <span className="flex items-center gap-1 text-xs font-medium text-muted-foreground transition-colors group-hover:text-primary">
+          <span className="flex items-center gap-1 text-sm font-medium text-muted-foreground transition-colors group-hover:text-primary">
             Open workspace
             <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-0.5" />
           </span>

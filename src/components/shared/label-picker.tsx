@@ -42,7 +42,7 @@ export function LabelBadge({
       transition={{ duration: 0.15 }}
       className={cn(
         "inline-flex items-center gap-1 rounded-full border font-medium",
-        size === "xs" ? "px-1.5 py-0.5 text-[10px]" : "px-2 py-0.5 text-xs",
+        size === "xs" ? "px-1.5 py-0.5 text-[10px]" : "px-2 py-0.5 text-sm",
       )}
       style={{
         backgroundColor: `${label.color}18`,
@@ -130,7 +130,7 @@ export function LabelPicker({
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.97 }}
             className={cn(
-              "inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs transition-colors",
+              "inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-sm transition-colors",
               open
                 ? "border-primary bg-primary/10 text-primary"
                 : "border-dashed border-border text-muted-foreground hover:border-primary hover:text-primary",
@@ -163,7 +163,7 @@ export function LabelPicker({
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   placeholder="Search labels…"
-                  className="flex-1 bg-transparent text-xs text-foreground placeholder:text-muted-foreground/60 focus:outline-none"
+                  className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none"
                 />
                 {search && (
                   <button onClick={() => setSearch("")} className="text-muted-foreground hover:text-foreground">
@@ -176,7 +176,7 @@ export function LabelPicker({
               {filtered.length === 0 ? (
                 <div className="flex flex-col items-center gap-1.5 px-3 py-5 text-center">
                   <Tag className="size-5 text-muted-foreground/40" />
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-sm text-muted-foreground">
                     {search ? `No labels match "${search}"` : "No labels yet."}
                   </p>
                   {!search && (

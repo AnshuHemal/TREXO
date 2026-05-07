@@ -90,9 +90,9 @@ function StatCard({
       <div className="rounded-xl border border-border bg-card p-5">
         <div className="flex items-start justify-between">
           <div>
-            <p className="text-xs font-medium text-muted-foreground">{label}</p>
+            <p className="text-sm font-medium text-muted-foreground">{label}</p>
             <p className={cn("mt-1.5 text-2xl font-bold", color)}>{value}</p>
-            {sub && <p className="mt-0.5 text-xs text-muted-foreground">{sub}</p>}
+            {sub && <p className="mt-0.5 text-sm text-muted-foreground">{sub}</p>}
           </div>
           <div className={cn("flex size-9 items-center justify-center rounded-xl", `${color.replace("text-", "bg-")}/10`)}>
             <Icon className={cn("size-5", color)} />
@@ -109,9 +109,9 @@ function VelocityTooltip({ active, payload, label }: { active?: boolean; payload
   if (!active || !payload?.length) return null;
   return (
     <div className="rounded-xl border border-border bg-popover px-3.5 py-2.5 shadow-xl">
-      <p className="mb-2 text-xs font-semibold text-foreground">{label}</p>
+      <p className="mb-2 text-sm font-semibold text-foreground">{label}</p>
       {payload.map((p) => (
-        <div key={p.name} className="flex items-center gap-2 text-xs">
+        <div key={p.name} className="flex items-center gap-2 text-sm">
           <span className="size-2 rounded-full" style={{ background: p.color }} />
           <span className="text-muted-foreground capitalize">{p.name}:</span>
           <span className="font-semibold text-foreground">{p.value} pts</span>
@@ -125,9 +125,9 @@ function BurndownTooltip({ active, payload, label }: { active?: boolean; payload
   if (!active || !payload?.length) return null;
   return (
     <div className="rounded-xl border border-border bg-popover px-3.5 py-2.5 shadow-xl">
-      <p className="mb-2 text-xs font-semibold text-foreground">{label}</p>
+      <p className="mb-2 text-sm font-semibold text-foreground">{label}</p>
       {payload.map((p) => (
-        <div key={p.name} className="flex items-center gap-2 text-xs">
+        <div key={p.name} className="flex items-center gap-2 text-sm">
           <span className="size-2 rounded-full" style={{ background: p.color }} />
           <span className="text-muted-foreground capitalize">{p.name}:</span>
           <span className="font-semibold text-foreground">{p.value} pts</span>
@@ -186,7 +186,7 @@ export function AnalyticsClient({
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-6 py-3">
         <div>
           <h1 className="text-base font-bold text-foreground">Analytics</h1>
-          <p className="text-xs text-muted-foreground">{project.name} · {completedSprintCount} completed sprints</p>
+          <p className="text-sm text-muted-foreground">{project.name} · {completedSprintCount} completed sprints</p>
         </div>
 
         {/* Tab switcher */}
@@ -200,7 +200,7 @@ export function AnalyticsClient({
               key={key}
               onClick={() => setActiveTab(key)}
               className={cn(
-                "flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-all",
+                "flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-all",
                 activeTab === key
                   ? "bg-background text-foreground shadow-sm"
                   : "text-muted-foreground hover:text-foreground",
@@ -266,7 +266,7 @@ export function AnalyticsClient({
                     </div>
                     <div>
                       <h2 className="text-sm font-semibold text-foreground">Velocity Chart</h2>
-                      <p className="text-xs text-muted-foreground">Story points committed vs completed per sprint</p>
+                      <p className="text-sm text-muted-foreground">Story points committed vs completed per sprint</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
@@ -285,7 +285,7 @@ export function AnalyticsClient({
                   <div className="flex flex-col items-center gap-2 py-12 text-center">
                     <Zap className="size-8 text-muted-foreground/30" />
                     <p className="text-sm text-muted-foreground">No completed sprints yet</p>
-                    <p className="text-xs text-muted-foreground/60">Complete sprints with story point estimates to see velocity</p>
+                    <p className="text-sm text-muted-foreground/60">Complete sprints with story point estimates to see velocity</p>
                   </div>
                 ) : (
                   <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4 }}>
@@ -343,11 +343,11 @@ export function AnalyticsClient({
                         >
                           <div className="min-w-0 flex-1">
                             <p className="text-sm font-medium text-foreground truncate">{sprint.sprintName}</p>
-                            <p className="text-xs text-muted-foreground">
+                            <p className="text-sm text-muted-foreground">
                               {formatDate(sprint.startDate)} – {formatDate(sprint.endDate)}
                             </p>
                           </div>
-                          <div className="flex items-center gap-4 text-xs">
+                          <div className="flex items-center gap-4 text-sm">
                             <div className="text-right">
                               <p className="font-medium text-foreground">{sprint.completedCount}/{sprint.totalCount}</p>
                               <p className="text-muted-foreground">issues</p>
@@ -357,7 +357,7 @@ export function AnalyticsClient({
                               <p className="text-muted-foreground">points</p>
                             </div>
                             <div className={cn(
-                              "flex size-10 items-center justify-center rounded-full text-xs font-bold",
+                              "flex size-10 items-center justify-center rounded-full text-sm font-bold",
                               isGood ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" : "bg-amber-500/10 text-amber-600 dark:text-amber-400",
                             )}>
                               {pct}%
@@ -387,12 +387,12 @@ export function AnalyticsClient({
                       <h2 className="text-sm font-semibold text-foreground">
                         Burndown Chart
                         {activeSprint && (
-                          <span className="ml-2 text-xs font-normal text-muted-foreground">
+                          <span className="ml-2 text-sm font-normal text-muted-foreground">
                             — {activeSprint.name}
                           </span>
                         )}
                       </h2>
-                      <p className="text-xs text-muted-foreground">Story points remaining vs ideal burndown</p>
+                      <p className="text-sm text-muted-foreground">Story points remaining vs ideal burndown</p>
                     </div>
                   </div>
                   {activeSprint && (
@@ -413,13 +413,13 @@ export function AnalyticsClient({
                   <div className="flex flex-col items-center gap-2 py-12 text-center">
                     <TrendingUp className="size-8 text-muted-foreground/30" />
                     <p className="text-sm text-muted-foreground">No active sprint</p>
-                    <p className="text-xs text-muted-foreground/60">Start a sprint to see the burndown chart</p>
+                    <p className="text-sm text-muted-foreground/60">Start a sprint to see the burndown chart</p>
                   </div>
                 ) : burndownData.length === 0 ? (
                   <div className="flex flex-col items-center gap-2 py-12 text-center">
                     <TrendingUp className="size-8 text-muted-foreground/30" />
                     <p className="text-sm text-muted-foreground">No date range set</p>
-                    <p className="text-xs text-muted-foreground/60">Set start and end dates on the sprint to see burndown</p>
+                    <p className="text-sm text-muted-foreground/60">Set start and end dates on the sprint to see burndown</p>
                   </div>
                 ) : (
                   <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4 }}>
@@ -469,7 +469,7 @@ export function AnalyticsClient({
                     <h2 className="text-sm font-semibold text-foreground">
                       {activeSprint.name} — Issue Breakdown
                     </h2>
-                    <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                    <div className="flex items-center gap-3 text-sm text-muted-foreground">
                       <span>{activeSprint.doneIssues}/{activeSprint.totalIssues} done</span>
                       {activeSprint.totalPoints > 0 && (
                         <span className="flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary">
@@ -499,7 +499,7 @@ export function AnalyticsClient({
                         >
                           <PriorityIcon className={cn("size-3.5 shrink-0", priority.color)} />
                           <TypeIcon className={cn("size-3.5 shrink-0", type.color)} />
-                          <span className="w-16 shrink-0 font-mono text-xs text-muted-foreground">
+                          <span className="w-16 shrink-0 font-mono text-sm text-muted-foreground">
                             {project.key}-{issue.key}
                           </span>
                           <span className={cn(
@@ -510,7 +510,7 @@ export function AnalyticsClient({
                           </span>
                           <div className="flex shrink-0 items-center gap-1.5">
                             <StatusIcon className={cn("size-3.5", status.color)} />
-                            <span className="hidden text-xs text-muted-foreground sm:block">{status.label}</span>
+                            <span className="hidden text-sm text-muted-foreground sm:block">{status.label}</span>
                           </div>
                           {issue.estimate != null && (
                             <span className="shrink-0 rounded bg-muted px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground">
@@ -543,7 +543,7 @@ export function AnalyticsClient({
                   </div>
                   <div>
                     <h2 className="text-sm font-semibold text-foreground">Cumulative Flow Diagram</h2>
-                    <p className="text-xs text-muted-foreground">Issue distribution across statuses — last 14 days</p>
+                    <p className="text-sm text-muted-foreground">Issue distribution across statuses — last 14 days</p>
                   </div>
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
@@ -595,7 +595,7 @@ export function AnalyticsClient({
               </motion.div>
 
               <div className="mt-4 rounded-lg border border-border/50 bg-muted/20 px-4 py-3">
-                <p className="text-xs text-muted-foreground">
+                <p className="text-sm text-muted-foreground">
                   A healthy CFD shows the DONE area growing steadily while IN_PROGRESS stays thin.
                   Wide IN_PROGRESS bands indicate WIP limit issues.
                 </p>

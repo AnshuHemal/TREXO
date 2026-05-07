@@ -99,7 +99,7 @@ function ProgressBar({ done, total }: { done: number; total: number }) {
           transition={{ duration: 0.5, ease: "easeOut" }}
         />
       </div>
-      <span className="text-xs text-muted-foreground">
+      <span className="text-sm text-muted-foreground">
         {done}/{total}
       </span>
     </div>
@@ -130,7 +130,7 @@ function ChildIssueRow({
     >
       <PriorityIcon className={cn("size-3.5 shrink-0", priority.color)} />
       <TypeIcon     className={cn("size-3.5 shrink-0", type.color)} />
-      <span className="w-16 shrink-0 font-mono text-xs text-muted-foreground">
+      <span className="w-16 shrink-0 font-mono text-sm text-muted-foreground">
         {projectKey}-{child.key}
       </span>
       <span className="flex-1 truncate text-sm text-foreground group-hover:text-primary transition-colors">
@@ -138,7 +138,7 @@ function ChildIssueRow({
       </span>
       <div className="flex shrink-0 items-center gap-1.5">
         <StatusIcon className={cn("size-3.5", status.color)} />
-        <span className="hidden text-xs text-muted-foreground sm:block">{status.label}</span>
+        <span className="hidden text-sm text-muted-foreground sm:block">{status.label}</span>
       </div>
       {child.assignee ? (
         <Avatar className="size-5 shrink-0">
@@ -221,7 +221,7 @@ function EpicCard({
               >
                 {epic.title}
               </a>
-              <span className="shrink-0 font-mono text-xs text-muted-foreground">
+              <span className="shrink-0 font-mono text-sm text-muted-foreground">
                 {project.key}-{epic.key}
               </span>
             </div>
@@ -245,7 +245,7 @@ function EpicCard({
 
           {/* Due date */}
           {epic.dueDate && (
-            <div className="hidden shrink-0 items-center gap-1 text-xs text-muted-foreground sm:flex">
+            <div className="hidden shrink-0 items-center gap-1 text-sm text-muted-foreground sm:flex">
               <CalendarDays className="size-3.5" />
               {formatDate(epic.dueDate)}
             </div>
@@ -263,7 +263,7 @@ function EpicCard({
 
           {/* Comment count */}
           {epic.commentCount > 0 && (
-            <div className="flex shrink-0 items-center gap-1 text-xs text-muted-foreground">
+            <div className="flex shrink-0 items-center gap-1 text-sm text-muted-foreground">
               <MessageSquare className="size-3.5" />
               {epic.commentCount}
             </div>
@@ -354,7 +354,7 @@ function EpicCard({
                         trigger={
                           <button
                             type="button"
-                            className="flex items-center gap-1.5 rounded-md px-4 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-accent/40 hover:text-foreground"
+                            className="flex items-center gap-1.5 rounded-md px-4 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-accent/40 hover:text-foreground"
                           >
                             <Plus className="size-3.5" />
                             Add issue
@@ -439,14 +439,14 @@ export function EpicsClient({ project, epics: initialEpics, members, workspaceSl
 
           {/* Status filter */}
           <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className={cn("h-8 w-36 text-xs", statusFilter !== "all" && "border-primary text-primary")}>
+            <SelectTrigger className={cn("h-8 w-36 text-sm", statusFilter !== "all" && "border-primary text-primary")}>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All statuses</SelectItem>
               {ISSUE_STATUSES.map(({ value, label, icon: Icon, color }) => (
                 <SelectItem key={value} value={value}>
-                  <span className="flex items-center gap-2 text-xs">
+                  <span className="flex items-center gap-2 text-sm">
                     <Icon className={cn("size-3.5", color)} />{label}
                   </span>
                 </SelectItem>
@@ -481,7 +481,7 @@ export function EpicsClient({ project, epics: initialEpics, members, workspaceSl
               { label: "Issues done",   value: doneIssues,  color: "text-emerald-600 dark:text-emerald-400" },
             ].map(({ label, value, color }) => (
               <div key={label} className="rounded-xl border border-border bg-card p-4">
-                <p className="text-xs text-muted-foreground">{label}</p>
+                <p className="text-sm text-muted-foreground">{label}</p>
                 <p className={cn("mt-1 text-2xl font-bold", color)}>{value}</p>
               </div>
             ))}
@@ -534,7 +534,7 @@ export function EpicsClient({ project, epics: initialEpics, members, workspaceSl
         ) : (
           <div className="flex flex-col gap-3">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-muted-foreground">
+              <span className="text-sm font-medium text-muted-foreground">
                 {filtered.length} {filtered.length === 1 ? "epic" : "epics"}
               </span>
             </div>

@@ -76,7 +76,7 @@ export function ActivityFeed({ activities }: ActivityFeedProps) {
                 </Avatar>
 
                 <div className="flex flex-1 flex-col gap-0.5 min-w-0">
-                  <div className="flex flex-wrap items-baseline gap-1 text-xs text-muted-foreground">
+                  <div className="flex flex-wrap items-baseline gap-1 text-sm text-muted-foreground">
                     <span className="font-medium text-foreground">{entry.actor.name}</span>
                     <span>{formatActivityType(entry.type)}</span>
                     {entry.fromValue && entry.toValue && (
@@ -92,7 +92,7 @@ export function ActivityFeed({ activities }: ActivityFeedProps) {
                     )}
                   </div>
                   {entry.issue && (
-                    <p className="truncate text-xs text-muted-foreground/70">
+                    <p className="truncate text-sm text-muted-foreground/70">
                       <span className="font-mono">{entry.issue.project.key}-{entry.issue.key}</span>
                       {" · "}
                       {entry.issue.title}

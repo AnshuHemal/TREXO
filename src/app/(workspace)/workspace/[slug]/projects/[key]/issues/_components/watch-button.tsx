@@ -46,7 +46,7 @@ export function WatchButton({
         variant={watching ? "default" : "outline"}
         size="sm"
         className={cn(
-          "h-8 gap-2 text-xs transition-all",
+          "h-8 gap-2 text-sm transition-all",
           watching && "bg-primary/10 text-primary border-primary/30 hover:bg-primary/20",
         )}
         onClick={handleToggle}

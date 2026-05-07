@@ -36,7 +36,7 @@ function CustomTooltip({ active, payload }: { active?: boolean; payload?: Array<
   const { name, value } = payload[0];
   const label = ISSUE_STATUSES.find((s) => s.value === name)?.label ?? name;
   return (
-    <div className="rounded-lg border border-border bg-card px-3 py-2 text-xs shadow-lg">
+    <div className="rounded-lg border border-border bg-card px-3 py-2 text-sm shadow-lg">
       <p className="font-medium text-foreground">{label}</p>
       <p className="text-muted-foreground">{value} {value === 1 ? "issue" : "issues"}</p>
     </div>
@@ -109,8 +109,8 @@ export function StatusChart({ data, totalIssues }: StatusChartProps) {
                       className="size-2.5 shrink-0 rounded-full"
                       style={{ backgroundColor: STATUS_COLORS[d.status] ?? "#6366f1" }}
                     />
-                    <span className="flex-1 truncate text-xs text-muted-foreground">{label}</span>
-                    <span className="text-xs font-medium text-foreground tabular-nums">{d.count}</span>
+                    <span className="flex-1 truncate text-sm text-muted-foreground">{label}</span>
+                    <span className="text-sm font-medium text-foreground tabular-nums">{d.count}</span>
                     <span className="w-8 text-right text-[11px] text-muted-foreground tabular-nums">{pct}%</span>
                   </motion.div>
                 );

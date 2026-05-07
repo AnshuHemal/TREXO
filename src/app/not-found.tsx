@@ -40,7 +40,7 @@ export default function NotFound() {
       <main className="relative z-10 flex w-full max-w-md flex-col items-center gap-8 text-center">
 
         {/* Eyebrow */}
-        <FadeIn direction="down" delay={0.05} className="inline-flex items-center gap-2 rounded-full border border-border bg-muted/60 px-3 py-1 text-xs font-medium text-muted-foreground backdrop-blur-sm">
+        <FadeIn direction="down" delay={0.05} className="inline-flex items-center gap-2 rounded-full border border-border bg-muted/60 px-3 py-1 text-sm font-medium text-muted-foreground backdrop-blur-sm">
           <span className="size-1.5 rounded-full bg-destructive" />
           Error 404
         </FadeIn>
@@ -72,7 +72,7 @@ export default function NotFound() {
       </main>
 
       {/* Footer */}
-      <FadeIn direction="none" delay={0.4} className="absolute bottom-6 left-0 right-0 z-10 flex items-center justify-center gap-4 text-xs text-muted-foreground">
+      <FadeIn direction="none" delay={0.4} className="absolute bottom-6 left-0 right-0 z-10 flex items-center justify-center gap-4 text-sm text-muted-foreground">
         <Link href="/privacy" className="hover:text-foreground transition-colors">Privacy</Link>
         <span aria-hidden>·</span>
         <Link href="/terms" className="hover:text-foreground transition-colors">Terms</Link>

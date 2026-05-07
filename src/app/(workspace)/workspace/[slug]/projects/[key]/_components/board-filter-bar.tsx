@@ -64,7 +64,7 @@ export function BoardFilterBar({
 
       {/* Assignee filter */}
       <Select value={filterAssignee} onValueChange={onFilterAssignee}>
-        <SelectTrigger className={cn("h-7 w-36 text-xs", filterAssignee !== "all" && "border-primary text-primary")}>
+        <SelectTrigger className={cn("h-7 w-36 text-sm", filterAssignee !== "all" && "border-primary text-primary")}>
           <SelectValue placeholder="Assignee" />
         </SelectTrigger>
         <SelectContent>
@@ -72,7 +72,7 @@ export function BoardFilterBar({
           <SelectItem value="unassigned">Unassigned</SelectItem>
           {members.map((m) => (
             <SelectItem key={m.id} value={m.id}>
-              <span className="flex items-center gap-2 text-xs">
+              <span className="flex items-center gap-2 text-sm">
                 <Avatar className="size-4">
                   <AvatarImage src={m.image ?? undefined} />
                   <AvatarFallback className="text-[8px]">{getInitials(m.name)}</AvatarFallback>
@@ -86,14 +86,14 @@ export function BoardFilterBar({
 
       {/* Priority filter */}
       <Select value={filterPriority} onValueChange={onFilterPriority}>
-        <SelectTrigger className={cn("h-7 w-32 text-xs", filterPriority !== "all" && "border-primary text-primary")}>
+        <SelectTrigger className={cn("h-7 w-32 text-sm", filterPriority !== "all" && "border-primary text-primary")}>
           <SelectValue placeholder="Priority" />
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">All priorities</SelectItem>
           {ISSUE_PRIORITIES.map(({ value, label, icon: Icon, color }) => (
             <SelectItem key={value} value={value}>
-              <span className="flex items-center gap-2 text-xs">
+              <span className="flex items-center gap-2 text-sm">
                 <Icon className={cn("size-3.5", color)} />{label}
               </span>
             </SelectItem>
@@ -104,7 +104,7 @@ export function BoardFilterBar({
       {/* Epic filter */}
       {epics.length > 0 && onFilterEpic && (
         <Select value={filterEpic} onValueChange={onFilterEpic}>
-          <SelectTrigger className={cn("h-7 w-36 text-xs", filterEpic !== "all" && "border-purple-500 text-purple-600 dark:text-purple-400")}>
+          <SelectTrigger className={cn("h-7 w-36 text-sm", filterEpic !== "all" && "border-purple-500 text-purple-600 dark:text-purple-400")}>
             <Zap className="mr-1 size-3 shrink-0 text-purple-500" />
             <SelectValue placeholder="Epic" />
           </SelectTrigger>
@@ -113,7 +113,7 @@ export function BoardFilterBar({
             <SelectItem value="none">No epic</SelectItem>
             {epics.map((e) => (
               <SelectItem key={e.id} value={e.id}>
-                <span className="flex items-center gap-1.5 text-xs">
+                <span className="flex items-center gap-1.5 text-sm">
                   <Zap className="size-3 text-purple-500" />
                   {projectKey ? `${projectKey}-${e.key} ` : ""}{e.title}
                 </span>
@@ -125,7 +125,7 @@ export function BoardFilterBar({
 
       {/* Swimlane */}
       <Select value={swimlane} onValueChange={(v) => onSwimlane(v as SwimlaneMode)}>
-        <SelectTrigger className={cn("h-7 w-auto min-w-[9rem] text-xs", swimlane !== "none" && "border-primary text-primary")}>
+        <SelectTrigger className={cn("h-7 w-auto min-w-[9rem] text-sm", swimlane !== "none" && "border-primary text-primary")}>
           <Layers className="mr-1.5 size-3.5" />
           <SelectValue />
         </SelectTrigger>
@@ -140,7 +140,7 @@ export function BoardFilterBar({
       <AnimatePresence>
         {hasActiveFilters && (
           <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }}>
-            <Button variant="ghost" size="sm" className="h-7 gap-1 px-2 text-xs text-muted-foreground hover:text-foreground" onClick={onClear}>
+            <Button variant="ghost" size="sm" className="h-7 gap-1 px-2 text-sm text-muted-foreground hover:text-foreground" onClick={onClear}>
               <X className="size-3.5" />Clear
             </Button>
           </motion.div>
@@ -162,7 +162,7 @@ export function BoardFilterBar({
             size="sm"
             onClick={onToggleCapacity}
             className={cn(
-              "h-7 gap-1.5 px-2.5 text-xs font-medium transition-all",
+              "h-7 gap-1.5 px-2.5 text-sm font-medium transition-all",
               showCapacity
                 ? "bg-primary/10 text-primary hover:bg-primary/15"
                 : "text-muted-foreground hover:text-foreground",

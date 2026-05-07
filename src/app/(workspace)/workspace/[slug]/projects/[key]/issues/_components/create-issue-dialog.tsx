@@ -190,7 +190,7 @@ function TemplatePicker({
               <Button
                 type="button"
                 size="sm"
-                className="mt-3 w-full gap-1.5 text-xs"
+                className="mt-3 w-full gap-1.5 text-sm"
                 onClick={() => { onSelect(previewTpl); onClose(); }}
               >
                 <ArrowRight className="size-3.5" />
@@ -200,7 +200,7 @@ function TemplatePicker({
           ) : (
             <div className="flex flex-col items-center gap-2 p-6 text-center">
               <Eye className="size-5 text-muted-foreground/40" />
-              <p className="text-xs text-muted-foreground">Hover a template to preview</p>
+              <p className="text-sm text-muted-foreground">Hover a template to preview</p>
             </div>
           )}
         </div>
@@ -393,7 +393,7 @@ export function CreateIssueDialog({
               />
               <AnimatePresence mode="wait">
                 {fieldErrors.title && (
-                  <motion.p key="te" initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="text-xs text-destructive">
+                  <motion.p key="te" initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="text-sm text-destructive">
                     {fieldErrors.title}
                   </motion.p>
                 )}
@@ -428,7 +428,7 @@ export function CreateIssueDialog({
                       disabled={isPending}
                       rows={5}
                       placeholder="Add a description…"
-                      className="w-full resize-none rounded-md border border-border bg-background px-3 py-2 font-mono text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary disabled:opacity-50"
+                      className="w-full resize-none rounded-md border border-border bg-background px-3 py-2 font-mono text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary disabled:opacity-50"
                     />
                   </div>
                 </motion.div>

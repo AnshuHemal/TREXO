@@ -94,18 +94,18 @@ export function AcceptInviteClient({
           <div className="mb-6 flex items-center gap-3 rounded-xl border border-border bg-muted/30 p-3.5">
             <Avatar className="size-9 shrink-0">
               <AvatarImage src={inviterImage ?? undefined} />
-              <AvatarFallback className="text-xs font-semibold">
+              <AvatarFallback className="text-sm font-semibold">
                 {getInitials(inviterName)}
               </AvatarFallback>
             </Avatar>
             <div className="min-w-0">
               <p className="text-sm font-medium text-foreground truncate">{inviterName}</p>
-              <p className="text-xs text-muted-foreground">invited you to this workspace</p>
+              <p className="text-sm text-muted-foreground">invited you to this workspace</p>
             </div>
           </div>
 
           {/* Invitee email */}
-          <p className="mb-6 text-center text-xs text-muted-foreground">
+          <p className="mb-6 text-center text-sm text-muted-foreground">
             Accepting as <span className="font-medium text-foreground">{inviteeEmail}</span>
           </p>
 
@@ -140,7 +140,7 @@ export function AcceptInviteClient({
             )}
           </Button>
 
-          <p className="mt-4 text-center text-xs text-muted-foreground">
+          <p className="mt-4 text-center text-sm text-muted-foreground">
             By accepting, you agree to collaborate in this workspace.
           </p>
         </div>

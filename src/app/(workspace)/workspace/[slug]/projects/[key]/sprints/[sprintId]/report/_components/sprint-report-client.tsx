@@ -74,7 +74,7 @@ function IssueRow({ issue, projectKey, index }: { issue: ReportIssue; projectKey
     >
       <PriorityIcon className={cn("size-3.5 shrink-0", priority.color)} />
       <TypeIcon className={cn("size-3.5 shrink-0", type.color)} />
-      <span className="w-16 shrink-0 font-mono text-xs text-muted-foreground">
+      <span className="w-16 shrink-0 font-mono text-sm text-muted-foreground">
         {projectKey}-{issue.key}
       </span>
       <span className={cn(
@@ -85,7 +85,7 @@ function IssueRow({ issue, projectKey, index }: { issue: ReportIssue; projectKey
       </span>
       <div className="flex shrink-0 items-center gap-1.5">
         <StatusIcon className={cn("size-3.5", status.color)} />
-        <span className="hidden text-xs text-muted-foreground sm:block">{status.label}</span>
+        <span className="hidden text-sm text-muted-foreground sm:block">{status.label}</span>
       </div>
       {issue.estimate != null && (
         <span className="shrink-0 rounded bg-muted px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground">
@@ -147,7 +147,7 @@ export function SprintReportClient({ project, workspaceSlug, report }: SprintRep
                     </div>
                     <div>
                       <h1 className="text-lg font-bold text-foreground">{report.name}</h1>
-                      <p className="text-xs text-muted-foreground">Sprint Report</p>
+                      <p className="text-sm text-muted-foreground">Sprint Report</p>
                     </div>
                   </div>
                   {report.goal && (
@@ -157,7 +157,7 @@ export function SprintReportClient({ project, workspaceSlug, report }: SprintRep
                     </div>
                   )}
                 </div>
-                <div className="flex flex-col items-end gap-1 text-xs text-muted-foreground">
+                <div className="flex flex-col items-end gap-1 text-sm text-muted-foreground">
                   <div className="flex items-center gap-1.5">
                     <Calendar className="size-3.5" />
                     {formatDate(report.startDate)} – {formatDate(report.endDate)}
@@ -208,9 +208,9 @@ export function SprintReportClient({ project, workspaceSlug, report }: SprintRep
                 <div className="rounded-xl border border-border bg-card p-4">
                   <div className="flex items-start justify-between">
                     <div>
-                      <p className="text-xs font-medium text-muted-foreground">{label}</p>
+                      <p className="text-sm font-medium text-muted-foreground">{label}</p>
                       <p className={cn("mt-1.5 text-2xl font-bold", color)}>{value}</p>
-                      <p className="mt-0.5 text-xs text-muted-foreground">{sub}</p>
+                      <p className="mt-0.5 text-sm text-muted-foreground">{sub}</p>
                     </div>
                     <div className={cn("flex size-8 items-center justify-center rounded-lg", `${color.replace("text-", "bg-")}/10`)}>
                       <Icon className={cn("size-4", color)} />
@@ -240,7 +240,7 @@ export function SprintReportClient({ project, workspaceSlug, report }: SprintRep
                 />
               </div>
               {report.totalPoints > 0 && (
-                <div className="mt-3 flex items-center justify-between text-xs text-muted-foreground">
+                <div className="mt-3 flex items-center justify-between text-sm text-muted-foreground">
                   <span>Story points: {report.completedPoints}/{report.totalPoints}</span>
                   <span>{pointsRate}% of committed points delivered</span>
                 </div>
@@ -278,7 +278,7 @@ export function SprintReportClient({ project, workspaceSlug, report }: SprintRep
                   <h2 className="text-sm font-semibold text-foreground">
                     Carried Over ({report.carriedOver})
                   </h2>
-                  <span className="ml-auto text-xs text-muted-foreground">
+                  <span className="ml-auto text-sm text-muted-foreground">
                     Moved to backlog
                   </span>
                 </div>

@@ -71,7 +71,7 @@ export function ProjectDangerZone({
     <div className="flex items-center justify-between">
       <div>
         <p className="text-sm font-medium text-foreground">Delete project</p>
-        <p className="text-xs text-muted-foreground">
+        <p className="text-sm text-muted-foreground">
           Permanently delete this project and all its issues, sprints, and data. This cannot be undone.
         </p>
       </div>
