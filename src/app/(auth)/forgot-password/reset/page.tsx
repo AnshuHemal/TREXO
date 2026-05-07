@@ -3,18 +3,14 @@ import { Suspense } from "react";
 import { siteConfig } from "@/config/site";
 import { ResetPasswordForm } from "./_components/reset-password-form";
 
-// ─── Metadata ─────────────────────────────────────────────────────────────────
-
 export const metadata: Metadata = {
   title: "Reset password",
   description: `Set a new password for your ${siteConfig.name} account.`,
 };
 
-// ─── Page ─────────────────────────────────────────────────────────────────────
-
 export default function ResetPasswordPage() {
   return (
-    // Suspense boundary required because ResetPasswordForm reads useSearchParams()
+
     <Suspense>
       <ResetPasswordForm />
     </Suspense>

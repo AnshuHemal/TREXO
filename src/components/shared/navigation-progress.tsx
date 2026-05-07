@@ -5,13 +5,9 @@ import { usePathname, useSearchParams } from "next/navigation";
 import { createPortal } from "react-dom";
 import { Logo } from "@/components/shared/logo";
 
-// ─── Global loading state (module-level singleton) ────────────────────────────
-
 type Listener = (loading: boolean) => void;
 const listeners = new Set<Listener>();
 
-// Guards against firing before the router has initialised on the client.
-// Set to true inside a useEffect (runs only after full hydration).
 let _routerReady = false;
 
 function setGlobalLoading(val: boolean) {
@@ -20,7 +16,7 @@ function setGlobalLoading(val: boolean) {
 }
 
 function useGlobalLoading() {
-  // Always start false — avoids SSR/hydration mismatch
+
   const [loading, setLoading] = useState(false);
   useEffect(() => {
     const fn: Listener = (v) => setLoading(v);
@@ -30,21 +26,17 @@ function useGlobalLoading() {
   return loading;
 }
 
-// ─── Navigation interceptor ───────────────────────────────────────────────────
-
 function NavigationInterceptor() {
   const pathname     = usePathname();
   const searchParams = useSearchParams();
   const navKey       = `${pathname}?${searchParams}`;
   const prevKeyRef   = useRef(navKey);
 
-  // Mark router as ready after first mount (post-hydration)
   useEffect(() => {
     _routerReady = true;
     return () => { _routerReady = false; };
   }, []);
 
-  // Start progress bar / overlay on anchor click
   useEffect(() => {
     function handleClick(e: MouseEvent) {
       if (!_routerReady) return;
@@ -55,7 +47,6 @@ function NavigationInterceptor() {
       const href = anchor.getAttribute("href");
       if (!href) return;
 
-      // ── Skip external, mailto, tel ──────────────────────────────────────────
       if (
         href.startsWith("http") ||
         href.startsWith("//")   ||
@@ -63,21 +54,16 @@ function NavigationInterceptor() {
         href.startsWith("tel:")
       ) return;
 
-      // ── Skip pure hash links (#section) ────────────────────────────────────
       if (href.startsWith("#")) return;
 
-      // ── Skip same-page hash links (/#features, /page#section) ──────────────
-      // These only scroll — the pathname never changes, so no page load occurs.
       const [hrefPath, hrefHash] = href.split("#");
       const normHrefPath = hrefPath || "/";
       const currentPath  = window.location.pathname;
 
       if (hrefHash !== undefined && normHrefPath === currentPath) return;
 
-      // ── Skip if already on the same path (no hash) ──────────────────────────
       if (!hrefHash && normHrefPath === currentPath) return;
 
-      // ── Skip if modifier key held (open in new tab, etc.) ───────────────────
       if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
 
       setGlobalLoading(true);
@@ -87,7 +73,6 @@ function NavigationInterceptor() {
     return () => document.removeEventListener("click", handleClick, true);
   }, []);
 
-  // Stop loading when the new page has rendered (pathname/search changed)
   useEffect(() => {
     if (navKey === prevKeyRef.current) return;
     prevKeyRef.current = navKey;
@@ -97,8 +82,6 @@ function NavigationInterceptor() {
 
   return null;
 }
-
-// ─── Progress bar ─────────────────────────────────────────────────────────────
 
 function ProgressBar() {
   const loading     = useGlobalLoading();
@@ -168,10 +151,6 @@ function ProgressBar() {
   return null;
 }
 
-// ─── Full-screen loading overlay ─────────────────────────────────────────────
-
-// Only show the overlay if loading takes longer than this threshold.
-// Prevents a flash on fast navigations (cached pages, same-layout routes).
 const OVERLAY_DELAY_MS = 300;
 
 function LoadingOverlay() {
@@ -181,7 +160,6 @@ function LoadingOverlay() {
   const hideRef   = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [mounted, setMounted] = useState(false);
 
-  // Only render on the client — avoids SSR portal issues
   useEffect(() => { setMounted(true); }, []);
 
   useEffect(() => {
@@ -250,21 +228,6 @@ function LoadingOverlay() {
   );
 }
 
-// ─── Export ───────────────────────────────────────────────────────────────────
-
-/**
- * NavigationProgress — slim top progress bar + full-screen branded overlay
- * on every client-side navigation.
- *
- * The overlay only appears after 300ms so fast navigations (cached routes,
- * same-layout transitions) never show a flash.
- *
- * Hash-only links (/#features, #section) are explicitly excluded — they
- * only scroll the page and never trigger a route change.
- *
- * Must be wrapped in <Suspense fallback={null}> in the root layout because
- * NavigationInterceptor uses useSearchParams().
- */
 export function NavigationProgress() {
   return (
     <>

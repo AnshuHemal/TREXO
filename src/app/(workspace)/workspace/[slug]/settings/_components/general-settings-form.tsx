@@ -10,8 +10,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import { updateWorkspace, updateWorkspaceLogo, checkWorkspaceSlug } from "../actions";
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
 function nameToSlug(name: string): string {
   return name
     .toLowerCase()
@@ -31,8 +29,6 @@ async function checkSlugAvailable(
   return available;
 }
 
-// ─── Props ────────────────────────────────────────────────────────────────────
-
 interface GeneralSettingsFormProps {
   workspaceId: string;
   initialName: string;
@@ -40,8 +36,6 @@ interface GeneralSettingsFormProps {
   initialLogo?: string | null;
   workspaceName?: string;
 }
-
-// ─── Component ────────────────────────────────────────────────────────────────
 
 export function GeneralSettingsForm({
   workspaceId,
@@ -80,7 +74,7 @@ export function GeneralSettingsForm({
     reader.onload = (ev) => {
       const base64 = ev.target?.result as string;
       setLogo(base64);
-      // Auto-save logo immediately
+
       startLogoTransition(async () => {
         const result = await updateWorkspaceLogo(workspaceId, base64);
         if (!result.success) setLogoError(result.error ?? "Failed to save logo.");
@@ -148,7 +142,6 @@ export function GeneralSettingsForm({
 
       setSuccessMessage("Workspace settings saved.");
 
-      // If slug changed, navigate to new URL
       if (slug !== initialSlug) {
         window.location.href = `/workspace/${slug}/settings`;
       }
@@ -166,7 +159,7 @@ export function GeneralSettingsForm({
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-      {/* Workspace logo */}
+      {}
       <div className="flex items-center gap-5">
         <div className="relative">
           <Avatar className="size-16 rounded-xl">
@@ -217,7 +210,7 @@ export function GeneralSettingsForm({
         </div>
       </div>
 
-      {/* Name */}
+      {}
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="ws-name">Workspace name</Label>
         <Input
@@ -246,7 +239,7 @@ export function GeneralSettingsForm({
         </AnimatePresence>
       </div>
 
-      {/* Slug */}
+      {}
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="ws-slug">Workspace URL</Label>
         <div
@@ -345,7 +338,7 @@ export function GeneralSettingsForm({
         </AnimatePresence>
       </div>
 
-      {/* Server error */}
+      {}
       <AnimatePresence mode="wait">
         {serverError && (
           <motion.div

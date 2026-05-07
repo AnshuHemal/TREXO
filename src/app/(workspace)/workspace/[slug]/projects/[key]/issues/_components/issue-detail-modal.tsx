@@ -51,8 +51,6 @@ import { CustomFieldValues } from "./custom-field-values";
 import { TimeLogSection } from "./time-log-section";
 import { WatchButton } from "./watch-button";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 interface Member {
   id: string;
   name: string;
@@ -69,7 +67,6 @@ interface ActivityItem {
   actor: { id: string; name: string; image: string | null };
 }
 
-/** Unified timeline entry */
 type TimelineEntry =
   | { kind: "activity"; data: ActivityItem }
   | { kind: "comment";  data: CommentItem };
@@ -101,13 +98,13 @@ export interface IssueDetail {
   } | null;
   projectId?: string;
   links?: IssueLinkItem[];
-  /** Custom field values stored as JSON */
+
   customFields?: Record<string, string | number | null>;
-  /** Custom field definitions from the project */
+
   customFieldDefs?: import("@/lib/custom-fields").CustomFieldDef[];
-  /** Whether the current user is watching this issue */
+
   isWatching?: boolean;
-  /** Total number of watchers */
+
   watcherCount?: number;
 }
 
@@ -123,8 +120,6 @@ interface IssueDetailModalProps {
   onClose: () => void;
   onDeleted: () => void;
 }
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function getInitials(name: string) {
   const parts = name.trim().split(/\s+/);
@@ -149,8 +144,6 @@ function formatRelative(date: Date) {
   if (days < 7) return `${days}d ago`;
   return formatDate(date);
 }
-
-// ─── Estimate field ───────────────────────────────────────────────────────────
 
 const ESTIMATE_OPTIONS = [
   { value: 1,  label: "1",  size: "XS" },
@@ -198,8 +191,6 @@ function EstimateField({
   );
 }
 
-// ─── Sidebar field ────────────────────────────────────────────────────────────
-
 function SidebarField({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="flex flex-col gap-1">
@@ -208,8 +199,6 @@ function SidebarField({ label, children }: { label: string; children: React.Reac
     </div>
   );
 }
-
-// ─── Activity entry ───────────────────────────────────────────────────────────
 
 function ActivityEntry({ activity }: { activity: ActivityItem }) {
   return (
@@ -237,8 +226,6 @@ function ActivityEntry({ activity }: { activity: ActivityItem }) {
   );
 }
 
-// ─── Main component ───────────────────────────────────────────────────────────
-
 export function IssueDetailModal({
   issue: initialIssue,
   projectKey,
@@ -265,7 +252,7 @@ export function IssueDetailModal({
   const [estimate, setEstimate] = useState<number | null>(issue.estimate ?? null);
   const [subTasks, setSubTasks] = useState<SubTaskItem[]>(issue.subTasks ?? []);
   const [links] = useState<IssueLinkItem[]>(() => {
-    // Normalise links from API response (outgoing + flipped incoming)
+
     const out = (issue as IssueDetail & {
       outgoingLinks?: Array<{ id: string; type: string; target: IssueLinkItem["issue"] }>;
       incomingLinks?: Array<{ id: string; type: string; source: IssueLinkItem["issue"] }>;
@@ -292,7 +279,6 @@ export function IssueDetailModal({
 
   const issueKey = `${projectKey}-${issue.key}`;
 
-  // ── Issue-level keyboard shortcuts ────────────────────────────────────────────
   useKeyboardShortcuts([
     {
       keys: "e",
@@ -322,8 +308,6 @@ export function IssueDetailModal({
     },
   ]);
 
-  // ── Unified timeline (activities + comments sorted by createdAt) ──────────────
-
   const timeline = useMemo<TimelineEntry[]>(() => {
     const entries: TimelineEntry[] = [
       ...activities.map((a) => ({ kind: "activity" as const, data: a })),
@@ -334,8 +318,6 @@ export function IssueDetailModal({
         new Date(a.data.createdAt).getTime() - new Date(b.data.createdAt).getTime(),
     );
   }, [activities, comments]);
-
-  // ── Field updates ─────────────────────────────────────────────────────────────
 
   function handleFieldUpdate(field: string, value: string | null) {
     startTransition(async () => {
@@ -358,7 +340,7 @@ export function IssueDetailModal({
       setIssue((prev) => ({ ...prev, title: titleDraft.trim() }));
       setIsEditingTitle(false);
       setError(null);
-      // Notify @mentioned users in the title
+
       const mentions = titleDraft.match(/@([\w\s]+?)(?=\s@|\s*$|[^a-zA-Z\s])/g);
       if (mentions && mentions.length > 0) {
         const { notifyMentioned } = await import("@/lib/notifications");
@@ -376,15 +358,13 @@ export function IssueDetailModal({
   const handleDescriptionSave = useCallback(() => {
     startDescTransition(async () => {
       await updateIssue(issue.id, { description });
-      // Notify any @mentioned users in the description
+
       if (description) {
         const { notifyMentioned } = await import("@/lib/notifications");
         notifyMentioned({ html: description, actorId: currentUserId, issueId: issue.id }).catch(() => {});
       }
     });
   }, [issue.id, description, currentUserId]);
-
-  // ── Comments ──────────────────────────────────────────────────────────────────
 
   function handleAddComment(e: React.FormEvent) {
     e.preventDefault();
@@ -431,8 +411,6 @@ export function IssueDetailModal({
     });
   }
 
-  // ── Open sub-task ─────────────────────────────────────────────────────────────
-
   async function handleOpenSubTask(subTaskId: string) {
     setSelectedSubTaskId(subTaskId);
     setIsLoadingSubTask(true);
@@ -452,13 +430,11 @@ export function IssueDetailModal({
     setSubTaskDetail(null);
   }
 
-  // ── Duplicate issue ───────────────────────────────────────────────────────────
-
   function handleDuplicate() {
     startTransition(async () => {
       const result = await duplicateIssue(issue.id);
       if (!result.success) { setError(result.error ?? "Failed to duplicate issue."); return; }
-      // Navigate to the new issue's full page if workspaceSlug is available
+
       if (workspaceSlug && result.data) {
         window.location.href = `/workspace/${workspaceSlug}/projects/${projectKey}/issues/${result.data.key}`;
       } else {
@@ -468,16 +444,12 @@ export function IssueDetailModal({
     });
   }
 
-  // ── Delete issue ──────────────────────────────────────────────────────────────
-
   function handleDeleteIssue() {    startTransition(async () => {
       const result = await deleteIssue(issue.id);
       if (!result.success) { setError(result.error ?? "Failed to delete issue."); return; }
       onDeleted();
     });
   }
-
-  // ── Render ────────────────────────────────────────────────────────────────────
 
   return (
     <>
@@ -496,10 +468,10 @@ export function IssueDetailModal({
         className="relative flex w-full max-w-5xl flex-col rounded-none border-0 bg-card shadow-2xl sm:rounded-xl sm:border sm:border-border"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* ── Header ──────────────────────────────────────────────────────── */}
+        {}
         <div className="flex items-center justify-between border-b border-border px-6 py-4">
           <div className="flex items-center gap-2 text-sm">
-            {/* Parent breadcrumb */}
+            {}
             {issue.parent && (
               <>
                 <button
@@ -526,7 +498,7 @@ export function IssueDetailModal({
                 <ExternalLink className="size-4" />
               </a>
             )}
-            {/* Duplicate */}
+            {}
             <Button
               variant="ghost"
               size="icon"
@@ -564,7 +536,7 @@ export function IssueDetailModal({
           </div>
         </div>
 
-        {/* ── Overdue / due-soon banner ────────────────────────────────── */}
+        {}
         <AnimatePresence>
           {dueDate && !["DONE", "CANCELLED"].includes(issue.status) && (() => {
             const label = getDueDateLabel(dueDate, issue.status);
@@ -592,13 +564,13 @@ export function IssueDetailModal({
           })()}
         </AnimatePresence>
 
-        {/* ── Body ────────────────────────────────────────────────────────── */}
+        {}
         <div className="flex flex-1 flex-col overflow-hidden sm:flex-row">
 
-          {/* Left — main content */}
+          {}
           <div className="flex flex-1 flex-col gap-6 overflow-y-auto p-6">
 
-            {/* Title */}
+            {}
             <div>
               {isEditingTitle ? (
                 <MentionTitleInput
@@ -622,7 +594,7 @@ export function IssueDetailModal({
               )}
             </div>
 
-            {/* Description */}
+            {}
             <div className="flex flex-col gap-2">
               <span className="text-sm font-medium text-muted-foreground">Description</span>
               <RichTextEditor
@@ -640,7 +612,7 @@ export function IssueDetailModal({
               )}
             </div>
 
-            {/* Sub-tasks — only show on parent issues (not on sub-tasks themselves) */}
+            {}
             {!issue.parent && issue.projectId && (
               <SubTaskList
                 parentId={issue.id}
@@ -651,7 +623,7 @@ export function IssueDetailModal({
               />
             )}
 
-            {/* Linked issues */}
+            {}
             {issue.projectId && (
               <IssueLinks
                 issueId={issue.id}
@@ -661,14 +633,14 @@ export function IssueDetailModal({
               />
             )}
 
-            {/* Time tracking */}
+            {}
             <TimeLogSection
               issueId={issue.id}
               estimate={issue.estimate ?? null}
               currentUserId={currentUserId}
             />
 
-            {/* Error */}
+            {}
             <AnimatePresence>
               {error && (
                 <motion.div
@@ -683,7 +655,7 @@ export function IssueDetailModal({
 
             <Separator />
 
-            {/* ── Unified timeline ─────────────────────────────────────── */}
+            {}
             <div className="flex flex-col gap-4">
               <h3 className="flex items-center gap-2 text-sm font-semibold text-foreground">
                 <MessageSquare className="size-4" />
@@ -723,7 +695,7 @@ export function IssueDetailModal({
                 </div>
               )}
 
-              {/* ── Add comment ─────────────────────────────────────────── */}
+              {}
               <form onSubmit={handleAddComment} className="flex items-start gap-2.5 pt-1">
                 <Avatar className="mt-1 size-6 shrink-0">
                   <AvatarImage src={currentUserImage ?? undefined} />
@@ -769,7 +741,7 @@ export function IssueDetailModal({
             </div>
           </div>
 
-          {/* Right — sidebar */}
+          {}
           <div className="flex w-full shrink-0 flex-col gap-5 overflow-y-auto border-t border-border p-5 sm:w-64 sm:border-l sm:border-t-0">
 
             <SidebarField label="Status">
@@ -947,7 +919,7 @@ export function IssueDetailModal({
 
             <Separator />
 
-            {/* Watch button */}
+            {}
             <SidebarField label="Notifications">
               <WatchButton
                 issueId={issue.id}
@@ -976,7 +948,7 @@ export function IssueDetailModal({
               <span className="text-sm text-muted-foreground">{formatDate(issue.updatedAt)}</span>
             </SidebarField>
 
-            {/* Custom fields */}
+            {}
             {issue.customFieldDefs && issue.customFieldDefs.length > 0 && (
               <>
                 <Separator />
@@ -994,7 +966,7 @@ export function IssueDetailModal({
       </motion.div>
     </motion.div>
 
-    {/* ── Nested sub-task modal ──────────────────────────────────────────── */}
+    {}
     <AnimatePresence>
       {selectedSubTaskId && (
         isLoadingSubTask || !subTaskDetail ? (

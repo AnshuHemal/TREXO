@@ -3,8 +3,6 @@
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/session";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 export interface ActionResult<T = void> {
   success: boolean;
   data?: T;
@@ -27,12 +25,6 @@ export interface IssueLinkItem {
   };
 }
 
-// ─── searchIssues ─────────────────────────────────────────────────────────────
-
-/**
- * Search issues within the same workspace by key or title.
- * Excludes the current issue and its sub-tasks.
- */
 export async function searchIssuesForLink(
   currentIssueId: string,
   projectId: string,
@@ -43,7 +35,7 @@ export async function searchIssuesForLink(
   if (!query.trim()) return { success: true, data: [] };
 
   try {
-    // Get workspace ID from project
+
     const project = await prisma.project.findUnique({
       where: { id: projectId },
       select: { workspaceId: true },
@@ -56,10 +48,10 @@ export async function searchIssuesForLink(
       where: {
         project: { workspaceId: project.workspaceId },
         id: { not: currentIssueId },
-        parentId: null, // exclude sub-tasks
+        parentId: null,
         OR: [
           { title: { contains: q, mode: "insensitive" } },
-          // key search: if query looks like "KEY-123"
+
           ...(q.includes("-")
             ? [{
                 AND: [
@@ -89,8 +81,6 @@ export async function searchIssuesForLink(
   }
 }
 
-// ─── createIssueLink ─────────────────────────────────────────────────────────
-
 export async function createIssueLink(
   sourceId: string,
   targetId: string,
@@ -103,7 +93,7 @@ export async function createIssueLink(
   }
 
   try {
-    // Check for duplicate
+
     const existing = await prisma.issueLink.findFirst({
       where: { sourceId, targetId, type },
     });
@@ -116,7 +106,6 @@ export async function createIssueLink(
       select: { id: true },
     });
 
-    // Log activity on source issue
     await prisma.activity.create({
       data: {
         issueId: sourceId,
@@ -132,8 +121,6 @@ export async function createIssueLink(
   }
 }
 
-// ─── deleteIssueLink ─────────────────────────────────────────────────────────
-
 export async function deleteIssueLink(linkId: string): Promise<ActionResult> {
   await requireUser();
 
@@ -145,12 +132,6 @@ export async function deleteIssueLink(linkId: string): Promise<ActionResult> {
   }
 }
 
-// ─── getIssueLinks ────────────────────────────────────────────────────────────
-
-/**
- * Returns all links for an issue, normalised so the "linked issue"
- * is always the other side of the relation.
- */
 export async function getIssueLinks(issueId: string): Promise<ActionResult<IssueLinkItem[]>> {
   await requireUser();
 
@@ -190,7 +171,7 @@ export async function getIssueLinks(issueId: string): Promise<ActionResult<Issue
       })),
       ...incoming.map((l) => ({
         id: l.id,
-        // Flip the perspective for incoming links
+
         type: flipLinkType(l.type as LinkType),
         issue: l.source,
       })),
@@ -202,10 +183,8 @@ export async function getIssueLinks(issueId: string): Promise<ActionResult<Issue
   }
 }
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
 function flipLinkType(type: LinkType): LinkType {
   if (type === "BLOCKS")     return "BLOCKED_BY";
   if (type === "BLOCKED_BY") return "BLOCKS";
-  return type; // DUPLICATES and RELATES_TO are symmetric
+  return type;
 }

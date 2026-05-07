@@ -9,14 +9,10 @@ import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { inviteMember } from "../actions";
 
-// ─── Props ────────────────────────────────────────────────────────────────────
-
 interface InviteMemberFormProps {
   workspaceId: string;
   onMemberAdded?: () => void;
 }
-
-// ─── Component ────────────────────────────────────────────────────────────────
 
 export function InviteMemberForm({
   workspaceId,

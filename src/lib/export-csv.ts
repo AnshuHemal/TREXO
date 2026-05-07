@@ -1,17 +1,9 @@
-/**
- * CSV export utility — pure client-side, no backend needed.
- * Uses the browser Blob API to trigger a file download.
- */
 
-// ─── Types ────────────────────────────────────────────────────────────────────
 
 export interface CsvRow {
   [key: string]: string | number | boolean | null | undefined;
 }
 
-// ─── Core helpers ─────────────────────────────────────────────────────────────
-
-/** Escape a cell value for CSV: wrap in quotes if it contains comma/quote/newline */
 function escapeCell(value: string | number | boolean | null | undefined): string {
   if (value == null) return "";
   const str = String(value);
@@ -21,7 +13,6 @@ function escapeCell(value: string | number | boolean | null | undefined): string
   return str;
 }
 
-/** Convert an array of objects to a CSV string */
 export function toCsv(rows: CsvRow[], columns: { key: string; label: string }[]): string {
   const header = columns.map((c) => escapeCell(c.label)).join(",");
   const body = rows.map((row) =>
@@ -30,9 +21,8 @@ export function toCsv(rows: CsvRow[], columns: { key: string; label: string }[])
   return [header, ...body].join("\n");
 }
 
-/** Trigger a browser download of a CSV string */
 export function downloadCsv(csv: string, filename: string): void {
-  const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" }); // BOM for Excel
+  const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
   const url  = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href     = url;
@@ -43,8 +33,6 @@ export function downloadCsv(csv: string, filename: string): void {
   document.body.removeChild(link);
   URL.revokeObjectURL(url);
 }
-
-// ─── Issue-specific export ────────────────────────────────────────────────────
 
 export interface ExportableIssue {
   key: number;

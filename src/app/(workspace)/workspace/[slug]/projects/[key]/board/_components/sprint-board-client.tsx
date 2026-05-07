@@ -42,8 +42,6 @@ import { getBoardColumns, type WorkflowConfig, DEFAULT_WORKFLOW_CONFIG } from "@
 import { cn } from "@/lib/utils";
 import { useKanbanKeyboard } from "@/hooks/use-kanban-keyboard";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 interface Member {
   id: string;
   name: string;
@@ -74,8 +72,6 @@ interface SprintBoardClientProps {
   workspaceSlug: string;
 }
 
-// ─── Position helpers ─────────────────────────────────────────────────────────
-
 const POSITION_GAP = 1000;
 
 function computeNewPosition(
@@ -92,8 +88,6 @@ function computeNewPosition(
   if (above && below) return (above.position + below.position) / 2;
   return POSITION_GAP;
 }
-
-// ─── Component ────────────────────────────────────────────────────────────────
 
 export function SprintBoardClient({
   project,
@@ -115,7 +109,6 @@ export function SprintBoardClient({
   const [issueDetail, setIssueDetail]         = useState<IssueDetail | null>(null);
   const [isLoadingDetail, setIsLoadingDetail] = useState(false);
 
-  // ── Bulk selection ────────────────────────────────────────────────────────────
   const [selectedIds, setSelectedIds]       = useState<Set<string>>(new Set());
   const [isBulkPending, startBulkTransition] = useTransition();
 
@@ -171,7 +164,6 @@ export function SprintBoardClient({
     });
   }
 
-  // ── Keyboard navigation ───────────────────────────────────────────────────────
   const allIssueIds = issues
     .filter((i) => i.type !== "SUBTASK")
     .map((i) => i.id);
@@ -179,10 +171,9 @@ export function SprintBoardClient({
   const { focusedId, setFocusedId } = useKanbanKeyboard({
     issueIds: allIssueIds,
     onOpen: handleOpenIssue,
-    enabled: !selectedIssueId, // disable when modal is open
+    enabled: !selectedIssueId,
   });
 
-  // ── Inline issue update (from quick-edit) ─────────────────────────────────────
   function handleIssueUpdated(id: string, field: string, value: string | null) {
     setIssues((prev) => prev.map((i) => {
       if (i.id !== id) return i;
@@ -192,7 +183,7 @@ export function SprintBoardClient({
       }
       return updated;
     }));
-    // Update sprint done count if status changed
+
     if (field === "status") {
       const next = issues.map((i) => i.id === id ? { ...i, status: value ?? i.status } : i);
       const doneIssues = next.filter((i) => i.status === "DONE" || i.status === "CANCELLED").length;
@@ -203,13 +194,10 @@ export function SprintBoardClient({
   const [filterEpic, setFilterEpic]         = useState("all");
   const [swimlane, setSwimlane]             = useState<SwimlaneMode>("none");
 
-  // ── Filter + swimlane ─────────────────────────────────────────────────────────
   const [filterAssignee, setFilterAssignee] = useState("all");
 
-  // ── Capacity panel ────────────────────────────────────────────────────────────
   const [showCapacity, setShowCapacity] = useState(false);
 
-  // ── Real-time ─────────────────────────────────────────────────────────────────
   type ConnStatus = "connecting" | "connected" | "disconnected";
   const [connStatus, setConnStatus] = useState<ConnStatus>("connecting");
   const ctx = useWorkspaceSafe();
@@ -221,8 +209,7 @@ export function SprintBoardClient({
     onConnected:    () => setConnStatus("connected"),
     onDisconnected: () => setConnStatus("disconnected"),
     onIssueCreated: (issue) => {
-      // Only add if it belongs to this sprint (we can't know sprintId from SSE payload easily,
-      // so we skip auto-add — a page refresh will show it)
+
     },
     onIssueUpdated: (update) => {
       setIssues((prev) => {
@@ -238,7 +225,7 @@ export function SprintBoardClient({
               }
             : i,
         );
-        // Update sprint stats inside the same updater to avoid stale closure
+
         const doneIssues = next.filter(
           (i) => i.status === "DONE" || i.status === "CANCELLED",
         ).length;
@@ -269,7 +256,6 @@ export function SprintBoardClient({
     setSwimlane("none");
   }
 
-  // ── DnD ───────────────────────────────────────────────────────────────────────
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
   );
@@ -347,7 +333,7 @@ export function SprintBoardClient({
       const next = prev.map((i) =>
         i.id === active.id ? { ...i, status: targetStatus, position: newPosition } : i,
       );
-      // Update sprint done count inside the same updater — avoids stale closure
+
       const doneIssues = next.filter(
         (i) => i.status === "DONE" || i.status === "CANCELLED",
       ).length;
@@ -416,20 +402,18 @@ export function SprintBoardClient({
     window.location.reload();
   }
 
-  // ── Render ────────────────────────────────────────────────────────────────────
-
   return (
     <>
       <ReconnectBanner show={connStatus === "disconnected"} />
 
-      {/* Sprint header with progress */}
+      {}
       <SprintHeader
         sprint={sprint}
         otherSprints={otherSprints}
         onCompleted={handleSprintCompleted}
       />
 
-      {/* Filter bar */}
+      {}
       <BoardFilterBar
         members={members}
         epics={epics}
@@ -449,7 +433,7 @@ export function SprintBoardClient({
         onToggleCapacity={() => setShowCapacity((v) => !v)}
       />
 
-      {/* Board + capacity panel */}
+      {}
       <div className="flex flex-1 overflow-hidden">
         <div className="flex flex-1 overflow-x-auto overflow-y-hidden">
         <DndContext
@@ -532,7 +516,7 @@ export function SprintBoardClient({
         </DndContext>
       </div>
 
-        {/* Capacity panel */}
+        {}
         <AnimatePresence>
           {showCapacity && (
             <motion.div
@@ -546,9 +530,9 @@ export function SprintBoardClient({
             </motion.div>
           )}
         </AnimatePresence>
-      </div>{/* end board + capacity row */}
+      </div>{}
 
-      {/* Floating bulk action bar */}
+      {}
       <AnimatePresence>
         {selectedIds.size > 0 && (
           <motion.div
@@ -559,7 +543,7 @@ export function SprintBoardClient({
             className="fixed bottom-6 left-1/2 z-40 -translate-x-1/2"
           >
             <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-primary/30 bg-card px-4 py-2.5 shadow-2xl shadow-primary/10">
-              {/* Count */}
+              {}
               <div className="flex items-center gap-2">
                 <span className="flex h-6 min-w-6 items-center justify-center rounded-full bg-primary px-2 text-sm font-bold text-primary-foreground">
                   {selectedIds.size}
@@ -570,7 +554,7 @@ export function SprintBoardClient({
               </div>
               <div className="h-4 w-px bg-border" />
 
-              {/* Status */}
+              {}
               <Select onValueChange={(v) => handleBulkUpdate("status", v)} disabled={isBulkPending}>
                 <SelectTrigger className="h-7 w-32 text-sm"><SelectValue placeholder="Set status" /></SelectTrigger>
                 <SelectContent>
@@ -582,7 +566,7 @@ export function SprintBoardClient({
                 </SelectContent>
               </Select>
 
-              {/* Priority */}
+              {}
               <Select onValueChange={(v) => handleBulkUpdate("priority", v)} disabled={isBulkPending}>
                 <SelectTrigger className="h-7 w-32 text-sm"><SelectValue placeholder="Set priority" /></SelectTrigger>
                 <SelectContent>
@@ -594,7 +578,7 @@ export function SprintBoardClient({
                 </SelectContent>
               </Select>
 
-              {/* Assignee */}
+              {}
               <Select onValueChange={(v) => handleBulkUpdate("assigneeId", v === "none" ? null : v)} disabled={isBulkPending}>
                 <SelectTrigger className="h-7 w-36 text-sm"><SelectValue placeholder="Assign to…" /></SelectTrigger>
                 <SelectContent>
@@ -615,7 +599,7 @@ export function SprintBoardClient({
               {isBulkPending && <Loader2 className="size-4 animate-spin text-muted-foreground" />}
 
               <div className="flex items-center gap-1.5">
-                {/* Delete */}
+                {}
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
                     <Button variant="ghost" size="sm"
@@ -640,7 +624,7 @@ export function SprintBoardClient({
                   </AlertDialogContent>
                 </AlertDialog>
 
-                {/* Clear */}
+                {}
                 <Button variant="ghost" size="sm"
                   className="h-7 gap-1 px-2 text-sm text-muted-foreground hover:text-foreground"
                   onClick={clearSelection}>
@@ -652,7 +636,7 @@ export function SprintBoardClient({
         )}
       </AnimatePresence>
 
-      {/* Issue detail modal */}
+      {}
       <AnimatePresence>
         {selectedIssueId && (
           isLoadingDetail || !issueDetail ? (

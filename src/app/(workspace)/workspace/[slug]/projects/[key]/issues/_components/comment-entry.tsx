@@ -16,8 +16,6 @@ import { RichTextEditor } from "@/components/editor/rich-text-editor";
 import { cn } from "@/lib/utils";
 import { toggleCommentReaction } from "../actions";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 export interface CommentReaction {
   id: string;
   emoji: string;
@@ -48,11 +46,7 @@ interface CommentEntryProps {
   onDelete: (id: string) => void;
 }
 
-// ─── Constants ────────────────────────────────────────────────────────────────
-
 const REACTION_EMOJIS = ["👍", "✅", "🎉", "❤️", "🚀", "👀"] as const;
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function getInitials(name: string) {
   const parts = name.trim().split(/\s+/);
@@ -70,8 +64,6 @@ function formatRelative(date: Date): string {
   if (days < 7) return `${days}d ago`;
   return new Intl.DateTimeFormat("en", { month: "short", day: "numeric" }).format(new Date(date));
 }
-
-// ─── Reaction pill ────────────────────────────────────────────────────────────
 
 function ReactionPill({
   emoji,
@@ -132,8 +124,6 @@ function ReactionPill({
     </motion.button>
   );
 }
-
-// ─── Emoji picker ─────────────────────────────────────────────────────────────
 
 function EmojiPicker({
   commentId,
@@ -199,8 +189,6 @@ function EmojiPicker({
   );
 }
 
-// ─── Main component ───────────────────────────────────────────────────────────
-
 export function CommentEntry({
   comment,
   currentUserId,
@@ -218,7 +206,6 @@ export function CommentEntry({
   const isEdited = comment.updatedAt &&
     new Date(comment.updatedAt).getTime() !== new Date(comment.createdAt).getTime();
 
-  // Group reactions by emoji
   const grouped = REACTION_EMOJIS.reduce<Record<string, CommentReaction[]>>((acc, emoji) => {
     const group = reactions.filter((r) => r.emoji === emoji);
     if (group.length > 0) acc[emoji] = group;
@@ -251,7 +238,7 @@ export function CommentEntry({
       onMouseEnter={() => setShowActions(true)}
       onMouseLeave={() => setShowActions(false)}
     >
-      {/* Avatar */}
+      {}
       <Avatar className="mt-0.5 size-7 shrink-0 ring-2 ring-background">
         <AvatarImage src={comment.author.image ?? undefined} />
         <AvatarFallback className="text-[10px] font-semibold">
@@ -260,7 +247,7 @@ export function CommentEntry({
       </Avatar>
 
       <div className="flex min-w-0 flex-1 flex-col gap-1.5">
-        {/* Header */}
+        {}
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <span className="text-sm font-semibold text-foreground">{comment.author.name}</span>
@@ -270,7 +257,7 @@ export function CommentEntry({
             )}
           </div>
 
-          {/* Action buttons — appear on hover */}
+          {}
           <AnimatePresence>
             {showActions && !isEditing && (
               <motion.div
@@ -280,13 +267,13 @@ export function CommentEntry({
                 transition={{ duration: 0.1 }}
                 className="flex items-center gap-0.5"
               >
-                {/* Emoji picker */}
+                {}
                 <EmojiPicker
                   commentId={comment.id}
                   onToggle={handleReactionToggle}
                 />
 
-                {/* Edit — own comments only */}
+                {}
                 {isOwn && (
                   <button
                     type="button"
@@ -298,7 +285,7 @@ export function CommentEntry({
                   </button>
                 )}
 
-                {/* Delete — own comments only */}
+                {}
                 {isOwn && (
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
@@ -331,7 +318,7 @@ export function CommentEntry({
           </AnimatePresence>
         </div>
 
-        {/* Body */}
+        {}
         {isEditing ? (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
@@ -371,7 +358,7 @@ export function CommentEntry({
           />
         )}
 
-        {/* Reactions */}
+        {}
         <AnimatePresence>
           {Object.keys(grouped).length > 0 && (
             <motion.div
@@ -391,7 +378,7 @@ export function CommentEntry({
                   onToggle={handleReactionToggle}
                 />
               ))}
-              {/* Add more reactions */}
+              {}
               <EmojiPicker
                 commentId={comment.id}
                 onToggle={handleReactionToggle}

@@ -3,8 +3,6 @@
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/session";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 export interface ActionResult<T = void> {
   success: boolean;
   data?: T;
@@ -29,8 +27,6 @@ export interface TemplateItem {
   titlePrefix: string | null;
   createdAt: Date;
 }
-
-// ─── createTemplate ───────────────────────────────────────────────────────────
 
 export async function createTemplate(
   workspaceId: string,
@@ -62,8 +58,6 @@ export async function createTemplate(
   }
 }
 
-// ─── updateTemplate ───────────────────────────────────────────────────────────
-
 export async function updateTemplate(
   templateId: string,
   input: TemplateInput,
@@ -93,8 +87,6 @@ export async function updateTemplate(
     return { success: false, error: "Failed to update template." };
   }
 }
-
-// ─── deleteTemplate ───────────────────────────────────────────────────────────
 
 export async function deleteTemplate(templateId: string): Promise<ActionResult> {
   await requireUser();

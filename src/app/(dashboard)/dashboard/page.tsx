@@ -36,7 +36,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="w-full max-w-2xl">
-      {/* Header */}
+      {}
       <FadeIn direction="down" className="mb-10 text-center">
         <div className="mb-4 flex justify-center">
           <div className="flex size-14 items-center justify-center rounded-2xl bg-primary/10 ring-1 ring-primary/20">
@@ -51,14 +51,14 @@ export default async function DashboardPage() {
         </p>
       </FadeIn>
 
-      {/* Workspace grid */}
+      {}
       <StaggerChildren className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         {workspaces.map((ws) => (
           <WorkspaceCard key={ws.id} workspace={ws} />
         ))}
       </StaggerChildren>
 
-      {/* Create new workspace */}
+      {}
       <FadeIn delay={0.35} className="mt-6 flex justify-center">
         <Button variant="outline" asChild className="gap-2">
           <Link href="/onboarding">

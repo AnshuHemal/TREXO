@@ -26,7 +26,6 @@ export default async function IssueListPage({ params }: IssueListPageProps) {
   });
   if (!project) notFound();
 
-  // ── All issues with full relations ────────────────────────────────────────
   const issues = await prisma.issue.findMany({
     where: { projectId: project.id },
     orderBy: [{ createdAt: "desc" }],
@@ -39,7 +38,6 @@ export default async function IssueListPage({ params }: IssueListPageProps) {
     },
   });
 
-  // ── Epic map ──────────────────────────────────────────────────────────────
   const epicMap = new Map<string, { id: string; title: string; key: number }>();
   for (const issue of issues) {
     if (issue.parent?.type === "EPIC") {
@@ -51,7 +49,6 @@ export default async function IssueListPage({ params }: IssueListPageProps) {
     }
   }
 
-  // ── Blocked issues ────────────────────────────────────────────────────────
   const issueIds = issues.map((i) => i.id);
   let blockedIds = new Set<string>();
   try {
@@ -64,23 +61,20 @@ export default async function IssueListPage({ params }: IssueListPageProps) {
       select: { targetId: true },
     });
     blockedIds = new Set(links.map((l) => l.targetId));
-  } catch { /* stale client */ }
+  } catch {  }
 
-  // ── Members ───────────────────────────────────────────────────────────────
   const members = await prisma.workspaceMember.findMany({
     where: { workspaceId: workspace.id },
     include: { user: { select: { id: true, name: true, email: true, image: true } } },
     orderBy: { createdAt: "asc" },
   });
 
-  // ── Sprints ───────────────────────────────────────────────────────────────
   const sprints = await prisma.sprint.findMany({
     where: { projectId: project.id },
     select: { id: true, name: true, status: true },
     orderBy: [{ status: "asc" }, { createdAt: "asc" }],
   });
 
-  // ── Epics ─────────────────────────────────────────────────────────────────
   const epics = await prisma.issue.findMany({
     where: { projectId: project.id, type: "EPIC" },
     select: { id: true, key: true, title: true },

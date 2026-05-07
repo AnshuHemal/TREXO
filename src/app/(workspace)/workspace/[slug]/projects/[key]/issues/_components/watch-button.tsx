@@ -7,15 +7,11 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { toggleWatchIssue } from "../watch-actions";
 
-// ─── Props ────────────────────────────────────────────────────────────────────
-
 interface WatchButtonProps {
   issueId: string;
   initialWatching: boolean;
   initialWatcherCount: number;
 }
-
-// ─── Component ────────────────────────────────────────────────────────────────
 
 export function WatchButton({
   issueId,
@@ -78,7 +74,7 @@ export function WatchButton({
         )}
       </Button>
 
-      {/* Feedback toast */}
+      {}
       <AnimatePresence>
         {showFeedback && (
           <motion.p

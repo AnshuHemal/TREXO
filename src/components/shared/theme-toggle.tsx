@@ -7,19 +7,10 @@ import { motion, AnimatePresence } from "motion/react";
 import { Button } from "@/components/ui/button";
 import { saveUserTheme, type ThemeValue } from "@/lib/theme-actions";
 
-/**
- * Animated light / dark / system mode toggle.
- *
- * Cycles: light → dark → system → light …
- *
- * On every change the new value is persisted to the database via a
- * fire-and-forget server action so the preference syncs across devices.
- */
 export function ThemeToggle() {
   const { theme, setTheme, resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
-  // Only render after hydration so the icon matches the actual theme.
   useEffect(() => setMounted(true), []);
 
   const toggle = useCallback(() => {
@@ -30,7 +21,6 @@ export function ThemeToggle() {
 
     setTheme(next);
 
-    // Persist to DB — fire-and-forget, never block the UI
     saveUserTheme(next).catch(() => {});
   }, [theme, setTheme]);
 

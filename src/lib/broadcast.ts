@@ -1,23 +1,9 @@
-/**
- * Broadcast helpers for server actions.
- *
- * Each helper fetches the minimal context needed (workspaceId, projectId)
- * and calls broadcast() from the SSE bus.
- *
- * All helpers are fire-and-forget — they never throw.
- * Import only in "use server" files.
- */
+
 
 import { broadcast } from "@/lib/sse";
 import { prisma } from "@/lib/prisma";
 import type { RealtimeEventType } from "@/lib/sse";
 
-// ─── Issue broadcasts ─────────────────────────────────────────────────────────
-
-/**
- * Broadcast an issue mutation event.
- * Fetches workspaceId from the project relation.
- */
 export async function broadcastIssueEvent(
   type: RealtimeEventType,
   issueId: string,
@@ -62,14 +48,10 @@ export async function broadcastIssueEvent(
       },
     });
   } catch {
-    // Never throw from broadcast helpers
+
   }
 }
 
-/**
- * Broadcast an issue.deleted event.
- * Needs projectId + workspaceId before the record is gone.
- */
 export async function broadcastIssueDeleted(
   issueId: string,
   projectId: string,
@@ -85,11 +67,9 @@ export async function broadcastIssueDeleted(
       data: { id: issueId, projectId },
     });
   } catch {
-    // noop
+
   }
 }
-
-// ─── Comment broadcasts ───────────────────────────────────────────────────────
 
 export async function broadcastCommentEvent(
   type: RealtimeEventType,
@@ -114,11 +94,9 @@ export async function broadcastCommentEvent(
       data: { id: commentId, issueId, ...extra },
     });
   } catch {
-    // noop
+
   }
 }
-
-// ─── Sprint broadcasts ────────────────────────────────────────────────────────
 
 export async function broadcastSprintEvent(
   type: RealtimeEventType,
@@ -154,11 +132,9 @@ export async function broadcastSprintEvent(
       },
     });
   } catch {
-    // noop
+
   }
 }
-
-// ─── Notification broadcasts ──────────────────────────────────────────────────
 
 export async function broadcastNotification(
   userId: string,
@@ -173,11 +149,9 @@ export async function broadcastNotification(
       data: { ...notificationData, userId },
     });
   } catch {
-    // noop
+
   }
 }
-
-// ─── Member broadcasts ────────────────────────────────────────────────────────
 
 export async function broadcastMemberEvent(
   type: RealtimeEventType,
@@ -188,6 +162,6 @@ export async function broadcastMemberEvent(
   try {
     broadcast({ type, workspaceId, actorId, data });
   } catch {
-    // noop
+
   }
 }

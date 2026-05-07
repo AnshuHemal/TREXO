@@ -7,8 +7,6 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { fadeUpVariants } from "@/components/motion/fade-in";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 interface WorkspaceCardProps {
   workspace: {
     id: string;
@@ -21,16 +19,12 @@ interface WorkspaceCardProps {
   };
 }
 
-// ─── Role config ──────────────────────────────────────────────────────────────
-
 const ROLE_CONFIG: Record<string, { label: string; icon: React.ElementType; color: string }> = {
   OWNER:  { label: "Owner",  icon: Crown,  color: "text-yellow-500" },
   ADMIN:  { label: "Admin",  icon: Shield, color: "text-primary" },
   MEMBER: { label: "Member", icon: Users,  color: "text-muted-foreground" },
   VIEWER: { label: "Viewer", icon: Eye,    color: "text-muted-foreground" },
 };
-
-// ─── Component ────────────────────────────────────────────────────────────────
 
 export function WorkspaceCard({ workspace }: WorkspaceCardProps) {
   const roleCfg = ROLE_CONFIG[workspace.role] ?? ROLE_CONFIG.MEMBER;
@@ -53,9 +47,9 @@ export function WorkspaceCard({ workspace }: WorkspaceCardProps) {
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
         )}
       >
-        {/* Top row: avatar + role badge */}
+        {}
         <div className="flex items-start justify-between gap-3">
-          {/* Workspace avatar */}
+          {}
           <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-sm font-bold text-primary ring-1 ring-primary/20">
             {workspace.logo ? (
               // eslint-disable-next-line @next/next/no-img-element
@@ -69,7 +63,7 @@ export function WorkspaceCard({ workspace }: WorkspaceCardProps) {
             )}
           </div>
 
-          {/* Role badge */}
+          {}
           <Badge
             variant="outline"
             className={cn("flex items-center gap-1 text-[11px] font-medium", roleCfg.color, "border-current/20")}
@@ -79,7 +73,7 @@ export function WorkspaceCard({ workspace }: WorkspaceCardProps) {
           </Badge>
         </div>
 
-        {/* Workspace name */}
+        {}
         <div className="flex flex-col gap-0.5">
           <h3 className="text-base font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-1">
             {workspace.name}
@@ -89,7 +83,7 @@ export function WorkspaceCard({ workspace }: WorkspaceCardProps) {
           </p>
         </div>
 
-        {/* Stats row */}
+        {}
         <div className="flex items-center gap-4 text-sm text-muted-foreground">
           <span className="flex items-center gap-1.5">
             <Users className="size-3.5" />
@@ -101,7 +95,7 @@ export function WorkspaceCard({ workspace }: WorkspaceCardProps) {
           </span>
         </div>
 
-        {/* Open arrow */}
+        {}
         <div className="flex items-center justify-end">
           <span className="flex items-center gap-1 text-sm font-medium text-muted-foreground transition-colors group-hover:text-primary">
             Open workspace

@@ -68,7 +68,7 @@ export default async function ProjectsPage({ params }: ProjectsPageProps) {
       />
 
       <main className="flex-1 p-6">
-        {/* Header */}
+        {}
         <FadeIn direction="down" className="mb-6 flex items-center justify-between">
           <div>
             <h1 className="text-xl font-bold tracking-tight text-foreground">
@@ -88,7 +88,7 @@ export default async function ProjectsPage({ params }: ProjectsPageProps) {
           )}
         </FadeIn>
 
-        {/* Empty state */}
+        {}
         {projects.length === 0 ? (
           <FadeIn delay={0.1}>
             <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border bg-card py-20 text-center">
@@ -119,7 +119,7 @@ export default async function ProjectsPage({ params }: ProjectsPageProps) {
                   href={`/workspace/${slug}/projects/${project.key}`}
                   className="group block rounded-xl border border-border bg-card p-5 hover:border-primary/40 transition-colors cursor-pointer"
                 >
-                  {/* Icon + key */}
+                  {}
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-sm font-bold text-primary">
                       {project.key.slice(0, 2)}
@@ -129,12 +129,12 @@ export default async function ProjectsPage({ params }: ProjectsPageProps) {
                     </span>
                   </div>
 
-                  {/* Name */}
+                  {}
                   <h3 className="mt-3 font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-1">
                     {project.name}
                   </h3>
 
-                  {/* Description */}
+                  {}
                   {project.description ? (
                     <p className="mt-1 text-sm text-muted-foreground line-clamp-2">
                       {project.description}
@@ -145,7 +145,7 @@ export default async function ProjectsPage({ params }: ProjectsPageProps) {
                     </p>
                   )}
 
-                  {/* Issue count */}
+                  {}
                   <div className="mt-4 flex items-center gap-1.5 text-sm text-muted-foreground">
                     <FolderKanban className="size-3.5" />
                     <span>

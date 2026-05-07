@@ -23,7 +23,6 @@ export default async function ProjectSettingsPage({
   const { slug, key } = await params;
   const user = await requireUser();
 
-  // Verify workspace membership — OWNER or ADMIN only
   const membership = await prisma.workspaceMember.findFirst({
     where: {
       userId: user.id,
@@ -73,7 +72,7 @@ export default async function ProjectSettingsPage({
       </FadeIn>
 
       <div className="flex max-w-2xl flex-col gap-6">
-        {/* General settings */}
+        {}
         <FadeIn delay={0.05}>
           <div className="rounded-xl border border-border bg-card p-6">
             <h2 className="mb-1 text-base font-semibold text-foreground">
@@ -93,7 +92,7 @@ export default async function ProjectSettingsPage({
           </div>
         </FadeIn>
 
-        {/* Danger zone — OWNER only */}
+        {}
         {isOwner && (
           <FadeIn delay={0.1}>
             <div className="rounded-xl border border-destructive/30 bg-card p-6">

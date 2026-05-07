@@ -6,8 +6,6 @@ import { sendInviteEmail } from "@/lib/email";
 import { siteConfig } from "@/config/site";
 import { randomBytes } from "crypto";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 export interface ActionResult<T = void> {
   success: boolean;
   data?: T;
@@ -15,26 +13,12 @@ export interface ActionResult<T = void> {
   fieldErrors?: Record<string, string>;
 }
 
-// ─── sendWorkspaceInvite ──────────────────────────────────────────────────────
-
-/**
- * Creates an Invitation record and sends an invite email via Brevo SMTP.
- *
- * Flow:
- *  1. Validate requester is OWNER or ADMIN
- *  2. Validate email format
- *  3. Check not already a member
- *  4. Check no pending unexpired invite for this email
- *  5. Create Invitation with a secure random token (7-day expiry)
- *  6. Send invite email with accept link
- */
 export async function sendWorkspaceInvite(
   workspaceId: string,
   email: string,
 ): Promise<ActionResult> {
   const actor = await requireUser();
 
-  // Permission check
   const membership = await prisma.workspaceMember.findFirst({
     where: { workspaceId, userId: actor.id, role: { in: ["OWNER", "ADMIN"] } },
     include: { workspace: { select: { name: true, slug: true } } },
@@ -44,13 +28,11 @@ export async function sendWorkspaceInvite(
     return { success: false, error: "You don't have permission to invite members." };
   }
 
-  // Validate email
   const normalizedEmail = email.trim().toLowerCase();
   if (!normalizedEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
     return { success: false, fieldErrors: { email: "Please enter a valid email address." } };
   }
 
-  // Check not already a member
   const existingUser = await prisma.user.findUnique({
     where: { email: normalizedEmail },
     select: { id: true },
@@ -66,7 +48,6 @@ export async function sendWorkspaceInvite(
     }
   }
 
-  // Check no active pending invite
   const existingInvite = await prisma.invitation.findFirst({
     where: {
       workspaceId,
@@ -84,9 +65,8 @@ export async function sendWorkspaceInvite(
     };
   }
 
-  // Generate secure token
   const token = randomBytes(32).toString("hex");
-  const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
+  const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 
   try {
     await prisma.invitation.create({
@@ -100,11 +80,9 @@ export async function sendWorkspaceInvite(
       },
     });
 
-    // Build accept URL
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? siteConfig.url;
     const inviteUrl = `${baseUrl}/invite/${token}`;
 
-    // Send email — await it so errors surface in server logs
     try {
       await sendInviteEmail({
         to: normalizedEmail,
@@ -114,7 +92,7 @@ export async function sendWorkspaceInvite(
       });
     } catch (err) {
       console.error("[Invite] Email send failed:", err);
-      // Don't fail the whole action — invitation record is created, link still works
+
     }
 
     return { success: true };
@@ -122,8 +100,6 @@ export async function sendWorkspaceInvite(
     return { success: false, error: "Failed to send invitation. Please try again." };
   }
 }
-
-// ─── resendWorkspaceInvite ────────────────────────────────────────────────────
 
 export async function resendWorkspaceInvite(
   invitationId: string,
@@ -139,7 +115,6 @@ export async function resendWorkspaceInvite(
 
   if (!invitation) return { success: false, error: "Invitation not found." };
 
-  // Permission check
   const membership = await prisma.workspaceMember.findFirst({
     where: {
       workspaceId: invitation.workspaceId,
@@ -151,7 +126,6 @@ export async function resendWorkspaceInvite(
 
   if (!membership) return { success: false, error: "Permission denied." };
 
-  // Refresh token + expiry
   const token = randomBytes(32).toString("hex");
   const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 
@@ -172,8 +146,6 @@ export async function resendWorkspaceInvite(
 
   return { success: true };
 }
-
-// ─── revokeWorkspaceInvite ────────────────────────────────────────────────────
 
 export async function revokeWorkspaceInvite(
   invitationId: string,
@@ -201,8 +173,6 @@ export async function revokeWorkspaceInvite(
   await prisma.invitation.delete({ where: { id: invitationId } });
   return { success: true };
 }
-
-// ─── getPendingInvitations ────────────────────────────────────────────────────
 
 export async function getPendingInvitations(workspaceId: string) {
   await requireUser();

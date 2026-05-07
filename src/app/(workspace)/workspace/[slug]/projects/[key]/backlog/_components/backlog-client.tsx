@@ -41,8 +41,6 @@ import { RealtimeIndicator, ReconnectBanner, LiveUpdateToast } from "@/component
 import { addIssueToSprint, removeIssueFromSprint } from "../../sprints/actions";
 import { ShortcutHint } from "@/components/shared/shortcut-hint";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 interface Member { id: string; name: string; email: string; image: string | null; }
 
 interface IssueRow {
@@ -93,8 +91,6 @@ interface BacklogClientProps {
   allLabels?: { id: string; name: string; color: string }[];
 }
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
 function getInitials(name: string) {
   const parts = name.trim().split(/\s+/);
   if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
@@ -126,8 +122,6 @@ function sortGroups(keys: string[], groupBy: GroupBy): string[] {
   if (groupBy === "priority") return keys.sort((a, b) => (PRIORITY_ORDER[a] ?? 99) - (PRIORITY_ORDER[b] ?? 99));
   return keys.sort();
 }
-
-// ─── Issue row ────────────────────────────────────────────────────────────────
 
 function IssueRowItem({
   issue, projectKey, index, selected, onSelect, onClick, visibleColumns,
@@ -190,7 +184,7 @@ function IssueRowItem({
         {issue.title}
       </span>
 
-      {/* Epic label */}
+      {}
       {issue.epicTitle && (
         <span className="hidden shrink-0 items-center gap-1 rounded-full bg-purple-500/10 px-2 py-0.5 text-[10px] font-medium text-purple-600 dark:text-purple-400 sm:flex">
           <Zap className="size-2.5" />
@@ -215,7 +209,7 @@ function IssueRowItem({
         <span className="hidden text-sm text-muted-foreground sm:block">{status.label}</span>
       </div>
 
-      {/* Blocked badge */}
+      {}
       {issue.isBlocked && (
         <span className="hidden shrink-0 items-center gap-1 rounded-full bg-destructive/10 px-2 py-0.5 text-[10px] font-medium text-destructive sm:flex">
           <ShieldAlert className="size-2.5" />
@@ -230,7 +224,7 @@ function IssueRowItem({
         </div>
       )}
 
-      {/* Sprint badge / planning button */}
+      {}
       {sprints && sprints.length > 0 && (
         <div className="shrink-0" onClick={(e) => e.stopPropagation()}>
           {issue.sprintId ? (
@@ -300,8 +294,6 @@ function IssueRowItem({
     </motion.div>
   );
 }
-
-// ─── Group section ────────────────────────────────────────────────────────────
 
 function GroupSection({
   groupKey, groupBy, issues, projectKey, selectedIds, onSelect, onOpenIssue,
@@ -453,8 +445,6 @@ function GroupSection({
   );
 }
 
-// ─── Bulk action bar ──────────────────────────────────────────────────────────
-
 function BulkActionBar({
   selectedCount, onClear, onBulkUpdate, onBulkSprint, onBulkDelete,
   members, sprints, isPending,
@@ -476,7 +466,7 @@ function BulkActionBar({
       transition={{ duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
       className="flex flex-wrap items-center gap-2 rounded-xl border border-primary/30 bg-card px-4 py-2.5 shadow-lg shadow-primary/5"
     >
-      {/* Count badge */}
+      {}
       <div className="flex items-center gap-2">
         <span className="flex h-6 min-w-6 items-center justify-center rounded-full bg-primary px-2 text-sm font-bold text-primary-foreground">
           {selectedCount}
@@ -488,7 +478,7 @@ function BulkActionBar({
 
       <div className="h-4 w-px bg-border" />
 
-      {/* Status */}
+      {}
       <Select onValueChange={(v) => onBulkUpdate("status", v)} disabled={isPending}>
         <SelectTrigger className="h-7 w-32 text-sm">
           <SelectValue placeholder="Set status" />
@@ -504,7 +494,7 @@ function BulkActionBar({
         </SelectContent>
       </Select>
 
-      {/* Priority */}
+      {}
       <Select onValueChange={(v) => onBulkUpdate("priority", v)} disabled={isPending}>
         <SelectTrigger className="h-7 w-32 text-sm">
           <SelectValue placeholder="Set priority" />
@@ -520,7 +510,7 @@ function BulkActionBar({
         </SelectContent>
       </Select>
 
-      {/* Assignee */}
+      {}
       <Select onValueChange={(v) => onBulkUpdate("assigneeId", v === "none" ? null : v)} disabled={isPending}>
         <SelectTrigger className="h-7 w-36 text-sm">
           <SelectValue placeholder="Assign to…" />
@@ -541,7 +531,7 @@ function BulkActionBar({
         </SelectContent>
       </Select>
 
-      {/* Move to sprint */}
+      {}
       {sprints.length > 0 && (
         <Select onValueChange={(v) => onBulkSprint(v === "backlog" ? null : v)} disabled={isPending}>
           <SelectTrigger className="h-7 w-36 text-sm">
@@ -572,7 +562,7 @@ function BulkActionBar({
       {isPending && <Loader2 className="size-4 animate-spin text-muted-foreground" />}
 
       <div className="ml-auto flex items-center gap-1.5">
-        {/* Bulk delete */}
+        {}
         <AlertDialog>
           <AlertDialogTrigger asChild>
             <Button
@@ -601,7 +591,7 @@ function BulkActionBar({
           </AlertDialogContent>
         </AlertDialog>
 
-        {/* Clear selection */}
+        {}
         <Button
           variant="ghost"
           size="sm"
@@ -615,8 +605,6 @@ function BulkActionBar({
     </motion.div>
   );
 }
-
-// ─── Active filter banner ─────────────────────────────────────────────────────
 
 function ActiveFilterBanner({
   filterName, isShared, onClear,
@@ -655,8 +643,6 @@ function ActiveFilterBanner({
   );
 }
 
-// ─── Main component ───────────────────────────────────────────────────────────
-
 export function BacklogClient({
   project, issues: initialIssues, members, currentUserId,
   currentUserName, currentUserImage, workspaceSlug, workspaceId,
@@ -679,20 +665,16 @@ export function BacklogClient({
   const [isLoadingDetail, startDetailTransition] = useTransition();
   const [isBulkPending, startBulkTransition]     = useTransition();
 
-  // ── Saved filters state ───────────────────────────────────────────────────────
   const [savedFilters, setSavedFilters]   = useState<SavedFilterItem[]>(initialSavedFilters);
   const [activeFilterId, setActiveFilterId] = useState<string | null>(null);
 
-  // ── Real-time state ───────────────────────────────────────────────────────────
   type ConnStatus = "connecting" | "connected" | "disconnected";
   const [connStatus, setConnStatus]     = useState<ConnStatus>("connecting");
   const [liveToast, setLiveToast]       = useState<string | null>(null);
   const ctx = useWorkspaceSafe();
 
-  // ── Sprint planning state ─────────────────────────────────────────────────────
   const [isSprintPending, startSprintTransition] = useTransition();
 
-  // ── Epic filter state ─────────────────────────────────────────────────────────
   const [filterEpic, setFilterEpic] = useState("all");
 
   function showLiveToast(msg: string) {
@@ -769,8 +751,6 @@ export function BacklogClient({
 
   const selectedCount = selectedIds.size;
 
-  // ── Selection ─────────────────────────────────────────────────────────────────
-
   function handleSelect(id: string, checked: boolean) {
     setSelectedIds((prev) => {
       const next = new Set(prev);
@@ -780,8 +760,6 @@ export function BacklogClient({
   }
 
   function clearSelection() { setSelectedIds(new Set()); }
-
-  // ── Bulk update ───────────────────────────────────────────────────────────────
 
   function handleBulkUpdate(field: string, value: string | null) {
     startBulkTransition(async () => {
@@ -811,8 +789,6 @@ export function BacklogClient({
     });
   }
 
-  // ── Bulk move to sprint ───────────────────────────────────────────────────────
-
   function handleBulkSprint(sprintId: string | null) {
     startBulkTransition(async () => {
       const result = await bulkMoveToSprint(Array.from(selectedIds), sprintId);
@@ -826,8 +802,6 @@ export function BacklogClient({
     });
   }
 
-  // ── Bulk delete ───────────────────────────────────────────────────────────────
-
   function handleBulkDelete() {
     startBulkTransition(async () => {
       const ids = Array.from(selectedIds);
@@ -840,10 +814,8 @@ export function BacklogClient({
     });
   }
 
-  // ── Apply saved filter ────────────────────────────────────────────────────────
-
   function applyFilter(filter: SavedFilterItem) {
-    // Passing an empty id means "clear"
+
     if (!filter.id) {
       clearFilters();
       setActiveFilterId(null);
@@ -865,8 +837,6 @@ export function BacklogClient({
     setFilterEpic("all");
     setActiveFilterId(null);
   }
-
-  // ── Sprint planning ───────────────────────────────────────────────────────────
 
   function handleAddToSprint(issueId: string, sprintId: string) {
     startSprintTransition(async () => {
@@ -892,16 +862,12 @@ export function BacklogClient({
     });
   }
 
-  // ── Current filter state (for saving) ────────────────────────────────────────
-
   const currentFilterState: FilterState = {
     ...(search.trim()            && { search }),
     ...(sortKey !== "default"    && { sortKey }),
     ...(groupBy !== "none"       && { groupBy }),
     ...(dueDateFilter !== "all"  && { dueDateFilter }),
   };
-
-  // ── Filter + sort ─────────────────────────────────────────────────────────────
 
   const filtered = useMemo(() => {
     let result = issues.filter((i) => {
@@ -944,8 +910,6 @@ export function BacklogClient({
     return result;
   }, [issues, search, sortKey, dueDateFilter, project.key]);
 
-  // ── Group ─────────────────────────────────────────────────────────────────────
-
   const groups = useMemo(() => {
     if (groupBy === "none") return [{ key: "all", issues: filtered }];
     const map = new Map<string, IssueRow[]>();
@@ -957,8 +921,6 @@ export function BacklogClient({
     const sortedKeys = sortGroups(Array.from(map.keys()), groupBy);
     return sortedKeys.map((k) => ({ key: k, issues: map.get(k)! }));
   }, [filtered, groupBy]);
-
-  // ── Issue detail modal ────────────────────────────────────────────────────────
 
   async function handleOpenIssue(issueId: string) {
     setSelectedIssueId(issueId);
@@ -976,14 +938,12 @@ export function BacklogClient({
 
   const activeFilter = savedFilters.find((f) => f.id === activeFilterId);
 
-  // ── Render ────────────────────────────────────────────────────────────────────
-
   return (
     <div className="flex flex-1 flex-col">
-      {/* Toolbar */}
+      {}
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border px-3 py-2.5 sm:px-6 sm:py-3">
         <div className="flex flex-wrap items-center gap-2">
-          {/* Search */}
+          {}
           <div className="relative">
             <Search className="absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
             <Input
@@ -994,7 +954,7 @@ export function BacklogClient({
             />
           </div>
 
-          {/* Group by */}
+          {}
           <Select value={groupBy} onValueChange={(v) => { setGroupBy(v as GroupBy); setActiveFilterId(null); }}>
             <SelectTrigger className={cn("h-8 w-auto min-w-[10rem] text-sm", groupBy !== "none" && "border-primary text-primary")}>
               <Layers className="mr-1.5 size-3.5" />
@@ -1008,7 +968,7 @@ export function BacklogClient({
             </SelectContent>
           </Select>
 
-          {/* Sort */}
+          {}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm" className={cn("h-8 gap-1.5 text-sm", sortKey !== "default" && "border-primary text-primary")}>
@@ -1037,7 +997,7 @@ export function BacklogClient({
             </DropdownMenuContent>
           </DropdownMenu>
 
-          {/* Due date filter */}
+          {}
           <Select value={dueDateFilter} onValueChange={(v) => { setDueDateFilter(v as DueDateFilter); setActiveFilterId(null); }}>
             <SelectTrigger className={cn("h-8 w-36 text-sm", dueDateFilter !== "all" && "border-primary text-primary")}>
               <CalendarDays className="mr-1.5 size-3.5" />
@@ -1051,7 +1011,7 @@ export function BacklogClient({
             </SelectContent>
           </Select>
 
-          {/* Column visibility */}
+          {}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm" className="h-8 gap-1.5 text-sm">
@@ -1077,7 +1037,7 @@ export function BacklogClient({
             </DropdownMenuContent>
           </DropdownMenu>
 
-          {/* Epic filter */}
+          {}
           {epics.length > 0 && (
             <Select value={filterEpic} onValueChange={(v) => { setFilterEpic(v); setActiveFilterId(null); }}>
               <SelectTrigger className={cn("h-8 w-36 text-sm", filterEpic !== "all" && "border-purple-500 text-purple-600 dark:text-purple-400")}>
@@ -1099,7 +1059,7 @@ export function BacklogClient({
             </Select>
           )}
 
-          {/* Saved views */}
+          {}
           <SavedFiltersDropdown
             workspaceId={workspaceId}
             projectId={project.id}
@@ -1112,7 +1072,7 @@ export function BacklogClient({
             hasActiveFilters={hasActiveFilters}
           />
 
-          {/* Clear all */}
+          {}
           {hasActiveFilters && (
             <Button
               variant="ghost"
@@ -1134,7 +1094,7 @@ export function BacklogClient({
           />
         </ShortcutHint>
 
-        {/* Export CSV */}
+        {}
         <Button
           variant="ghost"
           size="icon"
@@ -1146,16 +1106,16 @@ export function BacklogClient({
           <Download className="size-4" />
         </Button>
 
-        {/* Real-time indicator */}
+        {}
         <RealtimeIndicator status={connStatus} />
       </div>
 
-      {/* Reconnect banner */}
+      {}
       <ReconnectBanner show={connStatus === "disconnected"} />
 
-      {/* Content */}
+      {}
       <div className="flex-1 overflow-y-auto p-6">
-        {/* Live update toast */}
+        {}
         <AnimatePresence>
           {liveToast && (
             <div className="mb-3">
@@ -1164,7 +1124,7 @@ export function BacklogClient({
           )}
         </AnimatePresence>
 
-        {/* Active filter banner */}
+        {}
         <AnimatePresence>
           {activeFilter && (
             <div className="mb-4">
@@ -1177,7 +1137,7 @@ export function BacklogClient({
           )}
         </AnimatePresence>
 
-        {/* Bulk action bar */}
+        {}
         <AnimatePresence>
           {selectedCount > 0 && (
             <div className="mb-4">
@@ -1255,7 +1215,7 @@ export function BacklogClient({
         )}
       </div>
 
-      {/* Issue detail modal */}
+      {}
       <AnimatePresence>
         {selectedIssueId && (
           isLoadingDetail || !issueDetail ? (

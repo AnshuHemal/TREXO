@@ -11,12 +11,6 @@ export interface ActionResult<T = void> {
   error?: string;
 }
 
-// ─── saveCustomFieldsConfig ───────────────────────────────────────────────────
-
-/**
- * Save the custom field definitions for a project.
- * Only OWNER or ADMIN can call this.
- */
 export async function saveCustomFieldsConfig(
   projectId: string,
   config: CustomFieldsConfig,
@@ -41,7 +35,6 @@ export async function saveCustomFieldsConfig(
     return { success: false, error: "Only admins can manage custom fields." };
   }
 
-  // Validate
   for (const field of config.fields) {
     if (!field.name.trim()) return { success: false, error: "Field name cannot be empty." };
     if (field.name.length > 64) return { success: false, error: `Field name "${field.name}" is too long.` };
@@ -61,11 +54,6 @@ export async function saveCustomFieldsConfig(
   }
 }
 
-// ─── updateIssueCustomFields ──────────────────────────────────────────────────
-
-/**
- * Update the custom field values for a single issue.
- */
 export async function updateIssueCustomFields(
   issueId: string,
   values: CustomFieldValues,

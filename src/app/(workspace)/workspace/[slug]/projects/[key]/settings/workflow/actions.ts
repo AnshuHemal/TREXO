@@ -11,17 +11,12 @@ export interface ActionResult<T = void> {
   error?: string;
 }
 
-/**
- * Save the workflow config for a project.
- * Only OWNER or ADMIN can call this.
- */
 export async function saveWorkflowConfig(
   projectId: string,
   config: WorkflowConfig,
 ): Promise<ActionResult> {
   const user = await requireUser();
 
-  // Verify the user is OWNER or ADMIN in the project's workspace
   const project = await prisma.project.findUnique({
     where: { id: projectId },
     select: { workspaceId: true },
@@ -42,20 +37,17 @@ export async function saveWorkflowConfig(
     return { success: false, error: "You don't have permission to edit workflow settings." };
   }
 
-  // Validate: must have at least 2 enabled statuses
   const enabledCount = config.statuses.filter((s) => s.enabled).length;
   if (enabledCount < 2) {
     return { success: false, error: "At least 2 statuses must be enabled." };
   }
 
-  // Validate: DONE and CANCELLED must always be present (they're used for completion logic)
   const hasDone      = config.statuses.some((s) => s.value === "DONE");
   const hasCancelled = config.statuses.some((s) => s.value === "CANCELLED");
   if (!hasDone || !hasCancelled) {
     return { success: false, error: "DONE and CANCELLED statuses are required." };
   }
 
-  // Validate label lengths
   for (const s of config.statuses) {
     if (!s.label.trim()) return { success: false, error: `Status label cannot be empty.` };
     if (s.label.length > 32) return { success: false, error: `Status label "${s.label}" is too long (max 32 chars).` };
@@ -73,9 +65,6 @@ export async function saveWorkflowConfig(
   }
 }
 
-/**
- * Reset the workflow config to defaults (null = use global defaults).
- */
 export async function resetWorkflowConfig(projectId: string): Promise<ActionResult> {
   const user = await requireUser();
 

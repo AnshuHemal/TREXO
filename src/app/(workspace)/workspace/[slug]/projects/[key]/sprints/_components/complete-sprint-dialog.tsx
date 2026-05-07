@@ -20,8 +20,6 @@ import {
 } from "@/components/ui/select";
 import { completeSprint } from "../actions";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 interface OtherSprint {
   id: string;
   name: string;
@@ -36,8 +34,6 @@ interface CompleteSprintDialogProps {
   otherSprints: OtherSprint[];
   onCompleted: () => void;
 }
-
-// ─── Component ────────────────────────────────────────────────────────────────
 
 export function CompleteSprintDialog({
   open,

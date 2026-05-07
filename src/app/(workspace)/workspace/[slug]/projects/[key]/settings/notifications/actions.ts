@@ -9,11 +9,6 @@ export interface ActionResult<T = void> {
   error?: string;
 }
 
-// ─── getProjectNotificationSettings ──────────────────────────────────────────
-
-/**
- * Returns whether the current user has muted this project.
- */
 export async function getProjectNotificationSettings(
   projectId: string,
 ): Promise<ActionResult<{ muted: boolean }>> {
@@ -31,18 +26,12 @@ export async function getProjectNotificationSettings(
   }
 }
 
-// ─── setProjectMuted ──────────────────────────────────────────────────────────
-
-/**
- * Mute or unmute a project for the current user.
- */
 export async function setProjectMuted(
   projectId: string,
   muted: boolean,
 ): Promise<ActionResult> {
   const user = await requireUser();
 
-  // Verify the project exists and the user is a workspace member
   const project = await prisma.project.findUnique({
     where: { id: projectId },
     select: { workspaceId: true, name: true },

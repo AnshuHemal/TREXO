@@ -6,8 +6,6 @@ import { BarChart3 } from "lucide-react";
 import { FadeIn } from "@/components/motion/fade-in";
 import { ISSUE_STATUSES } from "@/lib/issue-config";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 interface StatusCount {
   status: string;
   count: number;
@@ -18,8 +16,6 @@ interface StatusChartProps {
   totalIssues: number;
 }
 
-// ─── Color map — uses CSS variables via inline style ─────────────────────────
-
 const STATUS_COLORS: Record<string, string> = {
   BACKLOG:     "hsl(var(--muted-foreground) / 0.4)",
   TODO:        "hsl(var(--foreground) / 0.3)",
@@ -28,8 +24,6 @@ const STATUS_COLORS: Record<string, string> = {
   DONE:        "var(--color-primary, #6366f1)",
   CANCELLED:   "hsl(var(--muted-foreground) / 0.2)",
 };
-
-// ─── Custom tooltip ───────────────────────────────────────────────────────────
 
 function CustomTooltip({ active, payload }: { active?: boolean; payload?: Array<{ name: string; value: number }> }) {
   if (!active || !payload?.length) return null;
@@ -42,8 +36,6 @@ function CustomTooltip({ active, payload }: { active?: boolean; payload?: Array<
     </div>
   );
 }
-
-// ─── Component ────────────────────────────────────────────────────────────────
 
 export function StatusChart({ data, totalIssues }: StatusChartProps) {
   const filtered = data.filter((d) => d.count > 0);
@@ -62,7 +54,7 @@ export function StatusChart({ data, totalIssues }: StatusChartProps) {
           <p className="text-sm text-muted-foreground">No issues yet.</p>
         ) : (
           <div className="flex items-center gap-4">
-            {/* Donut chart */}
+            {}
             <div className="relative shrink-0">
               <ResponsiveContainer width={120} height={120}>
                 <PieChart>
@@ -85,14 +77,14 @@ export function StatusChart({ data, totalIssues }: StatusChartProps) {
                   <Tooltip content={<CustomTooltip />} />
                 </PieChart>
               </ResponsiveContainer>
-              {/* Centre label */}
+              {}
               <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
                 <span className="text-lg font-bold text-foreground">{totalIssues}</span>
                 <span className="text-[10px] text-muted-foreground">total</span>
               </div>
             </div>
 
-            {/* Legend */}
+            {}
             <div className="flex flex-1 flex-col gap-1.5">
               {filtered.map((d, i) => {
                 const label = ISSUE_STATUSES.find((s) => s.value === d.status)?.label ?? d.status;

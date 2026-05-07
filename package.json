@@ -17,6 +17,7 @@
   "dependencies": {
     "@base-ui/react": "^1.4.0",
     "@better-auth/infra": "^0.2.3",
+    "@better-auth/sso": "^1.6.9",
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
@@ -36,7 +37,7 @@
     "@tiptap/suggestion": "^3.22.3",
     "@types/nodemailer": "^8.0.0",
     "@vercel/analytics": "^2.0.1",
-    "@better-auth/sso": "^1.6.9",
+    "@vercel/speed-insights": "^2.0.0",
     "better-auth": "^1.6.9",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

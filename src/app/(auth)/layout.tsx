@@ -4,13 +4,6 @@ import { Logo } from "@/components/shared/logo";
 import { FadeIn } from "@/components/motion/fade-in";
 import { getSession } from "@/lib/session";
 
-/**
- * Auth layout — full-screen centered shell used by /login and /signup.
- *
- * Server-side guard: if the user already has a valid session they have no
- * business being here — redirect them straight to the dashboard.
- * This is the authoritative check; proxy.ts is just a fast cookie hint.
- */
 export default async function AuthLayout({
   children,
 }: {
@@ -22,29 +15,29 @@ export default async function AuthLayout({
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center px-4 py-12">
 
-      {/* Grid background */}
+      {}
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,var(--border)_1px,transparent_1px),linear-gradient(to_bottom,var(--border)_1px,transparent_1px)] bg-size-[4rem_4rem] opacity-40"
       />
 
-      {/* Radial fade */}
+      {}
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_50%,transparent_40%,var(--background)_100%)]"
       />
 
-      {/* Top-left logo */}
+      {}
       <FadeIn direction="down" className="absolute left-6 top-6 z-10">
         <Logo size={24} />
       </FadeIn>
 
-      {/* Page content */}
+      {}
       <main className="relative z-10 w-full max-w-sm">
         {children}
       </main>
 
-      {/* Footer */}
+      {}
       <FadeIn direction="none" delay={0.35} className="relative z-10 mt-8 flex items-center gap-4 text-sm text-muted-foreground">
         <Link href="/privacy" className="hover:text-foreground transition-colors">
           Privacy

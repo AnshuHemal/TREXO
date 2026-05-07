@@ -29,7 +29,6 @@ export default async function ActivityPage({ params }: ActivityPageProps) {
 
   const { workspace } = membership;
 
-  // Last 100 activities across all projects in this workspace
   const activities = await prisma.activity.findMany({
     where: { issue: { project: { workspaceId: workspace.id } } },
     orderBy: { createdAt: "desc" },

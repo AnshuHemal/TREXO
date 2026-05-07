@@ -3,16 +3,12 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, useInView } from "motion/react";
 
-// ─── Stats data ───────────────────────────────────────────────────────────────
-
 const STATS = [
   { value: 10, suffix: "+", label: "Views per project" },
   { value: 6, suffix: "", label: "Issue types" },
   { value: 100, suffix: "%", label: "Free to start" },
   { value: 5, suffix: "min", label: "To first issue" },
 ];
-
-// ─── Count-up hook ────────────────────────────────────────────────────────────
 
 function useCountUp(target: number, duration = 1200, active: boolean) {
   const [count, setCount] = useState(0);
@@ -35,8 +31,6 @@ function useCountUp(target: number, duration = 1200, active: boolean) {
 
   return count;
 }
-
-// ─── Single stat ─────────────────────────────────────────────────────────────
 
 function Stat({
   value,
@@ -69,8 +63,6 @@ function Stat({
     </motion.div>
   );
 }
-
-// ─── Component ────────────────────────────────────────────────────────────────
 
 export function StatsRow() {
   const ref = useRef<HTMLDivElement>(null);

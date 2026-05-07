@@ -16,7 +16,6 @@ export default async function WorkflowPage({ params }: WorkflowPageProps) {
   const { slug, key } = await params;
   const user = await requireUser();
 
-  // OWNER or ADMIN only
   const membership = await prisma.workspaceMember.findFirst({
     where: {
       userId: user.id,

@@ -32,8 +32,6 @@ import { FadeIn } from "@/components/motion/fade-in";
 import { CreateIssueDialog } from "../../issues/_components/create-issue-dialog";
 import { deleteIssue } from "../../issues/actions";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 interface Member { id: string; name: string; email: string; image: string | null; }
 
 interface ChildIssue {
@@ -64,8 +62,6 @@ interface EpicsClientProps {
   workspaceSlug: string;
 }
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
 function getInitials(name: string) {
   const parts = name.trim().split(/\s+/);
   return parts.length >= 2 ? (parts[0][0] + parts[1][0]).toUpperCase() : name.slice(0, 2).toUpperCase();
@@ -85,8 +81,6 @@ const STATUS_COLORS: Record<string, string> = {
   CANCELLED:   "bg-muted text-muted-foreground",
 };
 
-// ─── Progress bar ─────────────────────────────────────────────────────────────
-
 function ProgressBar({ done, total }: { done: number; total: number }) {
   const pct = total > 0 ? Math.round((done / total) * 100) : 0;
   return (
@@ -105,8 +99,6 @@ function ProgressBar({ done, total }: { done: number; total: number }) {
     </div>
   );
 }
-
-// ─── Child issue row ──────────────────────────────────────────────────────────
 
 function ChildIssueRow({
   child, projectKey, workspaceSlug, index,
@@ -153,8 +145,6 @@ function ChildIssueRow({
   );
 }
 
-// ─── Epic card ────────────────────────────────────────────────────────────────
-
 function EpicCard({
   epic, project, workspaceSlug, members, index, onDeleted,
 }: {
@@ -189,9 +179,9 @@ function EpicCard({
         transition={{ duration: 0.22, delay: index * 0.05, ease: [0.25, 0.1, 0.25, 1] }}
         className="overflow-hidden rounded-xl border border-border bg-card"
       >
-        {/* Epic header */}
+        {}
         <div className="flex items-center gap-3 px-5 py-4">
-          {/* Expand toggle */}
+          {}
           <button
             type="button"
             onClick={() => setIsExpanded((v) => !v)}
@@ -207,12 +197,12 @@ function EpicCard({
             </motion.span>
           </button>
 
-          {/* Epic icon */}
+          {}
           <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-purple-500/10">
             <Zap className="size-4 text-purple-600 dark:text-purple-400" />
           </div>
 
-          {/* Title + key */}
+          {}
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
               <a
@@ -232,7 +222,7 @@ function EpicCard({
             )}
           </div>
 
-          {/* Status badge */}
+          {}
           <Badge
             variant="outline"
             className={cn("shrink-0 text-[11px] px-2 py-0.5 border-current/20", STATUS_COLORS[epic.status])}
@@ -240,10 +230,10 @@ function EpicCard({
             {getStatusConfig(epic.status).label}
           </Badge>
 
-          {/* Priority */}
+          {}
           <PriorityIcon className={cn("size-4 shrink-0", priority.color)} />
 
-          {/* Due date */}
+          {}
           {epic.dueDate && (
             <div className="hidden shrink-0 items-center gap-1 text-sm text-muted-foreground sm:flex">
               <CalendarDays className="size-3.5" />
@@ -251,7 +241,7 @@ function EpicCard({
             </div>
           )}
 
-          {/* Assignee */}
+          {}
           {epic.assignee ? (
             <Avatar className="size-6 shrink-0">
               <AvatarImage src={epic.assignee.image ?? undefined} />
@@ -261,7 +251,7 @@ function EpicCard({
             <div className="size-6 shrink-0 rounded-full border border-dashed border-border" />
           )}
 
-          {/* Comment count */}
+          {}
           {epic.commentCount > 0 && (
             <div className="flex shrink-0 items-center gap-1 text-sm text-muted-foreground">
               <MessageSquare className="size-3.5" />
@@ -269,7 +259,7 @@ function EpicCard({
             </div>
           )}
 
-          {/* Actions */}
+          {}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="size-7 shrink-0 text-muted-foreground">
@@ -295,7 +285,7 @@ function EpicCard({
           </DropdownMenu>
         </div>
 
-        {/* Progress bar strip */}
+        {}
         {epic.totalChildren > 0 && (
           <div className="h-0.5 w-full bg-border">
             <motion.div
@@ -307,7 +297,7 @@ function EpicCard({
           </div>
         )}
 
-        {/* Children */}
+        {}
         <AnimatePresence>
           {isExpanded && (
             <motion.div
@@ -370,7 +360,7 @@ function EpicCard({
         </AnimatePresence>
       </motion.div>
 
-      {/* Delete dialog */}
+      {}
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -394,8 +384,6 @@ function EpicCard({
   );
 }
 
-// ─── Main component ───────────────────────────────────────────────────────────
-
 export function EpicsClient({ project, epics: initialEpics, members, workspaceSlug }: EpicsClientProps) {
   const [epics, setEpics]     = useState(initialEpics);
   const [search, setSearch]   = useState("");
@@ -411,7 +399,6 @@ export function EpicsClient({ project, epics: initialEpics, members, workspaceSl
     });
   }, [epics, search, statusFilter, project.key]);
 
-  // Stats
   const totalEpics = epics.length;
   const doneEpics  = epics.filter((e) => e.status === "DONE" || e.status === "CANCELLED").length;
   const totalIssues = epics.reduce((s, e) => s + e.totalChildren, 0);
@@ -423,10 +410,10 @@ export function EpicsClient({ project, epics: initialEpics, members, workspaceSl
 
   return (
     <div className="flex flex-1 flex-col">
-      {/* Toolbar */}
+      {}
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-6 py-3">
         <div className="flex flex-wrap items-center gap-2">
-          {/* Search */}
+          {}
           <div className="relative">
             <Search className="absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
             <Input
@@ -437,7 +424,7 @@ export function EpicsClient({ project, epics: initialEpics, members, workspaceSl
             />
           </div>
 
-          {/* Status filter */}
+          {}
           <Select value={statusFilter} onValueChange={setStatusFilter}>
             <SelectTrigger className={cn("h-8 w-36 text-sm", statusFilter !== "all" && "border-primary text-primary")}>
               <SelectValue />
@@ -469,9 +456,9 @@ export function EpicsClient({ project, epics: initialEpics, members, workspaceSl
         />
       </div>
 
-      {/* Content */}
+      {}
       <div className="flex-1 overflow-y-auto p-6">
-        {/* Stats row */}
+        {}
         {epics.length > 0 && (
           <FadeIn direction="down" className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
             {[
@@ -488,7 +475,7 @@ export function EpicsClient({ project, epics: initialEpics, members, workspaceSl
           </FadeIn>
         )}
 
-        {/* Empty state */}
+        {}
         {epics.length === 0 ? (
           <motion.div
             initial={{ opacity: 0, y: 8 }}

@@ -4,8 +4,6 @@ import { useCallback } from "react";
 import { useRealtime } from "./use-realtime";
 import type { RealtimeEvent } from "@/lib/sse";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 export interface RealtimeIssueUpdate {
   id: string;
   key?: number;
@@ -31,12 +29,6 @@ interface UseRealtimeIssuesOptions {
   onDisconnected?: () => void;
 }
 
-/**
- * useRealtimeIssues — subscribes to issue mutations for a specific project.
- *
- * Filters events to only those matching the current projectId.
- * Ignores events triggered by the current user (they already have optimistic updates).
- */
 export function useRealtimeIssues({
   workspaceId,
   projectId,
@@ -50,11 +42,9 @@ export function useRealtimeIssues({
 }: UseRealtimeIssuesOptions): void {
   const handleEvent = useCallback(
     (event: RealtimeEvent) => {
-      // Only process events for this project
+
       if (event.projectId && event.projectId !== projectId) return;
 
-      // Skip events triggered by the current user
-      // (they already have optimistic updates applied)
       if (event.actorId === currentUserId) return;
 
       const data = event.data as unknown as RealtimeIssueUpdate & {

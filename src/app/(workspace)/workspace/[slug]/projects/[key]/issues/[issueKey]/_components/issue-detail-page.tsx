@@ -42,8 +42,6 @@ import type { IssueLinkItem } from "../../link-actions";
 import { FadeIn } from "@/components/motion/fade-in";
 import { CommentEntry, type CommentItem } from "../../_components/comment-entry";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 interface Member { id: string; name: string; email: string; image: string | null; }
 
 interface ActivityItem {
@@ -84,8 +82,6 @@ interface IssueDetailPageProps {
   workspaceSlug: string;
 }
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
 function getInitials(name: string) {
   const parts = name.trim().split(/\s+/);
   if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
@@ -107,8 +103,6 @@ function formatRelative(date: Date) {
   if (days < 7) return `${days}d ago`;
   return formatDate(date);
 }
-
-// ─── Estimate field ───────────────────────────────────────────────────────────
 
 const ESTIMATE_OPTIONS = [
   { value: 1, label: "1", size: "XS" },
@@ -146,8 +140,6 @@ function EstimateField({
   );
 }
 
-// ─── Sidebar field ────────────────────────────────────────────────────────────
-
 function SidebarField({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="flex flex-col gap-1.5">
@@ -156,8 +148,6 @@ function SidebarField({ label, children }: { label: string; children: React.Reac
     </div>
   );
 }
-
-// ─── Activity entry ───────────────────────────────────────────────────────────
 
 function ActivityEntry({ activity }: { activity: ActivityItem }) {
   return (
@@ -187,8 +177,6 @@ function ActivityEntry({ activity }: { activity: ActivityItem }) {
     </div>
   );
 }
-
-// ─── Main component ───────────────────────────────────────────────────────────
 
 export function IssueDetailPage({
   issue: initialIssue,
@@ -238,8 +226,6 @@ export function IssueDetailPage({
 
   const issueKey = `${project.key}-${issue.key}`;
 
-  // ── Timeline ──────────────────────────────────────────────────────────────────
-
   const timeline = useMemo<TimelineEntry[]>(() => {
     const entries: TimelineEntry[] = [
       ...activities.map((a) => ({ kind: "activity" as const, data: a })),
@@ -249,8 +235,6 @@ export function IssueDetailPage({
       (a, b) => new Date(a.data.createdAt).getTime() - new Date(b.data.createdAt).getTime(),
     );
   }, [activities, comments]);
-
-  // ── Field updates ─────────────────────────────────────────────────────────────
 
   function handleFieldUpdate(field: string, value: string | null) {
     startTransition(async () => {
@@ -273,11 +257,11 @@ export function IssueDetailPage({
       setIssue((prev) => ({ ...prev, title: titleDraft.trim() }));
       setIsEditingTitle(false);
       setError(null);
-      // Notify @mentioned users in the title
+
       const mentions = titleDraft.match(/@([\w\s]+?)(?=\s@|\s*$|[^a-zA-Z\s])/g);
       if (mentions && mentions.length > 0) {
         const { notifyMentioned } = await import("@/lib/notifications");
-        // Build a minimal HTML string so parseMentionIds can extract user IDs
+
         const mentionHtml = members
           .filter((m) => mentions.some((mn) => mn.slice(1).trim() === m.name))
           .map((m) => `<span data-type="mention" data-id="${m.id}">@${m.name}</span>`)
@@ -292,15 +276,13 @@ export function IssueDetailPage({
   const handleDescriptionSave = useCallback(() => {
     startDescTransition(async () => {
       await updateIssue(issue.id, { description });
-      // Notify any @mentioned users in the description
+
       if (description) {
         const { notifyMentioned } = await import("@/lib/notifications");
         notifyMentioned({ html: description, actorId: currentUserId, issueId: issue.id }).catch(() => {});
       }
     });
   }, [issue.id, description, currentUserId]);
-
-  // ── Comments ──────────────────────────────────────────────────────────────────
 
   function handleAddComment(e: React.FormEvent) {
     e.preventDefault();
@@ -339,8 +321,6 @@ export function IssueDetailPage({
     });
   }
 
-  // ── Delete issue ──────────────────────────────────────────────────────────────
-
   function handleDeleteIssue() {
     startTransition(async () => {
       const result = await deleteIssue(issue.id);
@@ -349,13 +329,11 @@ export function IssueDetailPage({
     });
   }
 
-  // ── Render ────────────────────────────────────────────────────────────────────
-
   return (
     <main className="flex-1 overflow-y-auto">
       <div className="mx-auto max-w-6xl px-6 py-6">
 
-        {/* Breadcrumb + actions */}
+        {}
         <FadeIn direction="down" className="mb-6 flex items-center justify-between gap-4">
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <button
@@ -382,7 +360,7 @@ export function IssueDetailPage({
             <span className="font-mono font-medium text-foreground">{issueKey}</span>
           </div>
 
-          {/* Delete */}
+          {}
           <AlertDialog>
             <AlertDialogTrigger asChild>
               <Button variant="ghost" size="sm" className="h-8 gap-1.5 text-sm text-muted-foreground hover:text-destructive">
@@ -407,13 +385,13 @@ export function IssueDetailPage({
           </AlertDialog>
         </FadeIn>
 
-        {/* Main layout: content + sidebar */}
+        {}
         <div className="flex gap-8">
 
-          {/* ── Left: main content ─────────────────────────────────────────── */}
+          {}
           <div className="flex min-w-0 flex-1 flex-col gap-6">
 
-            {/* Issue key + type badge */}
+            {}
             <FadeIn delay={0.04}>
               <div className="flex flex-wrap items-center gap-2">
                 {(() => {
@@ -429,7 +407,7 @@ export function IssueDetailPage({
                 })()}
                 <span className="font-mono text-sm text-muted-foreground">{issueKey}</span>
 
-                {/* Overdue / due-soon badge in header */}
+                {}
                 {dueDate && !["DONE", "CANCELLED"].includes(issue.status) && (() => {
                   const label = getDueDateLabel(dueDate, issue.status);
                   const overdueBadge = isOverdue(dueDate, issue.status);
@@ -454,7 +432,7 @@ export function IssueDetailPage({
               </div>
             </FadeIn>
 
-            {/* Title */}
+            {}
             <FadeIn delay={0.06}>
               {isEditingTitle ? (
                 <MentionTitleInput
@@ -479,7 +457,7 @@ export function IssueDetailPage({
               )}
             </FadeIn>
 
-            {/* Description */}
+            {}
             <FadeIn delay={0.08}>
               <div className="flex flex-col gap-2">
                 <span className="text-sm font-medium text-muted-foreground">Description</span>
@@ -501,7 +479,7 @@ export function IssueDetailPage({
               </div>
             </FadeIn>
 
-            {/* Sub-tasks */}
+            {}
             {!issue.parent && issue.projectId && (
               <FadeIn delay={0.1}>
                 <div className="rounded-xl border border-border bg-card p-4">
@@ -521,7 +499,7 @@ export function IssueDetailPage({
               </FadeIn>
             )}
 
-            {/* Linked issues */}
+            {}
             {issue.projectId && (
               <FadeIn delay={0.12}>
                 <div className="rounded-xl border border-border bg-card p-4">
@@ -530,8 +508,7 @@ export function IssueDetailPage({
                     projectId={issue.projectId}
                     initialLinks={links}
                     onOpenIssue={(id) => {
-                      // Navigate to the linked issue's full page
-                      // We need to find the key from the links list
+
                       const link = links.find((l) => l.issue.id === id);
                       if (link) {
                         window.location.href = `/workspace/${workspaceSlug}/projects/${link.issue.project.key}/issues/${link.issue.key}`;
@@ -542,7 +519,7 @@ export function IssueDetailPage({
               </FadeIn>
             )}
 
-            {/* Error */}
+            {}
             <AnimatePresence>
               {error && (
                 <motion.div
@@ -557,7 +534,7 @@ export function IssueDetailPage({
 
             <Separator />
 
-            {/* Activity + comments */}
+            {}
             <FadeIn delay={0.14}>
               <div className="flex flex-col gap-4">
                 <h3 className="flex items-center gap-2 text-sm font-semibold text-foreground">
@@ -599,7 +576,7 @@ export function IssueDetailPage({
                   </div>
                 )}
 
-                {/* Add comment */}
+                {}
                 <form onSubmit={handleAddComment} className="flex items-start gap-2.5 pt-1">
                   <Avatar className="mt-1 size-7 shrink-0">
                     <AvatarImage src={currentUserImage ?? undefined} />
@@ -640,7 +617,7 @@ export function IssueDetailPage({
             </FadeIn>
           </div>
 
-          {/* ── Right: sidebar ─────────────────────────────────────────────── */}
+          {}
           <FadeIn delay={0.05} className="w-64 shrink-0">
             <div className="sticky top-6 flex flex-col gap-5 rounded-xl border border-border bg-card p-5">
 

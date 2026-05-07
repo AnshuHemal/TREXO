@@ -2,8 +2,6 @@
 
 import { createContext, useContext } from "react";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 interface WorkspaceContextValue {
   workspaceId: string;
   workspaceSlug: string;
@@ -11,8 +9,6 @@ interface WorkspaceContextValue {
   projects: { id: string; name: string; key: string }[];
   members: { id: string; name: string; image: string | null; email?: string }[];
 }
-
-// ─── Context ──────────────────────────────────────────────────────────────────
 
 const WorkspaceContext = createContext<WorkspaceContextValue | null>(null);
 

@@ -6,8 +6,6 @@ import { ArrowRight, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { siteConfig } from "@/config/site";
 
-// ─── Fake Kanban board mockup ─────────────────────────────────────────────────
-
 const COLUMNS = [
   {
     label: "Backlog",
@@ -56,7 +54,7 @@ function KanbanMockup() {
     <div className="flex gap-3 min-w-0">
       {COLUMNS.map((col, ci) => (
         <div key={col.label} className="flex w-44 shrink-0 flex-col gap-2">
-          {/* Column header */}
+          {}
           <div className="flex items-center gap-2 px-1">
             <span className={`size-2 rounded-full ${col.color}`} />
             <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
@@ -66,7 +64,7 @@ function KanbanMockup() {
               {col.cards.length}
             </span>
           </div>
-          {/* Cards */}
+          {}
           {col.cards.map((card, ki) => (
             <motion.div
               key={card.title}
@@ -95,15 +93,13 @@ function KanbanMockup() {
   );
 }
 
-// ─── Hero ─────────────────────────────────────────────────────────────────────
-
 export function Hero() {
   return (
     <section
       id="hero"
       className="relative flex flex-col items-center overflow-hidden px-6 pb-0 pt-24 text-center lg:pt-32"
     >
-      {/* Background glow */}
+      {}
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 flex items-start justify-center pt-16"
@@ -111,7 +107,7 @@ export function Hero() {
         <div className="h-[500px] w-[900px] rounded-full bg-primary/10 blur-[120px]" />
       </div>
 
-      {/* Grid pattern */}
+      {}
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,var(--border)_1px,transparent_1px),linear-gradient(to_bottom,var(--border)_1px,transparent_1px)] bg-size-[4rem_4rem] opacity-20"
@@ -121,9 +117,9 @@ export function Hero() {
         className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_70%_50%_at_50%_0%,transparent_30%,var(--background)_100%)]"
       />
 
-      {/* Content */}
+      {}
       <div className="relative z-10 flex flex-col items-center gap-6">
-        {/* Eyebrow badge */}
+        {}
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -134,7 +130,7 @@ export function Hero() {
           Modern project management — built for speed
         </motion.div>
 
-        {/* Headline */}
+        {}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -152,7 +148,7 @@ export function Hero() {
           </p>
         </motion.div>
 
-        {/* CTA row */}
+        {}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
@@ -170,7 +166,7 @@ export function Hero() {
           </Button>
         </motion.div>
 
-        {/* Social proof */}
+        {}
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -181,7 +177,7 @@ export function Hero() {
         </motion.p>
       </div>
 
-      {/* Product mockup */}
+      {}
       <motion.div
         initial={{ opacity: 0, y: 40, rotateX: 12 }}
         animate={{ opacity: 1, y: 0, rotateX: 6 }}
@@ -189,15 +185,15 @@ export function Hero() {
         style={{ perspective: 1200, transformStyle: "preserve-3d" }}
         className="relative z-10 mt-16 w-full max-w-5xl"
       >
-        {/* Glow behind mockup */}
+        {}
         <div
           aria-hidden
           className="absolute -inset-4 rounded-2xl bg-primary/5 blur-2xl"
         />
 
-        {/* Mockup frame */}
+        {}
         <div className="relative overflow-hidden rounded-xl border border-border bg-card shadow-2xl shadow-black/20 ring-1 ring-border/50">
-          {/* Window chrome */}
+          {}
           <div className="flex items-center gap-1.5 border-b border-border bg-muted/40 px-4 py-3">
             <span className="size-2.5 rounded-full bg-red-400/70" />
             <span className="size-2.5 rounded-full bg-yellow-400/70" />
@@ -208,9 +204,9 @@ export function Hero() {
             </div>
           </div>
 
-          {/* App shell */}
+          {}
           <div className="flex h-[340px] sm:h-[400px]">
-            {/* Sidebar */}
+            {}
             <div className="hidden w-48 shrink-0 flex-col gap-1 border-r border-border bg-muted/20 p-3 sm:flex">
               <div className="mb-2 flex items-center gap-2 rounded-md bg-muted/60 px-2 py-1.5">
                 <div className="size-5 rounded bg-primary/20" />
@@ -230,7 +226,7 @@ export function Hero() {
               ))}
             </div>
 
-            {/* Board area */}
+            {}
             <div className="flex-1 overflow-x-auto p-4">
               <div className="mb-3 flex items-center justify-between">
                 <span className="text-sm font-semibold text-foreground">
@@ -248,7 +244,7 @@ export function Hero() {
           </div>
         </div>
 
-        {/* Bottom fade */}
+        {}
         <div
           aria-hidden
           className="absolute bottom-0 left-0 right-0 h-24 bg-linear-to-t from-background to-transparent"

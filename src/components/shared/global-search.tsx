@@ -17,8 +17,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 interface SearchIssue {
   id: string;
   key: number;
@@ -52,7 +50,7 @@ interface SearchMember {
 
 interface RecentIssue {
   id: string;
-  key: string;       // e.g. "TRX-42"
+  key: string;
   title: string;
   status: string;
   projectKey: string;
@@ -85,12 +83,8 @@ interface GlobalSearchProps {
   members?: Member[];
 }
 
-// ─── Constants ────────────────────────────────────────────────────────────────
-
 const RECENT_KEY = "trexo:recent-issues";
 const MAX_RECENT = 5;
-
-// ─── Icon maps ────────────────────────────────────────────────────────────────
 
 const STATUS_ICONS: Record<string, { icon: React.ElementType; color: string; label: string }> = {
   BACKLOG:     { icon: Circle,       color: "text-muted-foreground", label: "Backlog"     },
@@ -116,8 +110,6 @@ const TYPE_ICONS: Record<string, { icon: React.ElementType; color: string }> = {
   EPIC:    { icon: Zap,          color: "text-purple-500"       },
   SUBTASK: { icon: GitBranch,    color: "text-muted-foreground" },
 };
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function getInitials(name: string) {
   const parts = name.trim().split(/\s+/);
@@ -146,11 +138,10 @@ export function trackRecentIssue(issue: Omit<RecentIssue, "viewedAt">) {
     ].slice(0, MAX_RECENT);
     localStorage.setItem(RECENT_KEY, JSON.stringify(updated));
   } catch {
-    // ignore
+
   }
 }
 
-// Simple fuzzy match — returns true if all chars of needle appear in order in haystack
 function fuzzyMatch(haystack: string, needle: string): boolean {
   if (!needle) return true;
   const h = haystack.toLowerCase();
@@ -164,7 +155,6 @@ function fuzzyMatch(haystack: string, needle: string): boolean {
   return true;
 }
 
-// Highlight matching chars in a string
 function HighlightMatch({ text, query }: { text: string; query: string }) {
   if (!query) return <>{text}</>;
   const q = query.toLowerCase();
@@ -186,8 +176,6 @@ function HighlightMatch({ text, query }: { text: string; query: string }) {
   }
   return <>{result}</>;
 }
-
-// ─── Result item ──────────────────────────────────────────────────────────────
 
 function ResultItem({
   isActive,
@@ -223,8 +211,6 @@ function ResultItem({
   );
 }
 
-// ─── Section label ────────────────────────────────────────────────────────────
-
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
     <p className="mb-1 mt-3 px-3 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60 first:mt-0">
@@ -232,8 +218,6 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
     </p>
   );
 }
-
-// ─── Main component ───────────────────────────────────────────────────────────
 
 export function GlobalSearch({
   workspaceId,
@@ -255,7 +239,6 @@ export function GlobalSearch({
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
 
-  // ── Load recent on open ───────────────────────────────────────────────────
   useEffect(() => {
     if (open) {
       setRecent(getRecent());
@@ -264,7 +247,6 @@ export function GlobalSearch({
     }
   }, [open]);
 
-  // ── Keyboard shortcut to open ─────────────────────────────────────────────
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
       if ((e.metaKey || e.ctrlKey) && e.key === "k") {
@@ -276,7 +258,6 @@ export function GlobalSearch({
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, []);
 
-  // ── Quick actions ─────────────────────────────────────────────────────────
   const quickActions = useMemo((): QuickAction[] => {
     const base = workspaceSlug ? `/workspace/${workspaceSlug}` : "";
     const actions: QuickAction[] = [
@@ -290,7 +271,7 @@ export function GlobalSearch({
         shortcut: "C",
         action: () => {
           handleClose();
-          // Dispatch C key to trigger project shortcuts provider
+
           setTimeout(() => {
             window.dispatchEvent(new KeyboardEvent("keydown", { key: "c", bubbles: true }));
           }, 100);
@@ -329,7 +310,6 @@ export function GlobalSearch({
         },
       );
 
-      // Per-project quick actions
       for (const p of projects.slice(0, 4)) {
         actions.push({
           id: `go-project-${p.id}`,
@@ -347,7 +327,6 @@ export function GlobalSearch({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [workspaceSlug, projects]);
 
-  // ── Filtered quick actions ────────────────────────────────────────────────
   const filteredActions = useMemo(() => {
     if (!query) return quickActions.slice(0, 4);
     return quickActions.filter((a) =>
@@ -355,7 +334,6 @@ export function GlobalSearch({
     );
   }, [query, quickActions]);
 
-  // ── Filtered recent ───────────────────────────────────────────────────────
   const filteredRecent = useMemo(() => {
     if (!query) return recent;
     return recent.filter(
@@ -363,7 +341,6 @@ export function GlobalSearch({
     );
   }, [query, recent]);
 
-  // ── Debounced API search ──────────────────────────────────────────────────
   const doSearch = useCallback(
     (q: string) => {
       if (!q || q.length < 2) {
@@ -377,13 +354,13 @@ export function GlobalSearch({
 
         const [searchRes] = await Promise.all([
           fetch(`/api/search?${params.toString()}`),
-          // Members are filtered client-side (already available in props)
+
           Promise.resolve(null),
         ]);
 
         if (searchRes.ok) {
           const data = await searchRes.json();
-          // Also filter members locally
+
           const filteredMembers = members
             .filter(
               (m) => fuzzyMatch(m.name, q) || fuzzyMatch(m.email ?? "", q),
@@ -407,7 +384,6 @@ export function GlobalSearch({
     return () => clearTimeout(id);
   }, [query, doSearch]);
 
-  // ── Build flat item list for keyboard nav ─────────────────────────────────
   type NavItem =
     | { kind: "action";  data: QuickAction }
     | { kind: "recent";  data: RecentIssue }
@@ -429,10 +405,8 @@ export function GlobalSearch({
     return items;
   }, [query, filteredActions, filteredRecent, results]);
 
-  // Reset active index when items change
   useEffect(() => { setActiveIndex(0); }, [navItems.length]);
 
-  // ── Keyboard navigation inside palette ───────────────────────────────────
   function handleKeyDown(e: React.KeyboardEvent) {
     if (e.key === "ArrowDown") {
       e.preventDefault();
@@ -449,7 +423,6 @@ export function GlobalSearch({
     }
   }
 
-  // ── Activate an item ──────────────────────────────────────────────────────
   function activateItem(item: NavItem) {
     if (item.kind === "action") {
       item.data.action();
@@ -491,7 +464,6 @@ export function GlobalSearch({
     setActiveIndex(0);
   }
 
-  // ── Flat index helpers ────────────────────────────────────────────────────
   let globalIdx = 0;
   function nextIdx() { return globalIdx++; }
 
@@ -504,7 +476,7 @@ export function GlobalSearch({
 
   return (
     <>
-      {/* ── Trigger button ─────────────────────────────────────────────── */}
+      {}
       <button
         onClick={() => setOpen(true)}
         className="hidden h-8 w-52 items-center justify-between gap-2 rounded-md border border-border bg-muted/40 px-3 text-sm text-muted-foreground transition-colors hover:bg-muted sm:flex"
@@ -519,7 +491,7 @@ export function GlobalSearch({
         </kbd>
       </button>
 
-      {/* Mobile trigger */}
+      {}
       <button
         onClick={() => setOpen(true)}
         className="flex size-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground sm:hidden"
@@ -528,11 +500,11 @@ export function GlobalSearch({
         <Search className="size-4" />
       </button>
 
-      {/* ── Palette overlay ────────────────────────────────────────────── */}
+      {}
       <AnimatePresence>
         {open && (
           <>
-            {/* Backdrop */}
+            {}
             <motion.div
               key="backdrop"
               initial={{ opacity: 0 }}
@@ -543,7 +515,7 @@ export function GlobalSearch({
               onClick={handleClose}
             />
 
-            {/* Palette */}
+            {}
             <motion.div
               key="palette"
               initial={{ opacity: 0, scale: 0.96, y: -8 }}
@@ -553,7 +525,7 @@ export function GlobalSearch({
               className="fixed left-1/2 top-[12vh] z-50 w-full max-w-2xl -translate-x-1/2 overflow-hidden rounded-2xl border border-border bg-background shadow-2xl"
               onKeyDown={handleKeyDown}
             >
-              {/* ── Search input ──────────────────────────────────────── */}
+              {}
               <div className="flex items-center gap-3 border-b border-border px-4 py-3.5">
                 {isSearching ? (
                   <Loader2 className="size-4 shrink-0 animate-spin text-muted-foreground" />
@@ -585,12 +557,12 @@ export function GlobalSearch({
                 </kbd>
               </div>
 
-              {/* ── Results list ──────────────────────────────────────── */}
+              {}
               <div
                 ref={listRef}
                 className="max-h-[480px] overflow-y-auto overscroll-contain p-2"
               >
-                {/* No results */}
+                {}
                 {noResults && (
                   <div className="flex flex-col items-center gap-2 py-12 text-center">
                     <Search className="size-8 text-muted-foreground/30" />
@@ -599,7 +571,7 @@ export function GlobalSearch({
                   </div>
                 )}
 
-                {/* ── Quick actions ──────────────────────────────────── */}
+                {}
                 {filteredActions.length > 0 && (
                   <div>
                     <SectionLabel>
@@ -641,7 +613,7 @@ export function GlobalSearch({
                   </div>
                 )}
 
-                {/* ── Recent issues (no query) ───────────────────────── */}
+                {}
                 {!query && filteredRecent.length > 0 && (
                   <div>
                     <SectionLabel>Recent</SectionLabel>
@@ -668,10 +640,10 @@ export function GlobalSearch({
                   </div>
                 )}
 
-                {/* ── Search results ─────────────────────────────────── */}
+                {}
                 {query.length >= 2 && (
                   <>
-                    {/* Issues */}
+                    {}
                     {results.issues.length > 0 && (
                       <div>
                         <SectionLabel>Issues ({results.issues.length})</SectionLabel>
@@ -723,7 +695,7 @@ export function GlobalSearch({
                       </div>
                     )}
 
-                    {/* Projects */}
+                    {}
                     {results.projects.length > 0 && (
                       <div>
                         <SectionLabel>Projects</SectionLabel>
@@ -756,7 +728,7 @@ export function GlobalSearch({
                       </div>
                     )}
 
-                    {/* Members */}
+                    {}
                     {results.members.length > 0 && (
                       <div>
                         <SectionLabel>Members</SectionLabel>
@@ -795,7 +767,7 @@ export function GlobalSearch({
                   </>
                 )}
 
-                {/* ── Empty state (no query, no recent) ─────────────── */}
+                {}
                 {!query && filteredRecent.length === 0 && filteredActions.length === 0 && (
                   <div className="flex flex-col items-center gap-2 py-12 text-center">
                     <Search className="size-8 text-muted-foreground/30" />
@@ -806,7 +778,7 @@ export function GlobalSearch({
                 )}
               </div>
 
-              {/* ── Footer ────────────────────────────────────────────── */}
+              {}
               <div className="flex items-center justify-between border-t border-border px-4 py-2.5">
                 <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
                   <span className="flex items-center gap-1">

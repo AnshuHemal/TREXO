@@ -7,8 +7,6 @@ import { FadeIn } from "@/components/motion/fade-in";
 import { getStatusConfig, getPriorityConfig } from "@/lib/issue-config";
 import { cn } from "@/lib/utils";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 interface RecentIssueItem {
   id: string;
   key: number;
@@ -25,8 +23,6 @@ interface RecentIssuesWidgetProps {
   issues: RecentIssueItem[];
 }
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
 function formatRelative(date: Date): string {
   const diff = Date.now() - new Date(date).getTime();
   const mins = Math.floor(diff / 60000);
@@ -36,8 +32,6 @@ function formatRelative(date: Date): string {
   if (hrs < 24) return `${hrs}h ago`;
   return `${Math.floor(hrs / 24)}d ago`;
 }
-
-// ─── Component ────────────────────────────────────────────────────────────────
 
 export function RecentIssuesWidget({ issues }: RecentIssuesWidgetProps) {
   return (

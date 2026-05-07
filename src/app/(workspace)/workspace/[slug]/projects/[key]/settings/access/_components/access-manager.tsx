@@ -24,8 +24,6 @@ import {
   type ProjectRole, type ProjectVisibility,
 } from "../actions";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 export interface ProjectMemberItem {
   userId: string;
   name: string;
@@ -49,8 +47,6 @@ interface AccessManagerProps {
   canManage: boolean;
 }
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
 function getInitials(name: string) {
   const parts = name.trim().split(/\s+/);
   if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
@@ -62,8 +58,6 @@ const ROLE_CONFIG: Record<ProjectRole, { label: string; description: string; col
   MEMBER: { label: "Member", description: "Can view and edit issues",                color: "text-foreground" },
   VIEWER: { label: "Viewer", description: "Read-only access",                        color: "text-muted-foreground" },
 };
-
-// ─── Visibility toggle ────────────────────────────────────────────────────────
 
 function VisibilityToggle({
   projectId,
@@ -169,8 +163,6 @@ function VisibilityToggle({
   );
 }
 
-// ─── Member row ───────────────────────────────────────────────────────────────
-
 function MemberRow({
   member,
   projectId,
@@ -273,8 +265,6 @@ function MemberRow({
   );
 }
 
-// ─── Main component ───────────────────────────────────────────────────────────
-
 export function AccessManager({
   projectId,
   initialVisibility,
@@ -318,7 +308,7 @@ export function AccessManager({
 
   return (
     <div className="flex flex-col gap-8">
-      {/* Visibility */}
+      {}
       <div>
         <h3 className="mb-1 text-sm font-semibold text-foreground">Visibility</h3>
         <p className="mb-4 text-sm text-muted-foreground">
@@ -331,7 +321,7 @@ export function AccessManager({
         />
       </div>
 
-      {/* Members */}
+      {}
       <div>
         <div className="mb-4 flex items-center justify-between">
           <div>
@@ -355,7 +345,7 @@ export function AccessManager({
           )}
         </div>
 
-        {/* Add member form */}
+        {}
         <AnimatePresence>
           {isAdding && (
             <motion.div
@@ -423,7 +413,7 @@ export function AccessManager({
           )}
         </AnimatePresence>
 
-        {/* Member list */}
+        {}
         {members.length === 0 ? (
           <motion.div
             initial={{ opacity: 0 }}
@@ -455,7 +445,7 @@ export function AccessManager({
           </div>
         )}
 
-        {/* Role legend */}
+        {}
         <div className="mt-4 rounded-lg border border-border bg-muted/30 p-3">
           <div className="mb-2 flex items-center gap-1.5 text-sm font-medium text-muted-foreground">
             <Shield className="size-3.5" />

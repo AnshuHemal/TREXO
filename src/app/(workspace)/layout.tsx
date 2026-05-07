@@ -2,12 +2,6 @@ import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 
-/**
- * Workspace layout — session + membership guard.
- *
- * Ensures the user is authenticated and has at least one workspace.
- * Individual workspace pages validate membership for the specific slug.
- */
 export default async function WorkspaceLayout({
   children,
 }: {

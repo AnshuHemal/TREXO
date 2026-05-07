@@ -13,27 +13,23 @@ export const metadata: Metadata = { title: "Security Settings" };
 export default async function SecuritySettingsPage() {
   const user = await requireUser();
 
-  // Check if user has a password (email/password account)
   const passwordAccount = await prisma.account.findFirst({
     where: { userId: user.id, providerId: "credential" },
     select: { id: true },
   });
   const hasPassword = !!passwordAccount;
 
-  // Fetch connected accounts
   const accounts = await prisma.account.findMany({
     where: { userId: user.id },
     select: { id: true, providerId: true, accountId: true, createdAt: true },
     orderBy: { createdAt: "asc" },
   });
 
-  // Fetch active sessions
   const sessionsResponse = await auth.api.listSessions({
     headers: await headers(),
   });
   const sessions = sessionsResponse ?? [];
 
-  // Current session token (to mark it as "this device")
   const currentSession = await auth.api.getSession({ headers: await headers() });
   const currentToken = currentSession?.session.token ?? "";
 
@@ -46,7 +42,7 @@ export default async function SecuritySettingsPage() {
         </p>
       </div>
 
-      {/* Change password */}
+      {}
       <FadeIn delay={0.05}>
         <div className="rounded-xl border border-border bg-card p-6">
           <h2 className="mb-1 text-base font-semibold text-foreground">Password</h2>
@@ -59,7 +55,7 @@ export default async function SecuritySettingsPage() {
         </div>
       </FadeIn>
 
-      {/* Connected accounts */}
+      {}
       <FadeIn delay={0.1}>
         <div className="rounded-xl border border-border bg-card p-6">
           <h2 className="mb-1 text-base font-semibold text-foreground">Connected accounts</h2>
@@ -77,7 +73,7 @@ export default async function SecuritySettingsPage() {
         </div>
       </FadeIn>
 
-      {/* Active sessions */}
+      {}
       <FadeIn delay={0.15}>
         <div className="rounded-xl border border-border bg-card p-6">
           <h2 className="mb-1 text-base font-semibold text-foreground">Active sessions</h2>

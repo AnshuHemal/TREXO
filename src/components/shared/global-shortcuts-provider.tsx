@@ -6,8 +6,6 @@ import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { KeyboardShortcutsModal } from "@/components/shared/keyboard-shortcuts-modal";
 import { useWorkspaceSafe } from "@/components/providers/workspace-provider";
 
-// ─── Global shortcut definitions ─────────────────────────────────────────────
-
 const GLOBAL_SHORTCUTS = [
   { keys: "?",   description: "Show keyboard shortcuts",  group: "General"    },
   { keys: "⌘k",  description: "Open search palette",      group: "General"    },
@@ -15,13 +13,6 @@ const GLOBAL_SHORTCUTS = [
   { keys: "g m", description: "Go to My Issues",          group: "Navigation" },
 ];
 
-// ─── Component ────────────────────────────────────────────────────────────────
-
-/**
- * Provides workspace-level shortcuts: ?, G H, G M.
- * Rendered inside the workspace layout so it's always active.
- * Project-level shortcuts (C, G B, etc.) are added by ProjectShortcutsProvider.
- */
 export function GlobalShortcutsProvider({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = useState(false);
   const router   = useRouter();

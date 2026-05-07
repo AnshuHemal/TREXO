@@ -5,12 +5,10 @@ import { motion } from "motion/react";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-// ─── Component ────────────────────────────────────────────────────────────────
-
 export function CTABanner() {
   return (
     <section className="relative overflow-hidden px-6 py-24 lg:py-32">
-      {/* Background glow */}
+      {}
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 flex items-center justify-center"
@@ -18,7 +16,7 @@ export function CTABanner() {
         <div className="h-[400px] w-[800px] rounded-full bg-primary/10 blur-[100px]" />
       </div>
 
-      {/* Grid pattern */}
+      {}
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,var(--border)_1px,transparent_1px),linear-gradient(to_bottom,var(--border)_1px,transparent_1px)] bg-size-[4rem_4rem] opacity-15"
@@ -36,7 +34,7 @@ export function CTABanner() {
           transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
           className="flex flex-col items-center gap-6"
         >
-          {/* Headline */}
+          {}
           <h2 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl lg:text-6xl">
             Ready to{" "}
             <span className="bg-linear-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent">
@@ -49,7 +47,7 @@ export function CTABanner() {
             in minutes — no credit card required.
           </p>
 
-          {/* CTAs */}
+          {}
           <div className="flex flex-col items-center gap-3 sm:flex-row">
             <Button size="lg" asChild className="min-w-44 gap-2">
               <Link href="/signup">

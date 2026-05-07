@@ -10,21 +10,9 @@ import { emailOtp } from "@/lib/auth-client";
 import { FadeIn } from "@/components/motion/fade-in";
 import { cn } from "@/lib/utils";
 
-// ─── Constants ────────────────────────────────────────────────────────────────
-
 const OTP_LENGTH = 6;
-const RESEND_COOLDOWN = 60; // seconds
+const RESEND_COOLDOWN = 60;
 
-// ─── Component ────────────────────────────────────────────────────────────────
-
-/**
- * Step 2 of the forgot-password flow.
- *
- * Collects the 6-character OTP from the user, then navigates to the reset
- * step with both email and otp in the URL. No API call is made here —
- * the actual OTP verification happens server-side when the new password
- * is submitted on the reset page.
- */
 export function VerifyOtpForm() {
   const searchParams = useSearchParams();
   const email = searchParams.get("email") ?? "";
@@ -37,17 +25,13 @@ export function VerifyOtpForm() {
 
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
-  // Focus first input on mount
   useEffect(() => { inputRefs.current[0]?.focus(); }, []);
 
-  // Cooldown countdown
   useEffect(() => {
     if (resendCooldown <= 0) return;
     const id = setInterval(() => setResendCooldown((c) => c - 1), 1000);
     return () => clearInterval(id);
   }, [resendCooldown]);
-
-  // ─── Input handlers ─────────────────────────────────────────────────────────
 
   function handleChange(index: number, value: string) {
     const char = value.replace(/[^A-Z0-9]/gi, "").toUpperCase().slice(-1);
@@ -102,15 +86,11 @@ export function VerifyOtpForm() {
     if (pasted.length === OTP_LENGTH) handleProceed(pasted);
   }
 
-  // ─── Proceed to reset page ───────────────────────────────────────────────────
-
   const handleProceed = useCallback((code: string) => {
     if (status === "loading") return;
     setStatus("loading");
     window.location.href = `/forgot-password/reset?email=${encodeURIComponent(email)}&otp=${encodeURIComponent(code)}`;
   }, [email, status]);
-
-  // ─── Resend ─────────────────────────────────────────────────────────────────
 
   async function handleResend() {
     if (resendCooldown > 0 || isResending) return;
@@ -134,18 +114,14 @@ export function VerifyOtpForm() {
     inputRefs.current[0]?.focus();
   }
 
-  // ─── Derived ────────────────────────────────────────────────────────────────
-
   const filledCount = otp.filter(Boolean).length;
   const isComplete  = filledCount === OTP_LENGTH;
-
-  // ─── Render ─────────────────────────────────────────────────────────────────
 
   return (
     <FadeIn className="flex flex-col gap-6">
       <div className="rounded-2xl border border-border bg-card px-8 py-10 shadow-md">
 
-        {/* Header */}
+        {}
         <FadeIn direction="down" delay={0.05} className="mb-8 flex flex-col items-center gap-3 text-center">
           <motion.div
             className="flex size-14 items-center justify-center rounded-2xl bg-primary/10"
@@ -169,7 +145,7 @@ export function VerifyOtpForm() {
           </div>
         </FadeIn>
 
-        {/* OTP inputs */}
+        {}
         <FadeIn delay={0.1} className="mb-6">
           <div
             className="flex items-center justify-center gap-2.5"
@@ -208,7 +184,7 @@ export function VerifyOtpForm() {
             ))}
           </div>
 
-          {/* Progress bar */}
+          {}
           <div className="mt-4 h-0.5 w-full overflow-hidden rounded-full bg-border">
             <motion.div
               className={cn(
@@ -221,7 +197,7 @@ export function VerifyOtpForm() {
           </div>
         </FadeIn>
 
-        {/* Error message */}
+        {}
         <AnimatePresence mode="wait">
           {errorMsg && (
             <motion.div
@@ -238,7 +214,7 @@ export function VerifyOtpForm() {
           )}
         </AnimatePresence>
 
-        {/* Continue button */}
+        {}
         <FadeIn delay={0.15}>
           <Button
             className="w-full"
@@ -262,7 +238,7 @@ export function VerifyOtpForm() {
           </Button>
         </FadeIn>
 
-        {/* Resend */}
+        {}
         <FadeIn direction="none" delay={0.2} className="mt-4 text-center">
           <p className="text-sm text-muted-foreground">
             Didn&apos;t receive the code?{" "}
@@ -285,7 +261,7 @@ export function VerifyOtpForm() {
 
       </div>
 
-      {/* Back link */}
+      {}
       <FadeIn direction="none" delay={0.25}>
         <p className="text-center text-sm text-muted-foreground">
           Remember your password?{" "}

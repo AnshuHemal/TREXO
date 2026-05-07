@@ -5,8 +5,6 @@ import { motion } from "motion/react";
 import { Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-// ─── Pricing data ─────────────────────────────────────────────────────────────
-
 const PLANS = [
   {
     name: "Free",
@@ -72,19 +70,17 @@ const PLANS = [
   },
 ];
 
-// ─── Component ────────────────────────────────────────────────────────────────
-
 export function Pricing() {
   return (
     <section id="pricing" className="relative px-6 py-16 lg:py-16">
-      {/* Background */}
+      {}
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 bg-muted/20"
       />
 
       <div className="relative mx-auto max-w-7xl">
-        {/* Section header */}
+        {}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -103,7 +99,7 @@ export function Pricing() {
           </p>
         </motion.div>
 
-        {/* Cards */}
+        {}
         <div className="grid gap-6 lg:grid-cols-3">
           {PLANS.map((plan, i) => (
             <motion.div
@@ -122,7 +118,7 @@ export function Pricing() {
                   : "border-border bg-card shadow-sm"
               }`}
             >
-              {/* Badge */}
+              {}
               {plan.badge && (
                 <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
                   <span className="rounded-full bg-primary px-3 py-1 text-sm font-semibold text-primary-foreground shadow">
@@ -131,7 +127,7 @@ export function Pricing() {
                 </div>
               )}
 
-              {/* Plan name + price */}
+              {}
               <div className="mb-6">
                 <h3 className="mb-1 text-lg font-bold text-foreground">
                   {plan.name}
@@ -149,7 +145,7 @@ export function Pricing() {
                 </p>
               </div>
 
-              {/* CTA */}
+              {}
               <Button
                 asChild
                 variant={plan.highlighted ? "default" : "outline"}
@@ -158,7 +154,7 @@ export function Pricing() {
                 <Link href={plan.href}>{plan.cta}</Link>
               </Button>
 
-              {/* Feature list */}
+              {}
               <ul className="flex flex-col gap-2.5">
                 {plan.features.map((feature) => (
                   <li key={feature} className="flex items-start gap-2.5">

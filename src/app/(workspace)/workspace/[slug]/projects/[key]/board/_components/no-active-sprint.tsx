@@ -33,7 +33,7 @@ export function NoActiveSprint({
   return (
     <div className="flex flex-1 flex-col items-center justify-center p-8">
       <FadeIn className="flex max-w-md flex-col items-center text-center">
-        {/* Icon */}
+        {}
         <motion.div
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
@@ -50,7 +50,7 @@ export function NoActiveSprint({
           Start a sprint to see the board. Issues in the active sprint will appear here as Kanban columns.
         </p>
 
-        {/* Planned sprints to start */}
+        {}
         {plannedSprints.length > 0 && (
           <div className="mt-8 w-full">
             <p className="mb-3 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
@@ -83,7 +83,7 @@ export function NoActiveSprint({
           </div>
         )}
 
-        {/* Actions */}
+        {}
         <div className="mt-8 flex items-center gap-3">
           <Button asChild variant="outline">
             <Link href={`/workspace/${workspaceSlug}/projects/${project.key}/sprints`}>

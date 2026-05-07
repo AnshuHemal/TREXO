@@ -8,14 +8,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { signIn } from "@/lib/auth-client";
 
-/**
- * Email + password login form.
- *
- * After a successful sign-in we use window.location.href instead of
- * router.push() + router.refresh() to avoid the "Router action dispatched
- * before initialization" error. A full page navigation also ensures the
- * server re-renders with the new session cookie in place.
- */
 export function LoginForm() {
   const searchParams = useSearchParams();
   const next = searchParams.get("next") ?? "/dashboard";
@@ -44,8 +36,6 @@ export function LoginForm() {
       return;
     }
 
-    // Full page navigation — clears client state and lets the server
-    // render the protected page with the fresh session cookie.
     window.location.href = next;
   }
 
@@ -85,7 +75,7 @@ export function LoginForm() {
         />
       </div>
 
-      {/* Inline error */}
+      {}
       {error && (
         <p className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
           {error}

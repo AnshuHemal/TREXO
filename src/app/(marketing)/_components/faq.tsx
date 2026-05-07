@@ -8,8 +8,6 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 
-// ─── FAQ data ─────────────────────────────────────────────────────────────────
-
 const FAQS = [
   {
     question: "Is Trexo really free?",
@@ -48,13 +46,11 @@ const FAQS = [
   },
 ];
 
-// ─── Component ────────────────────────────────────────────────────────────────
-
 export function FAQ() {
   return (
     <section id="faq" className="px-6 py-24 lg:py-32">
       <div className="mx-auto max-w-3xl">
-        {/* Section header */}
+        {}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -73,7 +69,7 @@ export function FAQ() {
           </p>
         </motion.div>
 
-        {/* Accordion */}
+        {}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}

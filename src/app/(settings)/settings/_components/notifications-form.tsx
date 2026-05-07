@@ -10,8 +10,6 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { saveNotificationPrefs, type NotificationPrefs } from "../actions";
 
-// ─── Preference definitions ───────────────────────────────────────────────────
-
 interface PrefDef {
   key: keyof NotificationPrefs;
   label: string;
@@ -51,8 +49,6 @@ const PREF_DEFS: PrefDef[] = [
   },
 ];
 
-// ─── Toggle ───────────────────────────────────────────────────────────────────
-
 function Toggle({
   enabled,
   onChange,
@@ -85,13 +81,9 @@ function Toggle({
   );
 }
 
-// ─── Props ────────────────────────────────────────────────────────────────────
-
 interface NotificationsFormProps {
   initialPrefs: NotificationPrefs;
 }
-
-// ─── Component ────────────────────────────────────────────────────────────────
 
 export function NotificationsForm({ initialPrefs }: NotificationsFormProps) {
   const [prefs, setPrefs] = useState<NotificationPrefs>(initialPrefs);
@@ -136,7 +128,7 @@ export function NotificationsForm({ initialPrefs }: NotificationsFormProps) {
 
   return (
     <div className="flex flex-col gap-6">
-      {/* In-app only notice */}
+      {}
       <motion.div
         initial={{ opacity: 0, y: -4 }}
         animate={{ opacity: 1, y: 0 }}
@@ -152,7 +144,7 @@ export function NotificationsForm({ initialPrefs }: NotificationsFormProps) {
         </div>
       </motion.div>
 
-      {/* Quick actions */}
+      {}
       <div className="flex items-center gap-2">
         <span className="text-sm text-muted-foreground">Quick select:</span>
         <button
@@ -174,7 +166,7 @@ export function NotificationsForm({ initialPrefs }: NotificationsFormProps) {
         </button>
       </div>
 
-      {/* Preference cards */}
+      {}
       <div className="flex flex-col gap-2">
         {PREF_DEFS.map(({ key, label, description, icon: Icon, iconColor }, i) => (
           <motion.div
@@ -215,7 +207,7 @@ export function NotificationsForm({ initialPrefs }: NotificationsFormProps) {
         ))}
       </div>
 
-      {/* Save row */}
+      {}
       <div className="flex items-center gap-3 pt-1">
         <Button
           onClick={handleSave}

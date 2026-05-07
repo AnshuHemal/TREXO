@@ -21,7 +21,6 @@ export async function acceptInvitation(token: string): Promise<{ error?: string 
     return { error: "This invitation was sent to a different email address." };
   }
 
-  // Check not already a member
   const existing = await prisma.workspaceMember.findUnique({
     where: {
       workspaceId_userId: {

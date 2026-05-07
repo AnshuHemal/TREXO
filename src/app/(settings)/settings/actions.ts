@@ -3,8 +3,6 @@
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/session";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 export interface NotificationPrefs {
   assigned: boolean;
   mentioned: boolean;
@@ -18,12 +16,6 @@ export interface ActionResult<T = void> {
   error?: string;
 }
 
-// ─── getNotificationPrefs ─────────────────────────────────────────────────────
-
-/**
- * Returns the user's notification preferences.
- * If no record exists yet, returns the defaults (all enabled).
- */
 export async function getNotificationPrefs(): Promise<ActionResult<NotificationPrefs>> {
   const user = await requireUser();
 
@@ -46,11 +38,6 @@ export async function getNotificationPrefs(): Promise<ActionResult<NotificationP
   }
 }
 
-// ─── saveNotificationPrefs ────────────────────────────────────────────────────
-
-/**
- * Upserts the user's notification preferences.
- */
 export async function saveNotificationPrefs(
   prefs: NotificationPrefs,
 ): Promise<ActionResult> {

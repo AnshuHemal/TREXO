@@ -26,15 +26,11 @@ import {
   type TemplateItem, type TemplateInput,
 } from "../actions";
 
-// ─── Props ────────────────────────────────────────────────────────────────────
-
 interface TemplatesManagerProps {
   workspaceId: string;
   initialTemplates: TemplateItem[];
   canManage: boolean;
 }
-
-// ─── Built-in starter templates ───────────────────────────────────────────────
 
 const STARTER_TEMPLATES: (TemplateInput & { icon: React.ElementType; iconColor: string; hint: string })[] = [
   {
@@ -125,8 +121,6 @@ Why this task is needed and any relevant background.
   },
 ];
 
-// ─── Starter templates panel ──────────────────────────────────────────────────
-
 function StarterTemplates({
   onUse,
 }: {
@@ -179,8 +173,6 @@ function StarterTemplates({
   );
 }
 
-// ─── Template form ────────────────────────────────────────────────────────────
-
 interface TemplateFormProps {
   initial?: TemplateItem;
   onSave: (input: TemplateInput) => void;
@@ -215,7 +207,7 @@ function TemplateForm({ initial, onSave, onCancel, isPending, fieldErrors, serve
         {initial ? "Edit template" : "New template"}
       </h3>
 
-      {/* Name */}
+      {}
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="tpl-name">Template name <span className="text-destructive">*</span></Label>
         <Input
@@ -232,7 +224,7 @@ function TemplateForm({ initial, onSave, onCancel, isPending, fieldErrors, serve
         )}
       </div>
 
-      {/* Title prefix */}
+      {}
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="tpl-prefix">
           Title prefix
@@ -248,7 +240,7 @@ function TemplateForm({ initial, onSave, onCancel, isPending, fieldErrors, serve
         />
       </div>
 
-      {/* Type + Priority */}
+      {}
       <div className="grid grid-cols-2 gap-3">
         <div className="flex flex-col gap-1.5">
           <Label>Default type</Label>
@@ -287,7 +279,7 @@ function TemplateForm({ initial, onSave, onCancel, isPending, fieldErrors, serve
         </div>
       </div>
 
-      {/* Description template */}
+      {}
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="tpl-desc">
           Description template
@@ -304,7 +296,7 @@ function TemplateForm({ initial, onSave, onCancel, isPending, fieldErrors, serve
         />
       </div>
 
-      {/* Server error */}
+      {}
       <AnimatePresence>
         {serverError && (
           <motion.div
@@ -316,7 +308,7 @@ function TemplateForm({ initial, onSave, onCancel, isPending, fieldErrors, serve
         )}
       </AnimatePresence>
 
-      {/* Actions */}
+      {}
       <div className="flex items-center justify-end gap-2 pt-1">
         <Button type="button" variant="outline" size="sm" onClick={onCancel} disabled={isPending}>
           Cancel
@@ -331,8 +323,6 @@ function TemplateForm({ initial, onSave, onCancel, isPending, fieldErrors, serve
     </motion.form>
   );
 }
-
-// ─── Template card ────────────────────────────────────────────────────────────
 
 function TemplateCard({
   template,
@@ -360,7 +350,7 @@ function TemplateCard({
       transition={{ duration: 0.2 }}
       className="rounded-xl border border-border bg-card overflow-hidden"
     >
-      {/* Header row */}
+      {}
       <div className="flex items-center gap-3 px-4 py-3.5">
         <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary/10">
           <FileText className="size-4 text-primary" />
@@ -442,7 +432,7 @@ function TemplateCard({
         </div>
       </div>
 
-      {/* Expandable description preview */}
+      {}
       <AnimatePresence>
         {expanded && template.description && (
           <motion.div
@@ -462,8 +452,6 @@ function TemplateCard({
   );
 }
 
-// ─── Main component ───────────────────────────────────────────────────────────
-
 export function TemplatesManager({ workspaceId, initialTemplates, canManage }: TemplatesManagerProps) {
   const [templates, setTemplates]   = useState<TemplateItem[]>(initialTemplates);
   const [isCreating, setIsCreating] = useState(false);
@@ -471,7 +459,7 @@ export function TemplatesManager({ workspaceId, initialTemplates, canManage }: T
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [serverError, setServerError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
-  // Pre-fill form from a starter template
+
   const [starterInput, setStarterInput] = useState<TemplateInput | null>(null);
 
   function resetForm() {
@@ -479,8 +467,6 @@ export function TemplatesManager({ workspaceId, initialTemplates, canManage }: T
     setServerError(null);
     setStarterInput(null);
   }
-
-  // ── Create ────────────────────────────────────────────────────────────────
 
   async function handleCreate(input: TemplateInput) {
     startTransition(async () => {
@@ -495,8 +481,6 @@ export function TemplatesManager({ workspaceId, initialTemplates, canManage }: T
       setIsCreating(false);
     });
   }
-
-  // ── Update ────────────────────────────────────────────────────────────────
 
   async function handleUpdate(templateId: string, input: TemplateInput) {
     startTransition(async () => {
@@ -514,16 +498,12 @@ export function TemplatesManager({ workspaceId, initialTemplates, canManage }: T
     });
   }
 
-  // ── Delete ────────────────────────────────────────────────────────────────
-
   function handleDelete(templateId: string) {
     startTransition(async () => {
       await deleteTemplate(templateId);
       setTemplates((prev) => prev.filter((t) => t.id !== templateId));
     });
   }
-
-  // ── Use starter template ──────────────────────────────────────────────────
 
   function handleUseStarter(input: TemplateInput) {
     setStarterInput(input);
@@ -533,7 +513,7 @@ export function TemplatesManager({ workspaceId, initialTemplates, canManage }: T
 
   return (
     <div className="flex flex-col gap-4">
-      {/* Header row */}
+      {}
       <div className="flex items-center justify-between">
         <div>
           <p className="text-sm text-muted-foreground">
@@ -548,12 +528,12 @@ export function TemplatesManager({ workspaceId, initialTemplates, canManage }: T
         )}
       </div>
 
-      {/* Starter templates — shown when no templates exist */}
+      {}
       {canManage && templates.length === 0 && !isCreating && (
         <StarterTemplates onUse={handleUseStarter} />
       )}
 
-      {/* Create form */}
+      {}
       <AnimatePresence>
         {isCreating && (
           <TemplateForm
@@ -575,7 +555,7 @@ export function TemplatesManager({ workspaceId, initialTemplates, canManage }: T
         )}
       </AnimatePresence>
 
-      {/* Template list */}
+      {}
       {templates.length === 0 && !isCreating ? null : (
         <div className="flex flex-col gap-3">
           <AnimatePresence mode="popLayout">

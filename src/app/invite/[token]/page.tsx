@@ -10,7 +10,6 @@ interface InvitePageProps {
 export default async function InvitePage({ params }: InvitePageProps) {
   const { token } = await params;
 
-  // Look up the invitation
   const invitation = await prisma.invitation.findUnique({
     where: { token },
     include: {
@@ -19,15 +18,12 @@ export default async function InvitePage({ params }: InvitePageProps) {
     },
   });
 
-  // Invalid token
   if (!invitation) notFound();
 
-  // Already accepted
   if (invitation.acceptedAt) {
     redirect(`/workspace/${invitation.workspace.slug}`);
   }
 
-  // Expired
   if (invitation.expiresAt < new Date()) {
     return (
       <InviteErrorPage
@@ -37,15 +33,13 @@ export default async function InvitePage({ params }: InvitePageProps) {
     );
   }
 
-  // Check if user is logged in
   const session = await getSession();
 
   if (!session) {
-    // Not logged in — redirect to signup with token preserved
+
     redirect(`/signup?invite=${token}`);
   }
 
-  // Logged in — check if email matches
   const user = session.user;
   const emailMatches = user.email.toLowerCase() === invitation.email.toLowerCase();
 
@@ -58,7 +52,6 @@ export default async function InvitePage({ params }: InvitePageProps) {
     );
   }
 
-  // Check not already a member
   const alreadyMember = await prisma.workspaceMember.findUnique({
     where: {
       workspaceId_userId: {
@@ -84,8 +77,6 @@ export default async function InvitePage({ params }: InvitePageProps) {
     />
   );
 }
-
-// ─── Error page ───────────────────────────────────────────────────────────────
 
 function InviteErrorPage({ title, message }: { title: string; message: string }) {
   return (

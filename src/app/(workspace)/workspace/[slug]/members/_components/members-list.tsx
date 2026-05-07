@@ -17,10 +17,8 @@ import {
 import { updateMemberRole, removeMember } from "../actions";
 import type { WorkspaceRole } from "@/generated/prisma/enums";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 export interface MemberItem {
-  id: string; // WorkspaceMember.id
+  id: string;
   role: WorkspaceRole;
   user: {
     id: string;
@@ -36,8 +34,6 @@ interface MembersListProps {
   currentUserRole: WorkspaceRole;
   workspaceId: string;
 }
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function getInitials(name: string): string {
   const parts = name.trim().split(/\s+/);
@@ -63,8 +59,6 @@ const ROLE_LABELS: Record<WorkspaceRole, string> = {
 };
 
 const ASSIGNABLE_ROLES: WorkspaceRole[] = ["ADMIN", "MEMBER", "VIEWER"];
-
-// ─── Row component ────────────────────────────────────────────────────────────
 
 interface MemberRowProps {
   member: MemberItem;
@@ -96,7 +90,7 @@ function MemberRow({
       }}
       className="flex items-center gap-3 rounded-lg px-3 py-2.5 transition-colors hover:bg-muted/50"
     >
-      {/* Avatar */}
+      {}
       <Avatar className="size-9 shrink-0">
         <AvatarImage
           src={member.user.image ?? undefined}
@@ -107,7 +101,7 @@ function MemberRow({
         </AvatarFallback>
       </Avatar>
 
-      {/* Name + email */}
+      {}
       <div className="flex min-w-0 flex-1 flex-col">
         <span className="truncate text-sm font-medium text-foreground">
           {member.user.name}
@@ -120,12 +114,12 @@ function MemberRow({
         </span>
       </div>
 
-      {/* Role badge */}
+      {}
       <Badge variant={ROLE_BADGE_VARIANT[member.role]} className="shrink-0">
         {ROLE_LABELS[member.role]}
       </Badge>
 
-      {/* Actions */}
+      {}
       {canEdit && (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -166,8 +160,6 @@ function MemberRow({
     </motion.div>
   );
 }
-
-// ─── Main component ───────────────────────────────────────────────────────────
 
 export function MembersList({
   members: initialMembers,

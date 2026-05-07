@@ -5,8 +5,6 @@ import { motion, AnimatePresence } from "motion/react";
 import { Wifi, WifiOff } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 type ConnectionStatus = "connecting" | "connected" | "disconnected";
 
 interface RealtimeIndicatorProps {
@@ -14,12 +12,9 @@ interface RealtimeIndicatorProps {
   className?: string;
 }
 
-// ─── Component ────────────────────────────────────────────────────────────────
-
 export function RealtimeIndicator({ status, className }: RealtimeIndicatorProps) {
   const [showLabel, setShowLabel] = useState(false);
 
-  // Show label briefly on status change
   useEffect(() => {
     if (status === "connected" || status === "disconnected") {
       setShowLabel(true);
@@ -39,7 +34,7 @@ export function RealtimeIndicator({ status, className }: RealtimeIndicatorProps)
           : "Disconnected — reconnecting…"
       }
     >
-      {/* Dot indicator */}
+      {}
       <div className="relative flex items-center justify-center">
         {status === "connected" && (
           <motion.span
@@ -58,7 +53,7 @@ export function RealtimeIndicator({ status, className }: RealtimeIndicatorProps)
         />
       </div>
 
-      {/* Label — shown briefly on change */}
+      {}
       <AnimatePresence>
         {showLabel && (
           <motion.span
@@ -79,8 +74,6 @@ export function RealtimeIndicator({ status, className }: RealtimeIndicatorProps)
     </div>
   );
 }
-
-// ─── Toast-style reconnect banner ─────────────────────────────────────────────
 
 interface ReconnectBannerProps {
   show: boolean;
@@ -113,8 +106,6 @@ export function ReconnectBanner({ show }: ReconnectBannerProps) {
     </AnimatePresence>
   );
 }
-
-// ─── "Updated by someone else" toast ─────────────────────────────────────────
 
 interface LiveUpdateToastProps {
   message: string;

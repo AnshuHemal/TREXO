@@ -2,16 +2,14 @@
 
 import { useEffect, useCallback, useState } from "react";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 interface UseKanbanKeyboardOptions {
-  /** Flat ordered list of issue IDs visible on the board */
+
   issueIds: string[];
-  /** Called when Enter is pressed on a focused card */
+
   onOpen: (issueId: string) => void;
-  /** Called when E is pressed on a focused card */
+
   onEdit?: (issueId: string) => void;
-  /** Whether keyboard nav is enabled */
+
   enabled?: boolean;
 }
 
@@ -20,14 +18,6 @@ interface UseKanbanKeyboardReturn {
   setFocusedId: (id: string | null) => void;
 }
 
-/**
- * Adds keyboard navigation to the Kanban board.
- *
- * - Arrow keys: move focus between cards
- * - Enter: open the focused card's detail modal
- * - E: trigger inline title edit on the focused card
- * - Escape: clear focus
- */
 export function useKanbanKeyboard({
   issueIds,
   onOpen,
@@ -40,13 +30,12 @@ export function useKanbanKeyboard({
     (e: KeyboardEvent) => {
       if (!enabled) return;
 
-      // Don't intercept when typing in an input/textarea/contenteditable
       const target = e.target as HTMLElement;
       if (
         target.tagName === "INPUT" ||
         target.tagName === "TEXTAREA" ||
         target.isContentEditable ||
-        target.closest("[data-radix-popper-content-wrapper]") // dropdown open
+        target.closest("[data-radix-popper-content-wrapper]")
       ) {
         return;
       }
@@ -100,7 +89,6 @@ export function useKanbanKeyboard({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [enabled, handleKeyDown]);
 
-  // Clear focus when issue list changes significantly
   useEffect(() => {
     if (focusedId && !issueIds.includes(focusedId)) {
       setFocusedId(null);

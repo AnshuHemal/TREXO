@@ -13,8 +13,6 @@ import { motion, AnimatePresence } from "motion/react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 export interface MentionMember {
   id: string;
   name: string;
@@ -30,21 +28,16 @@ export interface MentionListRef {
   onKeyDown: (props: { event: KeyboardEvent }) => boolean;
 }
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
 function getInitials(name: string) {
   const parts = name.trim().split(/\s+/);
   if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
   return name.slice(0, 2).toUpperCase();
 }
 
-// ─── MentionList component ────────────────────────────────────────────────────
-
 const MentionList = forwardRef<MentionListRef, MentionListProps>(
   ({ items, command }, ref) => {
     const [selectedIndex, setSelectedIndex] = useState(0);
 
-    // Reset selection when items change
     useEffect(() => setSelectedIndex(0), [items]);
 
     function selectItem(index: number) {
@@ -81,14 +74,14 @@ const MentionList = forwardRef<MentionListRef, MentionListProps>(
           transition={{ duration: 0.12, ease: [0.25, 0.1, 0.25, 1] }}
           className="z-50 min-w-[200px] overflow-hidden rounded-xl border border-border bg-popover shadow-xl"
         >
-          {/* Header */}
+          {}
           <div className="border-b border-border px-3 py-2">
             <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
               Mention a teammate
             </span>
           </div>
 
-          {/* Member list */}
+          {}
           <div className="p-1">
             {items.map((item, index) => (
               <motion.button
@@ -123,12 +116,6 @@ const MentionList = forwardRef<MentionListRef, MentionListProps>(
 
 MentionList.displayName = "MentionList";
 
-// ─── buildMentionSuggestion ───────────────────────────────────────────────────
-
-/**
- * Returns a Tiptap suggestion config for @mentions.
- * Pass the full member list — filtering is done client-side.
- */
 export function buildMentionSuggestion(members: MentionMember[]) {
   return {
     items: ({ query }: { query: string }) => {

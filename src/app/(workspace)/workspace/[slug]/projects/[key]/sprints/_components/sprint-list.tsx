@@ -7,8 +7,6 @@ import { FadeIn } from "@/components/motion/fade-in";
 import { CreateSprintDialog } from "./create-sprint-dialog";
 import { SprintCard, type SprintData, type SprintIssue } from "./sprint-card";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 interface SprintListProps {
   project: { id: string; name: string; key: string };
   sprints: SprintData[];
@@ -16,13 +14,11 @@ interface SprintListProps {
   workspaceSlug: string;
 }
 
-// ─── Component ────────────────────────────────────────────────────────────────
-
 export function SprintList({ project, sprints: initialSprints, backlogIssues, workspaceSlug }: SprintListProps) {
   const [sprints, setSprints] = useState<SprintData[]>(initialSprints);
 
   function handleSprintCreated(sprintId: string) {
-    // Reload to get fresh data from server
+
     window.location.reload();
     void sprintId;
   }
@@ -41,7 +37,7 @@ export function SprintList({ project, sprints: initialSprints, backlogIssues, wo
 
   return (
     <div className="flex flex-col gap-6">
-      {/* Header */}
+      {}
       <FadeIn direction="down" className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-bold tracking-tight text-foreground">Sprints</h1>
@@ -57,7 +53,7 @@ export function SprintList({ project, sprints: initialSprints, backlogIssues, wo
         />
       </FadeIn>
 
-      {/* Empty state */}
+      {}
       {sprints.length === 0 && (
         <FadeIn delay={0.1}>
           <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border bg-card py-20 text-center">
@@ -78,7 +74,7 @@ export function SprintList({ project, sprints: initialSprints, backlogIssues, wo
         </FadeIn>
       )}
 
-      {/* Sprint cards */}
+      {}
       <AnimatePresence initial={false}>
         {sprints.map((sprint, i) => (
           <SprintCard
@@ -96,7 +92,7 @@ export function SprintList({ project, sprints: initialSprints, backlogIssues, wo
         ))}
       </AnimatePresence>
 
-      {/* Backlog section */}
+      {}
       {backlogIssues.length > 0 && (
         <FadeIn delay={0.1} className="mt-2">
           <BacklogSection issues={backlogIssues} projectKey={project.key} />
@@ -105,8 +101,6 @@ export function SprintList({ project, sprints: initialSprints, backlogIssues, wo
     </div>
   );
 }
-
-// ─── Backlog section ──────────────────────────────────────────────────────────
 
 function BacklogSection({
   issues,

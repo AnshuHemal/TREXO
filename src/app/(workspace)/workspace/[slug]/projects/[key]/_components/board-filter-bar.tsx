@@ -11,8 +11,6 @@ import { ISSUE_PRIORITIES } from "@/lib/issue-config";
 import { cn } from "@/lib/utils";
 import { RealtimeIndicator } from "@/components/shared/realtime-indicator";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 export type SwimlaneMode = "none" | "assignee" | "priority";
 
 interface Member { id: string; name: string; image: string | null; }
@@ -38,15 +36,11 @@ interface BoardFilterBarProps {
   onToggleCapacity?: () => void;
 }
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
 function getInitials(name: string) {
   const parts = name.trim().split(/\s+/);
   if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
   return name.slice(0, 2).toUpperCase();
 }
-
-// ─── Component ────────────────────────────────────────────────────────────────
 
 export function BoardFilterBar({
   members, epics = [], filterAssignee, filterPriority, filterEpic = "all",
@@ -62,7 +56,7 @@ export function BoardFilterBar({
     >
       <SlidersHorizontal className="size-3.5 shrink-0 text-muted-foreground" />
 
-      {/* Assignee filter */}
+      {}
       <Select value={filterAssignee} onValueChange={onFilterAssignee}>
         <SelectTrigger className={cn("h-7 w-36 text-sm", filterAssignee !== "all" && "border-primary text-primary")}>
           <SelectValue placeholder="Assignee" />
@@ -84,7 +78,7 @@ export function BoardFilterBar({
         </SelectContent>
       </Select>
 
-      {/* Priority filter */}
+      {}
       <Select value={filterPriority} onValueChange={onFilterPriority}>
         <SelectTrigger className={cn("h-7 w-32 text-sm", filterPriority !== "all" && "border-primary text-primary")}>
           <SelectValue placeholder="Priority" />
@@ -101,7 +95,7 @@ export function BoardFilterBar({
         </SelectContent>
       </Select>
 
-      {/* Epic filter */}
+      {}
       {epics.length > 0 && onFilterEpic && (
         <Select value={filterEpic} onValueChange={onFilterEpic}>
           <SelectTrigger className={cn("h-7 w-36 text-sm", filterEpic !== "all" && "border-purple-500 text-purple-600 dark:text-purple-400")}>
@@ -123,7 +117,7 @@ export function BoardFilterBar({
         </Select>
       )}
 
-      {/* Swimlane */}
+      {}
       <Select value={swimlane} onValueChange={(v) => onSwimlane(v as SwimlaneMode)}>
         <SelectTrigger className={cn("h-7 w-auto min-w-[9rem] text-sm", swimlane !== "none" && "border-primary text-primary")}>
           <Layers className="mr-1.5 size-3.5" />
@@ -136,7 +130,7 @@ export function BoardFilterBar({
         </SelectContent>
       </Select>
 
-      {/* Clear */}
+      {}
       <AnimatePresence>
         {hasActiveFilters && (
           <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }}>
@@ -147,14 +141,14 @@ export function BoardFilterBar({
         )}
       </AnimatePresence>
 
-      {/* Real-time indicator */}
+      {}
       {realtimeStatus && (
         <div className={cn("flex items-center gap-2", !onToggleCapacity && "ml-auto")}>
           <RealtimeIndicator status={realtimeStatus} />
         </div>
       )}
 
-      {/* Capacity toggle */}
+      {}
       {onToggleCapacity && (
         <div className={cn(!realtimeStatus && "ml-auto")}>
           <Button

@@ -33,8 +33,6 @@ import { updateIssue, bulkUpdateIssues } from "../../issues/actions";
 import { CreateIssueDialog } from "../../issues/_components/create-issue-dialog";
 import { IssueDetailModal, type IssueDetail } from "../../issues/_components/issue-detail-modal";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 interface Member { id: string; name: string; email: string; image: string | null }
 
 export interface ListIssue {
@@ -68,14 +66,12 @@ interface IssueListClientProps {
   workspaceId: string;
 }
 
-// ─── Sort / filter types ──────────────────────────────────────────────────────
-
 type SortField = "key" | "title" | "status" | "priority" | "assignee" | "dueDate" | "estimate" | "createdAt" | "updatedAt";
 type SortDir   = "asc" | "desc";
 
 interface Filters {
   search:    string;
-  status:    string;   // "" = all
+  status:    string;
   priority:  string;
   type:      string;
   assignee:  string;
@@ -97,8 +93,6 @@ interface VisibleCols {
   updated:   boolean;
 }
 
-// ─── Constants ────────────────────────────────────────────────────────────────
-
 const PRIORITY_ORDER: Record<string, number> = {
   URGENT: 0, HIGH: 1, MEDIUM: 2, LOW: 3, NO_PRIORITY: 4,
 };
@@ -111,8 +105,6 @@ const DEFAULT_COLS: VisibleCols = {
   dueDate: true, estimate: true, sprint: false, epic: true,
   comments: true, created: false, updated: false,
 };
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function getInitials(name: string) {
   const parts = name.trim().split(/\s+/);
@@ -140,8 +132,6 @@ function sortIssues(issues: ListIssue[], field: SortField, dir: SortDir): ListIs
     return dir === "asc" ? cmp : -cmp;
   });
 }
-
-// ─── Sort header cell ─────────────────────────────────────────────────────────
 
 function SortHeader({
   field, label, sortField, sortDir, onSort, className,
@@ -176,8 +166,6 @@ function SortHeader({
   );
 }
 
-// ─── Inline cell editor ───────────────────────────────────────────────────────
-
 function InlineSelect({
   value, options, onSave, disabled, trigger,
 }: {
@@ -205,8 +193,6 @@ function InlineSelect({
     </Select>
   );
 }
-
-// ─── Inline title editor ──────────────────────────────────────────────────────
 
 function InlineTitleCell({
   issue, projectKey, onSave, onOpen, disabled,
@@ -270,8 +256,6 @@ function InlineTitleCell({
   );
 }
 
-// ─── Inline assignee cell ─────────────────────────────────────────────────────
-
 function AssigneeCell({
   issue, members, onSave, disabled,
 }: {
@@ -315,8 +299,6 @@ function AssigneeCell({
     </Select>
   );
 }
-
-// ─── Inline due date cell ─────────────────────────────────────────────────────
 
 function DueDateCell({
   issue, onSave, disabled,
@@ -369,8 +351,6 @@ function DueDateCell({
   );
 }
 
-// ─── Inline estimate cell ─────────────────────────────────────────────────────
-
 const ESTIMATE_OPTS = [
   { value: "none", label: "—" },
   { value: "1",  label: "1 (XS)" },
@@ -410,8 +390,6 @@ function EstimateCell({
     </Select>
   );
 }
-
-// ─── Table row ────────────────────────────────────────────────────────────────
 
 function IssueTableRow({
   issue, index, projectKey, members, cols,
@@ -565,8 +543,6 @@ function IssueTableRow({
   );
 }
 
-// ─── Main component ───────────────────────────────────────────────────────────
-
 export function IssueListClient({
   project, issues: initialIssues, members, sprints, epics,
   currentUserId, currentUserName, currentUserImage,
@@ -587,7 +563,6 @@ export function IssueListClient({
   const [isPending, startTransition]             = useTransition();
   const [isBulkPending, startBulkTransition]     = useTransition();
 
-  // ── Filter + sort ─────────────────────────────────────────────────────────
   const filtered = useMemo(() => {
     let result = issues;
     const q = filters.search.toLowerCase().trim();
@@ -611,13 +586,11 @@ export function IssueListClient({
   const selectedCount = selectedIds.size;
   const allSelected = filtered.length > 0 && filtered.every((i) => selectedIds.has(i.id));
 
-  // ── Sort handler ──────────────────────────────────────────────────────────
   function handleSort(field: SortField) {
     if (sortField === field) setSortDir((d) => d === "asc" ? "desc" : "asc");
     else { setSortField(field); setSortDir("asc"); }
   }
 
-  // ── Selection ─────────────────────────────────────────────────────────────
   function handleSelect(id: string, v: boolean) {
     setSelectedIds((prev) => { const n = new Set(prev); v ? n.add(id) : n.delete(id); return n; });
   }
@@ -626,7 +599,6 @@ export function IssueListClient({
     else setSelectedIds(new Set(filtered.map((i) => i.id)));
   }
 
-  // ── Open issue detail ─────────────────────────────────────────────────────
   function handleOpenIssue(id: string) {
     setSelectedIssueId(id);
     startDetailTransition(async () => {
@@ -635,7 +607,6 @@ export function IssueListClient({
     });
   }
 
-  // ── Inline field updates ──────────────────────────────────────────────────
   const handleUpdateTitle = useCallback((id: string, title: string) => {
     startTransition(async () => {
       const r = await updateIssue(id, { title });
@@ -685,7 +656,6 @@ export function IssueListClient({
     });
   }, []);
 
-  // ── Bulk update ───────────────────────────────────────────────────────────
   function handleBulkUpdate(field: string, value: string | null) {
     startBulkTransition(async () => {
       const r = await bulkUpdateIssues({
@@ -709,7 +679,6 @@ export function IssueListClient({
     });
   }
 
-  // ── Column toggle ─────────────────────────────────────────────────────────
   function toggleCol(key: keyof VisibleCols) {
     setCols((prev) => ({ ...prev, [key]: !prev[key] }));
   }
@@ -719,10 +688,10 @@ export function IssueListClient({
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
 
-      {/* ── Toolbar ──────────────────────────────────────────────────────── */}
+      {}
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-5 py-3">
         <div className="flex flex-1 flex-wrap items-center gap-2">
-          {/* Search */}
+          {}
           <div className="relative w-56">
             <Search className="absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
             <Input
@@ -739,7 +708,7 @@ export function IssueListClient({
             )}
           </div>
 
-          {/* Status filter */}
+          {}
           <Select value={filters.status || "all"} onValueChange={(v) => setFilters((f) => ({ ...f, status: v === "all" ? "" : v }))}>
             <SelectTrigger className={cn("h-8 w-32 text-sm", filters.status && "border-primary text-primary")}>
               <SelectValue placeholder="Status" />
@@ -754,7 +723,7 @@ export function IssueListClient({
             </SelectContent>
           </Select>
 
-          {/* Priority filter */}
+          {}
           <Select value={filters.priority || "all"} onValueChange={(v) => setFilters((f) => ({ ...f, priority: v === "all" ? "" : v }))}>
             <SelectTrigger className={cn("h-8 w-32 text-sm", filters.priority && "border-primary text-primary")}>
               <SelectValue placeholder="Priority" />
@@ -769,7 +738,7 @@ export function IssueListClient({
             </SelectContent>
           </Select>
 
-          {/* Assignee filter */}
+          {}
           <Select value={filters.assignee || "all"} onValueChange={(v) => setFilters((f) => ({ ...f, assignee: v === "all" ? "" : v }))}>
             <SelectTrigger className={cn("h-8 w-36 text-sm", filters.assignee && "border-primary text-primary")}>
               <SelectValue placeholder="Assignee" />
@@ -788,7 +757,7 @@ export function IssueListClient({
             </SelectContent>
           </Select>
 
-          {/* Type filter */}
+          {}
           <Select value={filters.type || "all"} onValueChange={(v) => setFilters((f) => ({ ...f, type: v === "all" ? "" : v }))}>
             <SelectTrigger className={cn("h-8 w-28 text-sm", filters.type && "border-primary text-primary")}>
               <SelectValue placeholder="Type" />
@@ -803,7 +772,7 @@ export function IssueListClient({
             </SelectContent>
           </Select>
 
-          {/* Clear filters */}
+          {}
           <AnimatePresence>
             {hasFilters && (
               <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }}>
@@ -817,7 +786,7 @@ export function IssueListClient({
         </div>
 
         <div className="flex items-center gap-2">
-          {/* Column visibility */}
+          {}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm" className="h-8 gap-1.5 text-sm">
@@ -846,7 +815,7 @@ export function IssueListClient({
             </DropdownMenuContent>
           </DropdownMenu>
 
-          {/* Create issue */}
+          {}
           <CreateIssueDialog
             projectId={project.id}
             projectKey={project.key}
@@ -857,7 +826,7 @@ export function IssueListClient({
         </div>
       </div>
 
-      {/* ── Stats bar ────────────────────────────────────────────────────── */}
+      {}
       <div className="flex items-center gap-4 border-b border-border bg-muted/20 px-5 py-2 text-sm text-muted-foreground">
         <span>
           <strong className="text-foreground">{filtered.length}</strong>
@@ -869,7 +838,7 @@ export function IssueListClient({
         {isPending && <Loader2 className="size-3.5 animate-spin" />}
       </div>
 
-      {/* ── Bulk action bar ───────────────────────────────────────────────── */}
+      {}
       <AnimatePresence>
         {selectedCount > 0 && (
           <motion.div
@@ -930,7 +899,7 @@ export function IssueListClient({
         )}
       </AnimatePresence>
 
-      {/* ── Table ────────────────────────────────────────────────────────── */}
+      {}
       <div className="flex-1 overflow-auto">
         {filtered.length === 0 ? (
           <div className="flex flex-col items-center gap-3 py-24 text-center">
@@ -966,7 +935,7 @@ export function IssueListClient({
           <table className="w-full border-collapse">
             <thead className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm">
               <tr className="border-b border-border">
-                {/* Select all */}
+                {}
                 <th className="w-10 px-3 py-2.5">
                   <button type="button" onClick={handleSelectAll}
                     className="text-muted-foreground transition-colors hover:text-primary">
@@ -1015,7 +984,7 @@ export function IssueListClient({
         )}
       </div>
 
-      {/* ── Issue detail modal ────────────────────────────────────────────── */}
+      {}
       <AnimatePresence>
         {selectedIssueId && (
           isLoadingDetail ? (

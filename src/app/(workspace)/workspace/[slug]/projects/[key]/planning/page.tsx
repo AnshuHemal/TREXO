@@ -32,7 +32,6 @@ export default async function SprintPlanningPage({ params }: PlanningPageProps) 
   });
   if (!project) notFound();
 
-  // ── Backlog issues (not in any sprint) ────────────────────────────────────
   const backlogIssues = await prisma.issue.findMany({
     where: {
       projectId: project.id,
@@ -47,7 +46,6 @@ export default async function SprintPlanningPage({ params }: PlanningPageProps) 
     },
   });
 
-  // ── Active + planned sprints ───────────────────────────────────────────────
   const sprints = await prisma.sprint.findMany({
     where: {
       projectId: project.id,
@@ -66,7 +64,6 @@ export default async function SprintPlanningPage({ params }: PlanningPageProps) 
     },
   });
 
-  // ── Workspace members (for capacity) ──────────────────────────────────────
   const members = await prisma.workspaceMember.findMany({
     where: { workspaceId: workspace.id },
     include: { user: { select: { id: true, name: true, image: true } } },

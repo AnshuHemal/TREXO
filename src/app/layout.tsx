@@ -1,16 +1,13 @@
 import type { Metadata, Viewport } from "next";
 import { Suspense } from "react";
 import { Inter, JetBrains_Mono } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { getUserTheme } from "@/lib/theme-actions";
 import { NavigationProgress } from "@/components/shared/navigation-progress";
 import { siteConfig } from "@/config/site";
 import "./globals.css";
-
-// ─── Fonts ────────────────────────────────────────────────────────────────────
-// Aligned with the CSS theme: Inter (sans) + JetBrains Mono (mono).
-// Variables are injected into the HTML element so Tailwind's font utilities
-// and the CSS custom properties in globals.css both resolve correctly.
 
 const inter = Inter({
   variable: "--font-inter",
@@ -23,8 +20,6 @@ const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
   display: "swap",
 });
-
-// ─── Metadata ─────────────────────────────────────────────────────────────────
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
@@ -41,12 +36,10 @@ export const metadata: Metadata = {
   creator: siteConfig.name,
   publisher: siteConfig.name,
 
-  // Canonical + alternate
   alternates: {
     canonical: "/",
   },
 
-  // Open Graph
   openGraph: {
     type: "website",
     locale: "en_US",
@@ -60,21 +53,20 @@ export const metadata: Metadata = {
         width: 1200,
         height: 630,
         alt: `${siteConfig.name} — ${siteConfig.tagline}`,
+        type: "image/png",
       },
     ],
   },
 
-  // Twitter / X
   twitter: {
     card: "summary_large_image",
     title: `${siteConfig.name} — ${siteConfig.tagline}`,
-    description: siteConfig.description,
+    description: siteConfig.shortDescription,
     images: [siteConfig.ogImage],
     creator: "@trexo_app",
     site: "@trexo_app",
   },
 
-  // Robots
   robots: {
     index: true,
     follow: true,
@@ -87,44 +79,66 @@ export const metadata: Metadata = {
     },
   },
 
-  // PWA / browser hints
   applicationName: siteConfig.name,
   category: "productivity",
 
-  // Favicon — uses public/logo.svg directly
   icons: {
-    icon:      [
+    icon: [
       { url: "/logo.svg", type: "image/svg+xml" },
       { url: "/logo.svg", sizes: "any" },
     ],
-    shortcut:  "/logo.svg",
-    apple:     "/logo.svg",
+    shortcut: "/logo.svg",
+    apple: "/logo.svg",
   },
 };
-
-// ─── Viewport ─────────────────────────────────────────────────────────────────
-// Exported separately per Next.js 15+ convention — keeps metadata and viewport
-// concerns cleanly separated.
 
 export const viewport: Viewport = {
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: "#ffffff" },
-    { media: "(prefers-color-scheme: dark)", color: "#343434" },
+    { media: "(prefers-color-scheme: dark)", color: "#0a0a0a" },
   ],
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
+  maximumScale: 5,
 };
 
-// ─── Layout ───────────────────────────────────────────────────────────────────
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  name: siteConfig.name,
+  description: siteConfig.description,
+  url: siteConfig.url,
+  applicationCategory: "BusinessApplication",
+  operatingSystem: "Web",
+  offers: {
+    "@type": "Offer",
+    price: "0",
+    priceCurrency: "USD",
+    description: "Free plan available. Pro plan from $12/member/month.",
+  },
+  author: {
+    "@type": "Organization",
+    name: siteConfig.name,
+    url: siteConfig.url,
+    sameAs: [siteConfig.social.twitter, siteConfig.social.github],
+  },
+  featureList: [
+    "Kanban Board",
+    "Sprint Planning",
+    "Roadmap View",
+    "Time Tracking",
+    "Custom Workflows",
+    "Real-time Collaboration",
+    "Global Search",
+    "Issue Templates",
+  ],
+};
 
 export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // Read the user's persisted theme preference from DB.
-  // Falls back to "system" for unauthenticated visitors.
   const userTheme = await getUserTheme();
 
   return (
@@ -133,7 +147,17 @@ export default async function RootLayout({
       suppressHydrationWarning
       className={`${inter.variable} ${jetbrainsMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-background text-foreground" suppressHydrationWarning>
+      <head>
+        {}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      </head>
+      <body
+        className="min-h-full flex flex-col bg-background text-foreground"
+        suppressHydrationWarning
+      >
         <ThemeProvider
           attribute="class"
           defaultTheme={userTheme}
@@ -141,12 +165,19 @@ export default async function RootLayout({
           disableTransitionOnChange
           nonce=""
         >
-          {/* Navigation progress bar — shown on every route transition */}
+          {}
           <Suspense fallback={null}>
             <NavigationProgress />
           </Suspense>
+
           {children}
         </ThemeProvider>
+
+        {}
+        <Analytics />
+
+        {}
+        <SpeedInsights />
       </body>
     </html>
   );

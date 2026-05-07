@@ -5,8 +5,6 @@ import { requireUser } from "@/lib/session";
 import { sendWorkspaceInvite } from "@/lib/invite-actions";
 import type { WorkspaceRole } from "@/generated/prisma/enums";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 export interface ActionResult<T = void> {
   success: boolean;
   data?: T;
@@ -14,17 +12,13 @@ export interface ActionResult<T = void> {
   fieldErrors?: Record<string, string>;
 }
 
-// ─── inviteMember ─────────────────────────────────────────────────────────────
-
 export async function inviteMember(
   workspaceId: string,
   email: string,
 ): Promise<ActionResult> {
-  // Delegate to the full invite flow (creates Invitation record + sends email)
+
   return sendWorkspaceInvite(workspaceId, email);
 }
-
-// ─── updateMemberRole ─────────────────────────────────────────────────────────
 
 export async function updateMemberRole(
   memberId: string,
@@ -32,7 +26,6 @@ export async function updateMemberRole(
 ): Promise<ActionResult> {
   const currentUser = await requireUser();
 
-  // Fetch the target membership to get workspaceId
   const targetMembership = await prisma.workspaceMember.findUnique({
     where: { id: memberId },
     select: { id: true, workspaceId: true, role: true },
@@ -42,17 +35,14 @@ export async function updateMemberRole(
     return { success: false, error: "Member not found." };
   }
 
-  // Cannot change OWNER role
   if (targetMembership.role === "OWNER") {
     return { success: false, error: "The workspace owner's role cannot be changed." };
   }
 
-  // Cannot assign OWNER role via this action
   if (role === "OWNER") {
     return { success: false, error: "Cannot assign the OWNER role." };
   }
 
-  // Verify requester is OWNER or ADMIN in this workspace
   const requesterMembership = await prisma.workspaceMember.findFirst({
     where: {
       workspaceId: targetMembership.workspaceId,
@@ -78,15 +68,12 @@ export async function updateMemberRole(
   }
 }
 
-// ─── removeMember ─────────────────────────────────────────────────────────────
-
 export async function removeMember(
   memberId: string,
   workspaceId: string,
 ): Promise<ActionResult> {
   const currentUser = await requireUser();
 
-  // Fetch the target membership
   const targetMembership = await prisma.workspaceMember.findUnique({
     where: { id: memberId },
     select: { id: true, role: true, userId: true },
@@ -96,12 +83,10 @@ export async function removeMember(
     return { success: false, error: "Member not found." };
   }
 
-  // Cannot remove OWNER
   if (targetMembership.role === "OWNER") {
     return { success: false, error: "The workspace owner cannot be removed." };
   }
 
-  // Verify requester is OWNER or ADMIN
   const requesterMembership = await prisma.workspaceMember.findFirst({
     where: {
       workspaceId,

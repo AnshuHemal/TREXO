@@ -5,8 +5,6 @@ import { motion } from "motion/react";
 import { Timer, ArrowRight, CalendarDays, Zap } from "lucide-react";
 import { FadeIn } from "@/components/motion/fade-in";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 interface SprintIssueCount {
   total: number;
   done: number;
@@ -30,8 +28,6 @@ interface ActiveSprintWidgetProps {
   sprint: ActiveSprintData | null;
 }
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
 function daysRemaining(endDate: Date | null): number | null {
   if (!endDate) return null;
   const diff = new Date(endDate).getTime() - Date.now();
@@ -42,8 +38,6 @@ function formatDate(date: Date | null): string {
   if (!date) return "—";
   return new Intl.DateTimeFormat("en", { month: "short", day: "numeric" }).format(new Date(date));
 }
-
-// ─── Component ────────────────────────────────────────────────────────────────
 
 export function ActiveSprintWidget({ sprint }: ActiveSprintWidgetProps) {
   if (!sprint) {
@@ -68,7 +62,7 @@ export function ActiveSprintWidget({ sprint }: ActiveSprintWidgetProps) {
   return (
     <FadeIn delay={0.15}>
       <div className="rounded-xl border border-border bg-card p-5">
-        {/* Header */}
+        {}
         <div className="mb-4 flex items-start justify-between gap-3">
           <div className="flex items-center gap-2">
             <div className="flex size-8 items-center justify-center rounded-lg bg-primary/10">
@@ -87,12 +81,12 @@ export function ActiveSprintWidget({ sprint }: ActiveSprintWidgetProps) {
           </Link>
         </div>
 
-        {/* Goal */}
+        {}
         {sprint.goal && (
           <p className="mb-4 text-sm text-muted-foreground line-clamp-2">{sprint.goal}</p>
         )}
 
-        {/* Progress */}
+        {}
         <div className="mb-3 flex flex-col gap-1.5">
           <div className="flex items-center justify-between text-sm">
             <span className="text-muted-foreground">{done}/{total} issues done</span>
@@ -117,7 +111,7 @@ export function ActiveSprintWidget({ sprint }: ActiveSprintWidgetProps) {
           )}
         </div>
 
-        {/* Dates */}
+        {}
         <div className="flex items-center justify-between text-sm text-muted-foreground">
           <div className="flex items-center gap-1">
             <CalendarDays className="size-3.5" />

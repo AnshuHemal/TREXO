@@ -46,8 +46,6 @@ export default async function WorkspacePage({ params }: WorkspacePageProps) {
   const { workspace } = membership;
   const canCreate = membership.role === "OWNER" || membership.role === "ADMIN";
 
-  // ── Parallel data fetching ─────────────────────────────────────────────────
-
   const [
     recentProjects,
     activeSprint,
@@ -59,7 +57,6 @@ export default async function WorkspacePage({ params }: WorkspacePageProps) {
     completedSprints,
   ] = await Promise.all([
 
-    // Recent projects (up to 6)
     prisma.project.findMany({
       where: { workspaceId: workspace.id },
       orderBy: { createdAt: "desc" },
@@ -67,7 +64,6 @@ export default async function WorkspacePage({ params }: WorkspacePageProps) {
       select: { id: true, name: true, key: true, description: true, _count: { select: { issues: true } } },
     }),
 
-    // Active sprint (first one found across all projects)
     prisma.sprint.findFirst({
       where: {
         status: "ACTIVE",
@@ -81,7 +77,6 @@ export default async function WorkspacePage({ params }: WorkspacePageProps) {
       orderBy: { startDate: "desc" },
     }),
 
-    // My open issues (top 5)
     prisma.issue.findMany({
       where: {
         assigneeId: user.id,
@@ -100,7 +95,6 @@ export default async function WorkspacePage({ params }: WorkspacePageProps) {
       },
     }),
 
-    // Recent activity (last 10 across all projects)
     prisma.activity.findMany({
       where: {
         issue: { project: { workspaceId: workspace.id } },
@@ -120,14 +114,12 @@ export default async function WorkspacePage({ params }: WorkspacePageProps) {
       },
     }),
 
-    // Issue status breakdown (grouped)
     prisma.issue.groupBy({
       by: ["status"],
       where: { project: { workspaceId: workspace.id } },
       _count: { status: true },
     }),
 
-    // Recently updated issues (last 5)
     prisma.issue.findMany({
       where: { project: { workspaceId: workspace.id } },
       orderBy: { updatedAt: "desc" },
@@ -143,12 +135,10 @@ export default async function WorkspacePage({ params }: WorkspacePageProps) {
       },
     }),
 
-    // Total issue count for the donut chart centre
     prisma.issue.count({
       where: { project: { workspaceId: workspace.id } },
     }),
 
-    // Velocity: last 6 completed sprints with story points
     prisma.sprint.findMany({
       where: {
         status: "COMPLETED",
@@ -163,8 +153,6 @@ export default async function WorkspacePage({ params }: WorkspacePageProps) {
       },
     }),
   ]);
-
-  // ── Shape data for widgets ─────────────────────────────────────────────────
 
   const activeSprintData = activeSprint
     ? {
@@ -247,7 +235,7 @@ export default async function WorkspacePage({ params }: WorkspacePageProps) {
       />
 
       <main className="flex-1 p-6">
-        {/* Welcome */}
+        {}
         <FadeIn direction="down" className="mb-8">
           <h1 className="text-2xl font-bold tracking-tight text-foreground">
             Welcome back{user.name ? `, ${user.name.split(" ")[0]}` : ""}
@@ -258,7 +246,7 @@ export default async function WorkspacePage({ params }: WorkspacePageProps) {
           </p>
         </FadeIn>
 
-        {/* ── Stat cards ──────────────────────────────────────────────────── */}
+        {}
         <FadeIn delay={0.05}>
           <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
             {stats.map(({ label, value, icon: Icon, description }) => (
@@ -276,17 +264,17 @@ export default async function WorkspacePage({ params }: WorkspacePageProps) {
           </div>
         </FadeIn>
 
-        {/* ── Main dashboard grid ──────────────────────────────────────────── */}
+        {}
         <div className="mb-8 grid grid-cols-1 gap-5 lg:grid-cols-3">
 
-          {/* Left column — 2/3 width */}
+          {}
           <div className="flex flex-col gap-5 lg:col-span-2">
             <ActiveSprintWidget sprint={activeSprintData} />
             <MyIssuesWidget issues={myIssuesList} workspaceSlug={slug} />
             <RecentIssuesWidget issues={recentIssuesList} />
           </div>
 
-          {/* Right column — 1/3 width */}
+          {}
           <div className="flex flex-col gap-5">
             <StatusChart data={statusData} totalIssues={totalIssues} />
             <VelocityChart data={velocityData} />
@@ -295,7 +283,7 @@ export default async function WorkspacePage({ params }: WorkspacePageProps) {
 
         </div>
 
-        {/* ── Recent projects ──────────────────────────────────────────────── */}
+        {}
         <FadeIn delay={0.4} className="mt-2">
           <div className="mb-4 flex items-center justify-between">
             <h2 className="text-base font-semibold text-foreground">Recent Projects</h2>

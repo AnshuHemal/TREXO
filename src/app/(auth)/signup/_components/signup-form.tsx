@@ -6,12 +6,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { signUp } from "@/lib/auth-client";
 
-/**
- * Email + password registration form.
- *
- * On success, redirects to /verify-email?email=... so the user can enter
- * the OTP that was automatically sent by Better Auth on sign-up.
- */
 export function SignupForm() {
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -31,7 +25,7 @@ export function SignupForm() {
       email,
       password,
       name: `${firstName} ${lastName}`.trim(),
-      // callbackURL is where Better Auth redirects after email verification.
+
       callbackURL: "/dashboard",
     });
 
@@ -41,8 +35,6 @@ export function SignupForm() {
       return;
     }
 
-    // OTP was sent automatically (sendVerificationOnSignUp: true).
-    // Pass email + password so the verify page can auto sign-in after verification.
     const params = new URLSearchParams({
       email,
       password,

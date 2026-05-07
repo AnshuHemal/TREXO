@@ -18,14 +18,10 @@ import {
 } from "@/components/ui/alert-dialog";
 import { deleteWorkspace } from "../actions";
 
-// ─── Props ────────────────────────────────────────────────────────────────────
-
 interface DangerZoneProps {
   workspaceId: string;
   workspaceName: string;
 }
-
-// ─── Component ────────────────────────────────────────────────────────────────
 
 export function DangerZone({ workspaceId, workspaceName }: DangerZoneProps) {
   const [open, setOpen] = useState(false);
@@ -50,7 +46,7 @@ export function DangerZone({ workspaceId, workspaceName }: DangerZoneProps) {
     startTransition(async () => {
       try {
         await deleteWorkspace(workspaceId);
-        // deleteWorkspace redirects server-side; if we get here something went wrong
+
         window.location.href = "/onboarding";
       } catch (err) {
         setError(

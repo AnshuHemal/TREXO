@@ -4,8 +4,6 @@ import { useState } from "react";
 import { ProjectShortcutsProvider } from "./project-shortcuts-provider";
 import { CreateIssueDialog, type IssueTemplateOption } from "../issues/_components/create-issue-dialog";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 interface Member {
   id: string;
   name: string;
@@ -21,8 +19,6 @@ interface ProjectLayoutClientProps {
   members: Member[];
   templates?: IssueTemplateOption[];
 }
-
-// ─── Component ────────────────────────────────────────────────────────────────
 
 export function ProjectLayoutClient({
   children,
@@ -42,7 +38,7 @@ export function ProjectLayoutClient({
     >
       {children}
 
-      {/* Global create issue dialog — triggered by "C" shortcut */}
+      {}
       <CreateIssueDialog
         projectId={projectId}
         projectKey={projectKey}

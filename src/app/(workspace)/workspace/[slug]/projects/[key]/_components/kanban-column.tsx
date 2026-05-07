@@ -10,8 +10,6 @@ import { cn } from "@/lib/utils";
 import type { BoardIssue } from "./kanban-board";
 import { KanbanCard } from "./kanban-card";
 
-// ─── Props ────────────────────────────────────────────────────────────────────
-
 interface KanbanColumnProps {
   status: string;
   label: string;
@@ -22,15 +20,13 @@ interface KanbanColumnProps {
   wipLimit?: number;
   onQuickCreate: (title: string) => void;
   onOpenIssue: (issueId: string) => void;
-  /** Members for assignee quick-edit */
+
   members?: { id: string; name: string; image: string | null }[];
-  /** Called when a field is updated inline */
+
   onIssueUpdated?: (id: string, field: string, value: string | null) => void;
-  /** Currently keyboard-focused issue ID */
+
   focusedIssueId?: string | null;
 }
-
-// ─── Component ────────────────────────────────────────────────────────────────
 
 export function KanbanColumn({
   status,
@@ -50,7 +46,6 @@ export function KanbanColumn({
   const [newTitle, setNewTitle] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Make the column a drop target
   const { setNodeRef, isOver } = useDroppable({
     id: status,
     data: { status },
@@ -87,7 +82,7 @@ export function KanbanColumn({
       isWipExceeded ? "border-destructive/50" : "border-border",
     )}>
 
-      {/* Column header */}
+      {}
       <div className="flex items-center justify-between px-3 py-3">
         <div className="flex items-center gap-2">
           <Icon className={cn("size-4 shrink-0", iconColor)} />
@@ -115,7 +110,7 @@ export function KanbanColumn({
         </Button>
       </div>
 
-      {/* WIP limit warning */}
+      {}
       {isWipExceeded && (
         <motion.div
           initial={{ opacity: 0, height: 0 }}
@@ -127,7 +122,7 @@ export function KanbanColumn({
         </motion.div>
       )}
 
-      {/* Cards */}
+      {}
       <div
         ref={setNodeRef}
         className={cn(
@@ -155,7 +150,7 @@ export function KanbanColumn({
           </AnimatePresence>
         </SortableContext>
 
-        {/* Quick-create input */}
+        {}
         <AnimatePresence>
           {isCreating && (
             <motion.div
@@ -197,7 +192,7 @@ export function KanbanColumn({
         </AnimatePresence>
       </div>
 
-      {/* Add issue button at bottom (when not creating) */}
+      {}
       {!isCreating && (
         <button
           onClick={handleStartCreate}

@@ -64,7 +64,7 @@ export function ChangePasswordForm({ hasPassword }: ChangePasswordFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4 max-w-sm">
-      {/* Current password — only for users who already have one */}
+      {}
       {hasPassword && (
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="current-pw">Current password</Label>
@@ -80,7 +80,7 @@ export function ChangePasswordForm({ hasPassword }: ChangePasswordFormProps) {
         </div>
       )}
 
-      {/* New password */}
+      {}
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="new-pw">{hasPassword ? "New password" : "Password"}</Label>
         <div className="relative">
@@ -92,14 +92,14 @@ export function ChangePasswordForm({ hasPassword }: ChangePasswordFormProps) {
             {showNew ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
           </button>
         </div>
-        {/* Strength bar */}
+        {}
         <div className="h-0.5 w-full overflow-hidden rounded-full bg-border">
           <motion.div className={cn("h-full rounded-full transition-colors duration-300", strengthColor)}
             animate={{ width: strengthWidth }} transition={{ type: "spring", stiffness: 300, damping: 30 }} />
         </div>
       </div>
 
-      {/* Confirm */}
+      {}
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="confirm-pw">Confirm password</Label>
         <div className="relative">
@@ -113,7 +113,7 @@ export function ChangePasswordForm({ hasPassword }: ChangePasswordFormProps) {
         </div>
       </div>
 
-      {/* Status */}
+      {}
       <AnimatePresence mode="wait">
         {status === "success" && message && (
           <motion.div key="ok" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}

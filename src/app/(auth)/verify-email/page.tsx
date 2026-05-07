@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 export default function VerifyEmailPage() {
   return (
-    // Suspense boundary required because VerifyEmailForm reads useSearchParams()
+
     <Suspense>
       <VerifyEmailForm />
     </Suspense>

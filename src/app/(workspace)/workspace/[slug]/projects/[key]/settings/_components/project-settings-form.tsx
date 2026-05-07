@@ -10,8 +10,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { updateProject, checkProjectKey } from "../actions";
 
-// ─── Props ────────────────────────────────────────────────────────────────────
-
 interface ProjectSettingsFormProps {
   projectId: string;
   workspaceId: string;
@@ -20,8 +18,6 @@ interface ProjectSettingsFormProps {
   initialKey: string;
   initialDescription: string;
 }
-
-// ─── Component ────────────────────────────────────────────────────────────────
 
 export function ProjectSettingsForm({
   projectId,
@@ -46,7 +42,7 @@ export function ProjectSettingsForm({
 
   function triggerKeyCheck(value: string) {
     if (keyDebounceRef.current) clearTimeout(keyDebounceRef.current);
-    // If unchanged from initial, no need to check
+
     if (value === initialKey) {
       setKeyStatus("idle");
       return;
@@ -91,7 +87,6 @@ export function ProjectSettingsForm({
 
       setSuccessMessage("Project settings saved.");
 
-      // If key changed, navigate to new URL
       if (key !== initialKey) {
         window.location.href = `/workspace/${workspaceSlug}/projects/${key}/settings`;
       }
@@ -113,7 +108,7 @@ export function ProjectSettingsForm({
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-      {/* Name */}
+      {}
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="proj-name">Project name</Label>
         <Input
@@ -146,7 +141,7 @@ export function ProjectSettingsForm({
         </AnimatePresence>
       </div>
 
-      {/* Key */}
+      {}
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="proj-key">Project key</Label>
         <div
@@ -240,7 +235,7 @@ export function ProjectSettingsForm({
         </AnimatePresence>
       </div>
 
-      {/* Description */}
+      {}
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="proj-desc">
           Description{" "}
@@ -282,7 +277,7 @@ export function ProjectSettingsForm({
         </div>
       </div>
 
-      {/* Server error / success */}
+      {}
       <AnimatePresence mode="wait">
         {serverError && (
           <motion.div

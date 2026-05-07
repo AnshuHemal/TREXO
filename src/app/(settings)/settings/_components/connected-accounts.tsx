@@ -6,8 +6,6 @@ import { CheckCircle2, XCircle, Loader2, Link2, Link2Off } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { authClient } from "@/lib/auth-client";
 
-// ─── Provider config ──────────────────────────────────────────────────────────
-
 const PROVIDERS = [
   {
     id: "github",
@@ -32,8 +30,6 @@ const PROVIDERS = [
   },
 ] as const;
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 interface AccountItem {
   id: string;
   providerId: string;
@@ -44,8 +40,6 @@ interface AccountItem {
 interface ConnectedAccountsProps {
   accounts: AccountItem[];
 }
-
-// ─── Component ────────────────────────────────────────────────────────────────
 
 export function ConnectedAccounts({ accounts: initialAccounts }: ConnectedAccountsProps) {
   const [accounts, setAccounts] = useState(initialAccounts);

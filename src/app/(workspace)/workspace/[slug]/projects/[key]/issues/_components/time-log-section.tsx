@@ -21,16 +21,12 @@ import {
 } from "../time-actions";
 import { formatMinutes, parseTimeInput } from "@/lib/time-utils";
 
-// ─── Props ────────────────────────────────────────────────────────────────────
-
 interface TimeLogSectionProps {
   issueId: string;
   estimate: number | null;
   currentUserId: string;
   initialLogs?: TimeLogItem[];
 }
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function getInitials(name: string) {
   const parts = name.trim().split(/\s+/);
@@ -40,8 +36,6 @@ function getInitials(name: string) {
 function formatDate(date: Date) {
   return new Intl.DateTimeFormat("en", { month: "short", day: "numeric" }).format(new Date(date));
 }
-
-// ─── Log entry row ────────────────────────────────────────────────────────────
 
 function LogEntryRow({
   log,
@@ -168,8 +162,6 @@ function LogEntryRow({
   );
 }
 
-// ─── Log time form ────────────────────────────────────────────────────────────
-
 function LogTimeForm({
   issueId,
   onLogged,
@@ -262,8 +254,6 @@ function LogTimeForm({
   );
 }
 
-// ─── Main component ───────────────────────────────────────────────────────────
-
 export function TimeLogSection({
   issueId,
   estimate,
@@ -273,11 +263,10 @@ export function TimeLogSection({
   const [logs, setLogs] = useState<TimeLogItem[]>(initialLogs);
   const [isExpanded, setIsExpanded] = useState(true);
   const [isAdding, setIsAdding] = useState(false);
-  // Start loading only when there are no pre-loaded logs
+
   const [isLoading, setIsLoading] = useState(() => initialLogs.length === 0);
   const [, startTransition] = useTransition();
 
-  // Fetch logs on mount only if none were pre-loaded
   useEffect(() => {
     if (initialLogs.length > 0) return;
     let cancelled = false;
@@ -290,7 +279,7 @@ export function TimeLogSection({
   }, [issueId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const totalLogged = logs.reduce((s, l) => s + l.minutes, 0);
-  const estimateMinutes = estimate ? estimate * 60 : null; // story points → hours → minutes (rough)
+  const estimateMinutes = estimate ? estimate * 60 : null;
   const pct = estimateMinutes && estimateMinutes > 0
     ? Math.min((totalLogged / estimateMinutes) * 100, 100)
     : 0;
@@ -314,7 +303,7 @@ export function TimeLogSection({
 
   return (
     <div className="flex flex-col gap-2">
-      {/* Section header */}
+      {}
       <div className="flex items-center justify-between">
         <button
           type="button"
@@ -354,7 +343,7 @@ export function TimeLogSection({
             className="overflow-hidden"
           >
             <div className="flex flex-col gap-2">
-              {/* Progress bar (when estimate exists) */}
+              {}
               {estimateMinutes !== null && estimateMinutes > 0 && (
                 <div className="flex flex-col gap-1">
                   <div className="flex items-center justify-between text-[11px]">
@@ -379,7 +368,7 @@ export function TimeLogSection({
                 </div>
               )}
 
-              {/* Log time form */}
+              {}
               <AnimatePresence>
                 {isAdding && (
                   <LogTimeForm
@@ -391,7 +380,7 @@ export function TimeLogSection({
                 )}
               </AnimatePresence>
 
-              {/* Log entries */}
+              {}
               {isLoading ? (
                 <div className="flex items-center gap-2 py-2 text-sm text-muted-foreground">
                   <Loader2 className="size-3.5 animate-spin" />Loading…

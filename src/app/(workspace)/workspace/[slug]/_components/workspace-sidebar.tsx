@@ -20,8 +20,6 @@ import type { WorkspaceRole } from "@/generated/prisma/enums";
 import { CreateProjectDialog } from "../projects/_components/create-project-dialog";
 import { useMobileSidebarSafe } from "@/components/providers/mobile-sidebar-provider";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 interface WorkspaceSidebarProps {
   workspace: { id: string; name: string; slug: string; logo: string | null };
   projects: { id: string; name: string; key: string; icon: string | null }[];
@@ -29,15 +27,11 @@ interface WorkspaceSidebarProps {
   currentUserRole: WorkspaceRole;
 }
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
 function getInitials(name: string): string {
   const parts = name.trim().split(/\s+/);
   if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
   return name.slice(0, 2).toUpperCase();
 }
-
-// ─── Component ────────────────────────────────────────────────────────────────
 
 export function WorkspaceSidebar({
   workspace,
@@ -80,11 +74,9 @@ export function WorkspaceSidebar({
     { href: `${baseSlug}/settings/templates`,label: "Templates", icon: LayoutTemplate, exact: false },
   ];
 
-  // ── Shared sidebar content ────────────────────────────────────────────────
-
   const sidebarContent = (
     <div className="flex h-full flex-col overflow-hidden">
-      {/* Mobile header */}
+      {}
       <div className="flex items-center justify-between border-b border-border px-3 py-3 lg:hidden">
         <span className="text-sm font-semibold text-foreground">Menu</span>
         <Button variant="ghost" size="icon" className="size-7 text-muted-foreground" onClick={mobileSidebar?.close}>
@@ -92,7 +84,7 @@ export function WorkspaceSidebar({
         </Button>
       </div>
 
-      {/* Workspace switcher */}
+      {}
       <div className="px-3 py-3">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -134,7 +126,7 @@ export function WorkspaceSidebar({
         </DropdownMenu>
       </div>
 
-      {/* Main nav */}
+      {}
       <nav className="px-2 py-2">
         {navItems.map(({ href, label, icon: Icon, exact }) => (
           <Link key={href} href={href} onClick={handleNavClick}
@@ -150,7 +142,7 @@ export function WorkspaceSidebar({
 
       <Separator className="mx-3 my-1 w-auto" />
 
-      {/* Projects */}
+      {}
       <div className="flex flex-1 flex-col gap-1 overflow-y-auto px-2 py-2">
         <div className="flex items-center justify-between px-2.5 py-1">
           <span className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Projects</span>
@@ -194,7 +186,7 @@ export function WorkspaceSidebar({
 
       <Separator className="mx-3 w-auto" />
 
-      {/* Bottom links + user */}
+      {}
       <div className="flex flex-col gap-1 px-2 py-3">
         {bottomLinks.map(({ href, label, icon: Icon, exact }) => (
           <Link key={href} href={href} onClick={handleNavClick}
@@ -228,7 +220,7 @@ export function WorkspaceSidebar({
 
   return (
     <>
-      {/* Desktop — always visible on lg+ */}
+      {}
       <motion.aside
         initial={{ x: -20, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
@@ -238,7 +230,7 @@ export function WorkspaceSidebar({
         {sidebarContent}
       </motion.aside>
 
-      {/* Mobile — Sheet overlay */}
+      {}
       <AnimatePresence>
         {mobileSidebar?.isOpen && (
           <>

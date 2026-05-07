@@ -22,16 +22,12 @@ import {
 import { saveWorkflowConfig, resetWorkflowConfig } from "../actions";
 import { FadeIn } from "@/components/motion/fade-in";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 interface WorkflowEditorProps {
   projectId: string;
   projectKey: string;
   workspaceSlug: string;
   initialConfig: WorkflowConfig;
 }
-
-// ─── Status color map ─────────────────────────────────────────────────────────
 
 const STATUS_COLORS: Record<string, string> = {
   BACKLOG:     "bg-muted/60 text-muted-foreground border-border",
@@ -50,8 +46,6 @@ const STATUS_DOT_COLORS: Record<string, string> = {
   DONE:        "bg-emerald-500",
   CANCELLED:   "bg-muted-foreground",
 };
-
-// ─── Status row ───────────────────────────────────────────────────────────────
 
 function StatusRow({
   status,
@@ -84,15 +78,15 @@ function StatusRow({
       )}
       whileDrag={{ scale: 1.02, boxShadow: "0 8px 32px rgba(0,0,0,0.12)" }}
     >
-      {/* Drag handle */}
+      {}
       <div className="cursor-grab text-muted-foreground/40 hover:text-muted-foreground active:cursor-grabbing">
         <GripVertical className="size-4" />
       </div>
 
-      {/* Status dot */}
+      {}
       <div className={cn("size-2.5 shrink-0 rounded-full", STATUS_DOT_COLORS[status.value] ?? "bg-muted-foreground")} />
 
-      {/* Label */}
+      {}
       <div className="flex flex-1 items-center gap-2 min-w-0">
         {isEditing ? (
           <div className="flex flex-1 items-center gap-2">
@@ -140,12 +134,12 @@ function StatusRow({
         )}
       </div>
 
-      {/* Locked badge */}
+      {}
       {isLocked && (
         <span className="shrink-0 text-[10px] text-muted-foreground/60">Required</span>
       )}
 
-      {/* Enable/disable toggle */}
+      {}
       {!isLocked && (
         <Switch
           checked={status.enabled}
@@ -157,8 +151,6 @@ function StatusRow({
     </Reorder.Item>
   );
 }
-
-// ─── Transition matrix ────────────────────────────────────────────────────────
 
 function TransitionMatrix({
   statuses,
@@ -176,7 +168,7 @@ function TransitionMatrix({
 
   return (
     <div className="flex flex-col gap-4">
-      {/* Toggle all-allowed */}
+      {}
       <div className="flex items-center justify-between rounded-xl border border-border bg-card p-4">
         <div>
           <p className="text-sm font-medium text-foreground">Allow all transitions</p>
@@ -190,7 +182,7 @@ function TransitionMatrix({
         />
       </div>
 
-      {/* Matrix */}
+      {}
       <AnimatePresence>
         {!allAllowed && (
           <motion.div
@@ -280,8 +272,6 @@ function TransitionMatrix({
   );
 }
 
-// ─── Main component ───────────────────────────────────────────────────────────
-
 export function WorkflowEditor({
   projectId,
   projectKey: _projectKey,
@@ -295,7 +285,6 @@ export function WorkflowEditor({
   const [saveError, setSaveError]   = useState<string | null>(null);
   const [saveSuccess, setSaveSuccess] = useState(false);
 
-  // Locked statuses — DONE and CANCELLED can't be disabled (needed for completion logic)
   const LOCKED = new Set(["DONE", "CANCELLED"]);
 
   function handleLabelChange(value: string, label: string) {
@@ -327,7 +316,7 @@ export function WorkflowEditor({
     if (allAllowed) {
       setTransitions(null);
     } else {
-      // Start with all transitions allowed
+
       const enabled = statuses.filter((s) => s.enabled);
       const all: WorkflowTransition[] = [];
       for (const from of enabled) {
@@ -373,7 +362,7 @@ export function WorkflowEditor({
   return (
     <div className="flex max-w-3xl flex-col gap-6">
 
-      {/* ── Status columns ──────────────────────────────────────────────── */}
+      {}
       <FadeIn delay={0.05}>
         <div className="rounded-xl border border-border bg-card p-6">
           <div className="mb-5 flex items-start justify-between gap-4">
@@ -418,7 +407,7 @@ export function WorkflowEditor({
         </div>
       </FadeIn>
 
-      {/* ── Transitions ─────────────────────────────────────────────────── */}
+      {}
       <FadeIn delay={0.1}>
         <div className="rounded-xl border border-border bg-card p-6">
           <div className="mb-5">
@@ -437,10 +426,10 @@ export function WorkflowEditor({
         </div>
       </FadeIn>
 
-      {/* ── Actions ─────────────────────────────────────────────────────── */}
+      {}
       <FadeIn delay={0.15}>
         <div className="flex items-center justify-between gap-4">
-          {/* Reset to defaults */}
+          {}
           <AlertDialog>
             <AlertDialogTrigger asChild>
               <Button variant="outline" size="sm" className="gap-1.5" disabled={isResetting}>
@@ -470,7 +459,7 @@ export function WorkflowEditor({
           </AlertDialog>
 
           <div className="flex items-center gap-3">
-            {/* Error */}
+            {}
             <AnimatePresence>
               {saveError && (
                 <motion.p
@@ -495,7 +484,7 @@ export function WorkflowEditor({
               )}
             </AnimatePresence>
 
-            {/* Save */}
+            {}
             <Button
               onClick={handleSave}
               disabled={isSaving || !hasChanges}

@@ -27,7 +27,6 @@ export default async function MyIssuesPage({ params }: MyIssuesPageProps) {
 
   const { workspace } = membership;
 
-  // Fetch all issues assigned to the current user in this workspace
   const issues = await prisma.issue.findMany({
     where: {
       assigneeId: user.id,
@@ -42,7 +41,6 @@ export default async function MyIssuesPage({ params }: MyIssuesPageProps) {
     },
   });
 
-  // Workspace members for the issue detail modal
   const members = await prisma.workspaceMember.findMany({
     where: { workspaceId: workspace.id },
     include: { user: { select: { id: true, name: true, email: true, image: true } } },

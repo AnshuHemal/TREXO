@@ -4,8 +4,6 @@ import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/session";
 import { broadcastSprintEvent, broadcastIssueEvent } from "@/lib/broadcast";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 export interface ActionResult<T = void> {
   success: boolean;
   data?: T;
@@ -29,8 +27,6 @@ export interface UpdateSprintInput {
   startDate?: Date | null;
   endDate?: Date | null;
 }
-
-// ─── createSprint ─────────────────────────────────────────────────────────────
 
 export async function createSprint(
   input: CreateSprintInput,
@@ -62,8 +58,6 @@ export async function createSprint(
   }
 }
 
-// ─── updateSprint ─────────────────────────────────────────────────────────────
-
 export async function updateSprint(
   sprintId: string,
   input: UpdateSprintInput,
@@ -93,13 +87,11 @@ export async function updateSprint(
   }
 }
 
-// ─── deleteSprint ─────────────────────────────────────────────────────────────
-
 export async function deleteSprint(sprintId: string): Promise<ActionResult> {
   await requireUser();
 
   try {
-    // Unassign all issues from this sprint before deleting
+
     await prisma.issue.updateMany({
       where: { sprintId },
       data: { sprintId: null },
@@ -112,8 +104,6 @@ export async function deleteSprint(sprintId: string): Promise<ActionResult> {
   }
 }
 
-// ─── startSprint ──────────────────────────────────────────────────────────────
-
 export async function startSprint(sprintId: string): Promise<ActionResult> {
   const user = await requireUser();
 
@@ -125,7 +115,6 @@ export async function startSprint(sprintId: string): Promise<ActionResult> {
   if (!sprint) return { success: false, error: "Sprint not found." };
   if (sprint.status !== "PLANNED") return { success: false, error: "Only planned sprints can be started." };
 
-  // Enforce: only one active sprint per project
   const activeSprint = await prisma.sprint.findFirst({
     where: { projectId: sprint.projectId, status: "ACTIVE" },
     select: { id: true },
@@ -152,15 +141,13 @@ export async function startSprint(sprintId: string): Promise<ActionResult> {
   }
 }
 
-// ─── completeSprint ───────────────────────────────────────────────────────────
-
 export type IncompleteIssueAction = "backlog" | "next_sprint";
 
 export interface CompleteSprintInput {
   sprintId: string;
-  /** Where to move incomplete issues: "backlog" or a sprint ID */
+
   incompleteAction: IncompleteIssueAction;
-  /** Target sprint ID when incompleteAction === "next_sprint" */
+
   targetSprintId?: string;
 }
 
@@ -179,7 +166,7 @@ export async function completeSprint(
 
   try {
     await prisma.$transaction(async (tx) => {
-      // Find incomplete issues in this sprint
+
       const incompleteIssues = await tx.issue.findMany({
         where: {
           sprintId: input.sprintId,
@@ -192,13 +179,13 @@ export async function completeSprint(
         const ids = incompleteIssues.map((i) => i.id);
 
         if (input.incompleteAction === "backlog") {
-          // Move to backlog — unassign from sprint, set status to BACKLOG
+
           await tx.issue.updateMany({
             where: { id: { in: ids } },
             data: { sprintId: null, status: "BACKLOG" },
           });
         } else if (input.incompleteAction === "next_sprint" && input.targetSprintId) {
-          // Move to another sprint
+
           await tx.issue.updateMany({
             where: { id: { in: ids } },
             data: { sprintId: input.targetSprintId },
@@ -206,7 +193,6 @@ export async function completeSprint(
         }
       }
 
-      // Mark sprint as completed
       await tx.sprint.update({
         where: { id: input.sprintId },
         data: { status: "COMPLETED", endDate: new Date() },
@@ -220,8 +206,6 @@ export async function completeSprint(
     return { success: false, error: "Failed to complete sprint. Please try again." };
   }
 }
-
-// ─── addIssueToSprint ─────────────────────────────────────────────────────────
 
 export async function addIssueToSprint(
   issueId: string,
@@ -240,8 +224,6 @@ export async function addIssueToSprint(
   }
 }
 
-// ─── removeIssueFromSprint ────────────────────────────────────────────────────
-
 export async function removeIssueFromSprint(issueId: string): Promise<ActionResult> {
   await requireUser();
 
@@ -255,8 +237,6 @@ export async function removeIssueFromSprint(issueId: string): Promise<ActionResu
     return { success: false, error: "Failed to remove issue from sprint." };
   }
 }
-
-// ─── updateSprintDates (roadmap drag) ─────────────────────────────────────────
 
 export async function updateSprintDates(
   sprintId: string,

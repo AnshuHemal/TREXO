@@ -23,8 +23,6 @@ import { cn } from "@/lib/utils";
 import { addIssueToSprint, removeIssueFromSprint } from "../../sprints/actions";
 import { FadeIn } from "@/components/motion/fade-in";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 export interface PlanningIssue {
   id: string; key: number; title: string;
   type: string; status: string; priority: string;
@@ -50,12 +48,7 @@ interface SprintPlanningClientProps {
   members: Member[];
 }
 
-// ─── Constants ────────────────────────────────────────────────────────────────
-
-// Default capacity per member per sprint (story points)
 const DEFAULT_CAPACITY_PER_MEMBER = 20;
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function getInitials(name: string) {
   const parts = name.trim().split(/\s+/);
@@ -74,8 +67,6 @@ function totalPoints(issues: PlanningIssue[]) {
 function unestimatedCount(issues: PlanningIssue[]) {
   return issues.filter((i) => i.estimate == null).length;
 }
-
-// ─── Capacity bar ─────────────────────────────────────────────────────────────
 
 function CapacityBar({
   used, capacity, label,
@@ -111,8 +102,6 @@ function CapacityBar({
     </div>
   );
 }
-
-// ─── Draggable issue card ─────────────────────────────────────────────────────
 
 function DraggableIssueCard({
   issue, projectKey, isDragging, compact,
@@ -167,8 +156,6 @@ function DraggableIssueCard({
   );
 }
 
-// ─── Draggable wrapper ────────────────────────────────────────────────────────
-
 function DraggableCard({
   issue, projectKey, compact,
 }: {
@@ -191,8 +178,6 @@ function DraggableCard({
   );
 }
 
-// ─── Droppable zone ───────────────────────────────────────────────────────────
-
 function DroppableZone({
   id, children, className,
 }: {
@@ -213,8 +198,6 @@ function DroppableZone({
   );
 }
 
-// ─── Main component ───────────────────────────────────────────────────────────
-
 export function SprintPlanningClient({
   project, workspaceSlug, backlogIssues: initialBacklog,
   sprints: initialSprints, members,
@@ -224,13 +207,11 @@ export function SprintPlanningClient({
   const [dragging, setDragging] = useState<PlanningIssue | null>(null);
   const [isPending, startTransition] = useTransition();
 
-  // ── Filters ───────────────────────────────────────────────────────────────
   const [search, setSearch]           = useState("");
   const [filterPriority, setFilterPriority] = useState("all");
   const [filterAssignee, setFilterAssignee] = useState("all");
   const [showUnestimated, setShowUnestimated] = useState(false);
 
-  // ── Capacity settings ─────────────────────────────────────────────────────
   const [capacityPerMember, setCapacityPerMember] = useState(DEFAULT_CAPACITY_PER_MEMBER);
   const [selectedSprintId, setSelectedSprintId]   = useState<string>(
     initialSprints.find((s) => s.status === "ACTIVE")?.id ??
@@ -241,7 +222,6 @@ export function SprintPlanningClient({
   const totalCapacity  = members.length * capacityPerMember;
   const sprintPoints   = selectedSprint ? totalPoints(selectedSprint.issues) : 0;
 
-  // ── Filtered backlog ──────────────────────────────────────────────────────
   const filteredBacklog = useMemo(() => {
     let result = backlog;
     const q = search.toLowerCase().trim();
@@ -258,7 +238,6 @@ export function SprintPlanningClient({
 
   const hasFilters = search || filterPriority !== "all" || filterAssignee !== "all" || showUnestimated;
 
-  // ── DnD sensors ───────────────────────────────────────────────────────────
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
   );
@@ -277,13 +256,11 @@ export function SprintPlanningClient({
 
     const overId = over.id as string;
 
-    // Dropped on backlog
     if (overId === "backlog") {
-      // Only move if it's currently in a sprint
+
       const inSprint = sprints.some((s) => s.issues.some((i) => i.id === issue.id));
       if (!inSprint) return;
 
-      // Optimistic update
       setSprints((prev) => prev.map((s) => ({
         ...s, issues: s.issues.filter((i) => i.id !== issue.id),
       })));
@@ -292,7 +269,7 @@ export function SprintPlanningClient({
       startTransition(async () => {
         const result = await removeIssueFromSprint(issue.id);
         if (!result.success) {
-          // Revert
+
           setBacklog((prev) => prev.filter((i) => i.id !== issue.id));
           setSprints((prev) => prev.map((s) =>
             s.id === selectedSprintId
@@ -304,7 +281,6 @@ export function SprintPlanningClient({
       return;
     }
 
-    // Dropped on a sprint
     const targetSprintId = overId.startsWith("sprint-") ? overId.slice(7) : null;
     if (!targetSprintId) return;
 
@@ -313,7 +289,6 @@ export function SprintPlanningClient({
       ?.issues.some((i) => i.id === issue.id);
     if (alreadyInSprint) return;
 
-    // Remove from backlog or other sprint
     setBacklog((prev) => prev.filter((i) => i.id !== issue.id));
     setSprints((prev) => prev.map((s) => ({
       ...s,
@@ -325,7 +300,7 @@ export function SprintPlanningClient({
     startTransition(async () => {
       const result = await addIssueToSprint(issue.id, targetSprintId);
       if (!result.success) {
-        // Revert
+
         setSprints((prev) => prev.map((s) => ({
           ...s, issues: s.issues.filter((i) => i.id !== issue.id),
         })));
@@ -334,7 +309,6 @@ export function SprintPlanningClient({
     });
   }
 
-  // ── Quick move buttons (no drag) ──────────────────────────────────────────
   function moveToSprint(issue: PlanningIssue, sprintId: string) {
     setBacklog((prev) => prev.filter((i) => i.id !== issue.id));
     setSprints((prev) => prev.map((s) =>
@@ -376,7 +350,7 @@ export function SprintPlanningClient({
     >
       <div className="flex flex-1 flex-col overflow-hidden">
 
-        {/* ── Toolbar ──────────────────────────────────────────────────────── */}
+        {}
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-5 py-3">
           <div>
             <h1 className="text-base font-bold text-foreground">Sprint Planning</h1>
@@ -386,7 +360,7 @@ export function SprintPlanningClient({
           </div>
 
           <div className="flex items-center gap-2">
-            {/* Sprint selector */}
+            {}
             {sprints.length > 0 && (
               <Select value={selectedSprintId} onValueChange={setSelectedSprintId}>
                 <SelectTrigger className="h-8 w-48 text-sm">
@@ -411,7 +385,7 @@ export function SprintPlanningClient({
               </Select>
             )}
 
-            {/* Capacity per member */}
+            {}
             <div className="flex items-center gap-1.5 rounded-lg border border-border bg-muted/40 px-3 py-1.5">
               <Users className="size-3.5 text-muted-foreground" />
               <span className="text-sm text-muted-foreground">Capacity/member:</span>
@@ -428,13 +402,13 @@ export function SprintPlanningClient({
           </div>
         </div>
 
-        {/* ── Split layout ──────────────────────────────────────────────────── */}
+        {}
         <div className="flex flex-1 overflow-hidden">
 
-          {/* ── LEFT: Backlog ─────────────────────────────────────────────── */}
+          {}
           <div className="flex w-[48%] shrink-0 flex-col border-r border-border">
 
-            {/* Backlog header */}
+            {}
             <div className="border-b border-border bg-muted/20 px-4 py-3">
               <div className="mb-2.5 flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -458,7 +432,7 @@ export function SprintPlanningClient({
                 </div>
               </div>
 
-              {/* Filters */}
+              {}
               <div className="flex flex-wrap items-center gap-2">
                 <div className="relative flex-1 min-w-32">
                   <Search className="absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
@@ -516,7 +490,7 @@ export function SprintPlanningClient({
               </div>
             </div>
 
-            {/* Backlog drop zone + list */}
+            {}
             <DroppableZone id="backlog" className="flex-1 overflow-y-auto p-3">
               {filteredBacklog.length === 0 ? (
                 <div className="flex flex-col items-center gap-2 py-16 text-center">
@@ -541,7 +515,7 @@ export function SprintPlanningClient({
                         className="group relative"
                       >
                         <DraggableCard issue={issue} projectKey={project.key} />
-                        {/* Quick-add button */}
+                        {}
                         {selectedSprint && (
                           <button
                             type="button"
@@ -561,7 +535,7 @@ export function SprintPlanningClient({
             </DroppableZone>
           </div>
 
-          {/* ── RIGHT: Sprint ─────────────────────────────────────────────── */}
+          {}
           <div className="flex flex-1 flex-col overflow-hidden">
             {sprints.length === 0 ? (
               <div className="flex flex-1 flex-col items-center justify-center gap-3 p-8 text-center">
@@ -582,7 +556,7 @@ export function SprintPlanningClient({
               </div>
             ) : (
               <>
-                {/* Sprint header */}
+                {}
                 <div className="border-b border-border bg-muted/20 px-4 py-3">
                   <div className="mb-3 flex items-start justify-between gap-3">
                     <div className="min-w-0">
@@ -624,14 +598,14 @@ export function SprintPlanningClient({
                     </div>
                   </div>
 
-                  {/* Capacity bars */}
+                  {}
                   <div className="flex flex-col gap-2">
                     <CapacityBar
                       used={sprintPoints}
                       capacity={totalCapacity}
                       label={`Team capacity (${members.length} members × ${capacityPerMember} pts)`}
                     />
-                    {/* Per-member breakdown */}
+                    {}
                     {members.length > 0 && members.length <= 8 && (
                       <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 pt-1">
                         {members.map((m) => {
@@ -672,7 +646,7 @@ export function SprintPlanningClient({
                       </div>
                     )}
 
-                    {/* Unestimated warning */}
+                    {}
                     {unestimatedCount(selectedSprint.issues) > 0 && (
                       <div className="flex items-center gap-1.5 rounded-lg bg-amber-500/10 px-2.5 py-1.5 text-[11px] font-medium text-amber-600 dark:text-amber-400">
                         <AlertTriangle className="size-3.5 shrink-0" />
@@ -682,7 +656,7 @@ export function SprintPlanningClient({
                   </div>
                 </div>
 
-                {/* Sprint drop zone + issues */}
+                {}
                 <DroppableZone id={`sprint-${selectedSprint.id}`} className="flex-1 overflow-y-auto p-3">
                   {selectedSprint.issues.length === 0 ? (
                     <div className="flex flex-col items-center gap-2 py-16 text-center">
@@ -705,7 +679,7 @@ export function SprintPlanningClient({
                             className="group relative"
                           >
                             <DraggableCard issue={issue} projectKey={project.key} />
-                            {/* Quick-remove button */}
+                            {}
                             <button
                               type="button"
                               onClick={() => moveToBacklog(issue, selectedSprint.id)}
@@ -727,7 +701,7 @@ export function SprintPlanningClient({
         </div>
       </div>
 
-      {/* Drag overlay */}
+      {}
       <DragOverlay dropAnimation={{ duration: 150, easing: "cubic-bezier(0.18, 0.67, 0.6, 1.22)" }}>
         {dragging && (
           <DraggableIssueCard issue={dragging} projectKey={project.key} isDragging />

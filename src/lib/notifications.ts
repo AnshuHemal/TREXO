@@ -4,19 +4,13 @@ import { prisma } from "@/lib/prisma";
 import { parseMentionIds } from "@/lib/mentions";
 import { broadcast } from "@/lib/sse";
 
-// ─── Preference check ─────────────────────────────────────────────────────────
-
-/**
- * Returns true if the user wants to receive this notification type.
- * Defaults to true if no preference record exists (opt-in by default).
- */
 async function userWantsNotification(
   userId: string,
   type: string,
   issueId?: string,
 ): Promise<boolean> {
   try {
-    // Check workspace-level preferences
+
     const prefs = await prisma.notificationPreference.findUnique({
       where: { userId },
       select: {
@@ -40,7 +34,6 @@ async function userWantsNotification(
       if (!wantsByType) return false;
     }
 
-    // Check per-project mute — if the issue belongs to a muted project, skip
     if (issueId) {
       const issue = await prisma.issue.findUnique({
         where: { id: issueId },
@@ -51,17 +44,15 @@ async function userWantsNotification(
           where: { userId_projectId: { userId, projectId: issue.projectId } },
           select: { id: true },
         });
-        if (mute) return false; // project is muted
+        if (mute) return false;
       }
     }
 
     return true;
   } catch {
-    return true; // fail open — never silently drop notifications on DB error
+    return true;
   }
 }
-
-// ─── createNotification ───────────────────────────────────────────────────────
 
 export async function createNotification({
   userId,
@@ -74,10 +65,9 @@ export async function createNotification({
   type: string;
   issueId?: string;
 }): Promise<void> {
-  // Never notify yourself
+
   if (userId === actorId) return;
 
-  // Check user's notification preferences (workspace-level + project mute)
   const wantsIt = await userWantsNotification(userId, type, issueId);
   if (!wantsIt) return;
 
@@ -86,8 +76,6 @@ export async function createNotification({
       data: { userId, actorId, type, issueId: issueId ?? null },
     });
 
-    // Broadcast real-time notification event to the recipient
-    // Fetch workspaceId via the issue's project
     if (issueId) {
       prisma.issue.findUnique({
         where: { id: issueId },
@@ -103,15 +91,10 @@ export async function createNotification({
       }).catch(() => {});
     }
   } catch {
-    // Non-critical — swallow silently
+
   }
 }
 
-// ─── notifyAssigned ───────────────────────────────────────────────────────────
-
-/**
- * Notify a user that they were assigned to an issue.
- */
 export async function notifyAssigned({
   assigneeId,
   actorId,
@@ -124,11 +107,6 @@ export async function notifyAssigned({
   await createNotification({ userId: assigneeId, actorId, type: "assigned", issueId });
 }
 
-// ─── notifyStatusChanged ──────────────────────────────────────────────────────
-
-/**
- * Notify the issue reporter + watchers that the status changed.
- */
 export async function notifyStatusChanged({
   reporterId,
   actorId,
@@ -154,16 +132,10 @@ export async function notifyStatusChanged({
       ),
     );
   } catch {
-    // Non-critical
+
   }
 }
 
-// ─── notifyCommentAdded ───────────────────────────────────────────────────────
-
-/**
- * Notify the issue reporter + all unique previous commenters + watchers
- * that a new comment was added. Deduplicates recipients and excludes the actor.
- */
 export async function notifyCommentAdded({
   issueId,
   actorId,
@@ -194,16 +166,10 @@ export async function notifyCommentAdded({
       ),
     );
   } catch {
-    // Non-critical
+
   }
 }
 
-// ─── notifyMentioned ──────────────────────────────────────────────────────────
-
-/**
- * Notify all users mentioned in a comment body (parsed from HTML).
- * Deduplicates recipients and excludes the actor.
- */
 export async function notifyMentioned({
   html,
   actorId,

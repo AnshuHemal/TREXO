@@ -1,26 +1,18 @@
-/**
- * Workflow configuration utilities.
- *
- * Each project can override the global status labels and column order.
- * The underlying DB enum values (BACKLOG, TODO, etc.) never change —
- * only the display labels and ordering are customizable.
- */
+
 
 import {
   Circle, Clock, Eye, CheckCircle2, XCircle,
   type LucideIcon,
 } from "lucide-react";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 export interface WorkflowStatus {
-  /** The DB enum value — never changes */
+
   value: string;
-  /** Display label — customizable per project */
+
   label: string;
-  /** Display order on the board (0 = leftmost) */
+
   order: number;
-  /** Whether this status is enabled on the board */
+
   enabled: boolean;
 }
 
@@ -31,11 +23,9 @@ export interface WorkflowTransition {
 
 export interface WorkflowConfig {
   statuses: WorkflowStatus[];
-  /** null = all transitions allowed */
+
   transitions: WorkflowTransition[] | null;
 }
-
-// ─── Default config ───────────────────────────────────────────────────────────
 
 export const DEFAULT_WORKFLOW_STATUSES: WorkflowStatus[] = [
   { value: "BACKLOG",     label: "Backlog",     order: 0, enabled: true },
@@ -48,10 +38,8 @@ export const DEFAULT_WORKFLOW_STATUSES: WorkflowStatus[] = [
 
 export const DEFAULT_WORKFLOW_CONFIG: WorkflowConfig = {
   statuses: DEFAULT_WORKFLOW_STATUSES,
-  transitions: null, // all allowed
+  transitions: null,
 };
-
-// ─── Status icon map ──────────────────────────────────────────────────────────
 
 export const STATUS_ICONS_MAP: Record<string, LucideIcon> = {
   BACKLOG:     Circle,
@@ -73,18 +61,11 @@ const STATUS_COLORS: Record<string, string> = {
   CANCELLED:   "text-muted-foreground",
 };
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-/**
- * Parse and validate a raw workflowConfig JSON from the database.
- * Falls back to defaults for any missing/invalid fields.
- */
 export function parseWorkflowConfig(raw: unknown): WorkflowConfig {
   if (!raw || typeof raw !== "object") return DEFAULT_WORKFLOW_CONFIG;
 
   const obj = raw as Record<string, unknown>;
 
-  // Parse statuses
   let statuses: WorkflowStatus[] = DEFAULT_WORKFLOW_STATUSES;
   if (Array.isArray(obj.statuses)) {
     const parsed = obj.statuses
@@ -98,10 +79,9 @@ export function parseWorkflowConfig(raw: unknown): WorkflowConfig {
         value:   s.value,
         label:   s.label,
         order:   s.order,
-        enabled: s.enabled !== false, // default true
+        enabled: s.enabled !== false,
       }));
 
-    // Merge with defaults — ensure all 6 statuses are present
     const merged = DEFAULT_WORKFLOW_STATUSES.map((def) => {
       const override = parsed.find((p) => p.value === def.value);
       return override ?? def;
@@ -109,7 +89,6 @@ export function parseWorkflowConfig(raw: unknown): WorkflowConfig {
     statuses = merged.sort((a, b) => a.order - b.order);
   }
 
-  // Parse transitions
   let transitions: WorkflowTransition[] | null = null;
   if (Array.isArray(obj.transitions)) {
     transitions = obj.transitions.filter(
@@ -123,9 +102,6 @@ export function parseWorkflowConfig(raw: unknown): WorkflowConfig {
   return { statuses, transitions };
 }
 
-/**
- * Get the display config for a status value, respecting project overrides.
- */
 export function getWorkflowStatusConfig(
   value: string,
   config: WorkflowConfig,
@@ -141,9 +117,6 @@ export function getWorkflowStatusConfig(
   };
 }
 
-/**
- * Returns the ordered, enabled statuses for a project's board columns.
- */
 export function getBoardColumns(config: WorkflowConfig) {
   return config.statuses
     .filter((s) => s.enabled)
@@ -155,16 +128,12 @@ export function getBoardColumns(config: WorkflowConfig) {
     }));
 }
 
-/**
- * Check if a transition is allowed by the workflow config.
- * Returns true if transitions is null (all allowed).
- */
 export function isTransitionAllowed(
   from: string,
   to: string,
   config: WorkflowConfig,
 ): boolean {
-  if (!config.transitions) return true; // all allowed
+  if (!config.transitions) return true;
   if (from === to) return true;
   return config.transitions.some((t) => t.from === from && t.to === to);
 }

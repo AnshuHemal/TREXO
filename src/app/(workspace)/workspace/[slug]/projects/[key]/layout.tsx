@@ -18,7 +18,6 @@ export default async function ProjectLayout({
   const { slug, key } = await params;
   const user = await requireUser();
 
-  // Verify workspace membership
   const membership = await prisma.workspaceMember.findFirst({
     where: {
       userId: user.id,
@@ -35,7 +34,6 @@ export default async function ProjectLayout({
 
   const { workspace } = membership;
 
-  // Fetch project by workspace + key
   const project = await prisma.project.findFirst({
     where: {
       workspaceId: workspace.id,
@@ -48,17 +46,13 @@ export default async function ProjectLayout({
     notFound();
   }
 
-  // ── Access control ─────────────────────────────────────────────────────────
-  // PRIVATE projects: only explicit members + workspace OWNER/ADMIN
-  // Wrapped in try/catch — fails open if Prisma client is stale (restart dev server to fix)
   try {
     const access = await checkProjectAccess(user.id, project.id);
     if (!access.allowed) notFound();
   } catch {
-    // Client stale — allow access until server restarts with regenerated client
+
   }
 
-  // Fetch workspace members for the create issue dialog
   const members = await prisma.workspaceMember.findMany({
     where: { workspaceId: workspace.id },
     include: { user: { select: { id: true, name: true, email: true, image: true } } },
@@ -72,7 +66,6 @@ export default async function ProjectLayout({
     image: m.user.image,
   }));
 
-  // Fetch workspace templates for the create issue dialog
   let templates: { id: string; name: string; description: string | null; type: string; priority: string; titlePrefix: string | null }[] = [];
   try {
     templates = await prisma.issueTemplate.findMany({
@@ -88,7 +81,7 @@ export default async function ProjectLayout({
       },
     });
   } catch {
-    // issueTemplate may not exist yet if Prisma client hasn't been regenerated
+
     templates = [];
   }
 

@@ -26,8 +26,6 @@ import { startSprint, deleteSprint, addIssueToSprint, removeIssueFromSprint } fr
 import { CreateSprintDialog } from "./create-sprint-dialog";
 import { CompleteSprintDialog } from "./complete-sprint-dialog";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 export interface SprintIssue {
   id: string;
   key: number;
@@ -61,8 +59,6 @@ interface SprintCardProps {
   onDeleted: (sprintId: string) => void;
 }
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
 function getInitials(name: string) {
   const parts = name.trim().split(/\s+/);
   if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
@@ -79,8 +75,6 @@ const STATUS_COLORS: Record<string, string> = {
   ACTIVE:    "bg-primary/10 text-primary",
   COMPLETED: "bg-muted text-muted-foreground",
 };
-
-// ─── Component ────────────────────────────────────────────────────────────────
 
 export function SprintCard({
   sprint: initialSprint,
@@ -109,13 +103,10 @@ export function SprintCard({
     ? Math.round((doneCount / sprint.issues.length) * 100)
     : 0;
 
-  // Story points
   const totalPoints = sprint.issues.reduce((sum, i) => sum + (i.estimate ?? 0), 0);
   const donePoints  = sprint.issues
     .filter((i) => i.status === "DONE" || i.status === "CANCELLED")
     .reduce((sum, i) => sum + (i.estimate ?? 0), 0);
-
-  // ── Start sprint ─────────────────────────────────────────────────────────────
 
   function handleStart() {
     setError(null);
@@ -128,8 +119,6 @@ export function SprintCard({
     });
   }
 
-  // ── Delete sprint ─────────────────────────────────────────────────────────────
-
   function handleDelete() {
     startTransition(async () => {
       const result = await deleteSprint(sprint.id);
@@ -137,8 +126,6 @@ export function SprintCard({
       onDeleted(sprint.id);
     });
   }
-
-  // ── Add issue to sprint ───────────────────────────────────────────────────────
 
   function handleAddIssue(issueId: string) {
     startTransition(async () => {
@@ -150,8 +137,6 @@ export function SprintCard({
     });
   }
 
-  // ── Remove issue from sprint ──────────────────────────────────────────────────
-
   function handleRemoveIssue(issueId: string) {
     startTransition(async () => {
       const result = await removeIssueFromSprint(issueId);
@@ -161,12 +146,8 @@ export function SprintCard({
     });
   }
 
-  // ── Available backlog issues (not already in this sprint) ─────────────────────
-
   const sprintIssueIds = new Set(sprint.issues.map((i) => i.id));
   const availableBacklog = backlogIssues.filter((i) => !sprintIssueIds.has(i.id));
-
-  // ── Render ────────────────────────────────────────────────────────────────────
 
   return (
     <motion.div
@@ -175,9 +156,9 @@ export function SprintCard({
       transition={{ duration: 0.25, delay: index * 0.06, ease: [0.25, 0.1, 0.25, 1] }}
       className="rounded-xl border border-border bg-card overflow-hidden"
     >
-      {/* Sprint header */}
+      {}
       <div className="flex items-center gap-3 px-4 py-3">
-        {/* Expand toggle */}
+        {}
         <button
           onClick={() => setIsExpanded((v) => !v)}
           className="text-muted-foreground hover:text-foreground transition-colors"
@@ -189,7 +170,7 @@ export function SprintCard({
           }
         </button>
 
-        {/* Sprint name + status */}
+        {}
         <div className="flex flex-1 items-center gap-2.5 min-w-0">
           <span className="font-semibold text-foreground truncate">{sprint.name}</span>
           <Badge className={cn("text-sm shrink-0", STATUS_COLORS[sprint.status])}>
@@ -197,7 +178,7 @@ export function SprintCard({
           </Badge>
         </div>
 
-        {/* Dates */}
+        {}
         {(sprint.startDate || sprint.endDate) && (
           <div className="hidden items-center gap-1 text-sm text-muted-foreground sm:flex">
             <Calendar className="size-3.5" />
@@ -205,7 +186,7 @@ export function SprintCard({
           </div>
         )}
 
-        {/* Issue count + progress + points */}
+        {}
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <span>{sprint.issues.length} {sprint.issues.length === 1 ? "issue" : "issues"}</span>
           {sprint.issues.length > 0 && (
@@ -219,7 +200,7 @@ export function SprintCard({
           )}
         </div>
 
-        {/* Actions */}
+        {}
         <div className="flex items-center gap-1">
           {sprint.status === "PLANNED" && (
             <Button size="sm" className="h-7 px-2.5 text-sm" onClick={handleStart} disabled={isPending}>
@@ -281,7 +262,7 @@ export function SprintCard({
         </div>
       </div>
 
-      {/* Progress bar */}
+      {}
       {sprint.issues.length > 0 && (
         <div className="h-0.5 w-full bg-border">
           <motion.div
@@ -293,7 +274,7 @@ export function SprintCard({
         </div>
       )}
 
-      {/* Sprint goal */}
+      {}
       {sprint.goal && isExpanded && (
         <div className="flex items-start gap-2 border-t border-border bg-muted/30 px-4 py-2.5">
           <Target className="mt-0.5 size-3.5 shrink-0 text-muted-foreground" />
@@ -301,7 +282,7 @@ export function SprintCard({
         </div>
       )}
 
-      {/* Error */}
+      {}
       <AnimatePresence>
         {error && (
           <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}
@@ -312,7 +293,7 @@ export function SprintCard({
         )}
       </AnimatePresence>
 
-      {/* Issue list */}
+      {}
       <AnimatePresence>
         {isExpanded && (
           <motion.div
@@ -373,7 +354,7 @@ export function SprintCard({
                 </div>
               )}
 
-              {/* Add issue from backlog */}
+              {}
               {sprint.status !== "COMPLETED" && (
                 <div className="border-t border-border px-4 py-2">
                   {showAddIssue && availableBacklog.length > 0 ? (
@@ -406,7 +387,7 @@ export function SprintCard({
         )}
       </AnimatePresence>
 
-      {/* Complete sprint dialog */}
+      {}
       <CompleteSprintDialog
         open={showCompleteDialog}
         onOpenChange={setShowCompleteDialog}

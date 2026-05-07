@@ -30,14 +30,12 @@ export default async function WorkloadPage({ params }: WorkloadPageProps) {
 
   const { workspace } = membership;
 
-  // All workspace members
   const members = await prisma.workspaceMember.findMany({
     where: { workspaceId: workspace.id },
     include: { user: { select: { id: true, name: true, image: true, email: true } } },
     orderBy: { createdAt: "asc" },
   });
 
-  // Open issues per member (not DONE/CANCELLED)
   const openIssues = await prisma.issue.findMany({
     where: {
       project: { workspaceId: workspace.id },

@@ -32,7 +32,6 @@ export default async function TimeReportPage({ params }: TimeReportPageProps) {
   });
   if (!project) notFound();
 
-  // All time logs for this project
   const timeLogs = await prisma.timeLog.findMany({
     where: { issue: { projectId: project.id } },
     orderBy: { loggedAt: "desc" },
@@ -42,7 +41,6 @@ export default async function TimeReportPage({ params }: TimeReportPageProps) {
     },
   });
 
-  // Workspace members for filter
   const members = await prisma.workspaceMember.findMany({
     where: { workspaceId: workspace.id },
     include: { user: { select: { id: true, name: true, image: true } } },

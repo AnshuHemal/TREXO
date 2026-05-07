@@ -14,8 +14,6 @@ import {
   broadcastCommentEvent,
 } from "@/lib/broadcast";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 export interface ActionResult<T = void> {
   success: boolean;
   data?: T;
@@ -48,12 +46,6 @@ export interface UpdateIssueInput {
   estimate?: number | null;
 }
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-/**
- * Gets the next issue key for a project (auto-increment per project).
- * Uses a transaction to prevent race conditions.
- */
 async function getNextIssueKey(
   tx: Parameters<Parameters<typeof prisma.$transaction>[0]>[0],
   projectId: string,
@@ -65,8 +57,6 @@ async function getNextIssueKey(
   });
   return (last?.key ?? 0) + 1;
 }
-
-// ─── createIssue ─────────────────────────────────────────────────────────────
 
 export async function createIssue(
   input: CreateIssueInput,
@@ -81,7 +71,6 @@ export async function createIssue(
     const issue = await prisma.$transaction(async (tx) => {
       const key = await getNextIssueKey(tx, input.projectId);
 
-      // Get max position for ordering
       const lastIssue = await tx.issue.findFirst({
         where: { projectId: input.projectId, status: input.status ?? "BACKLOG" },
         orderBy: { position: "desc" },
@@ -106,16 +95,14 @@ export async function createIssue(
       });
     });
 
-    // Log activity
     await prisma.activity.create({
       data: {
         issueId: issue.id,
         actorId: user.id,
         type: "issue_created",
       },
-    }).catch(() => {}); // non-critical
+    }).catch(() => {});
 
-    // Notify assignee if set
     if (input.assigneeId) {
       notifyAssigned({
         assigneeId: input.assigneeId,
@@ -124,7 +111,6 @@ export async function createIssue(
       }).catch(() => {});
     }
 
-    // Broadcast real-time event
     broadcastIssueEvent("issue.created", issue.id, user.id).catch(() => {});
 
     return { success: true, data: { id: issue.id, key: issue.key } };
@@ -132,8 +118,6 @@ export async function createIssue(
     return { success: false, error: "Failed to create issue. Please try again." };
   }
 }
-
-// ─── updateIssue ─────────────────────────────────────────────────────────────
 
 export async function updateIssue(
   issueId: string,
@@ -176,7 +160,6 @@ export async function updateIssue(
       },
     });
 
-    // Log field-change activities
     const activities: Array<{ type: string; fromValue?: string; toValue?: string }> = [];
 
     if (input.status !== undefined && input.status !== existing.status) {
@@ -195,9 +178,6 @@ export async function updateIssue(
       }).catch(() => {});
     }
 
-    // ── Notifications ──────────────────────────────────────────────────────────
-
-    // Notify new assignee
     if (
       input.assigneeId !== undefined &&
       input.assigneeId !== existing.assigneeId &&
@@ -210,7 +190,6 @@ export async function updateIssue(
       }).catch(() => {});
     }
 
-    // Notify reporter on status change (fetch reporter only if needed)
     if (input.status !== undefined && input.status !== existing.status) {
       prisma.issue.findUnique({ where: { id: issueId }, select: { reporterId: true } })
         .then((issue) => {
@@ -225,7 +204,6 @@ export async function updateIssue(
         .catch(() => {});
     }
 
-    // Broadcast real-time event
     broadcastIssueEvent("issue.updated", issueId, user.id, {
       changedFields: Object.keys(input),
     }).catch(() => {});
@@ -236,14 +214,12 @@ export async function updateIssue(
   }
 }
 
-// ─── deleteIssue ─────────────────────────────────────────────────────────────
-
 export async function deleteIssue(issueId: string): Promise<ActionResult> {
   await requireUser();
   const user = await requireUser();
 
   try {
-    // Fetch context before deletion
+
     const issue = await prisma.issue.findUnique({
       where: { id: issueId },
       select: { projectId: true, project: { select: { workspaceId: true } } },
@@ -266,8 +242,6 @@ export async function deleteIssue(issueId: string): Promise<ActionResult> {
   }
 }
 
-// ─── addComment ──────────────────────────────────────────────────────────────
-
 export async function addComment(
   issueId: string,
   body: string,
@@ -286,13 +260,10 @@ export async function addComment(
       data: { issueId, actorId: user.id, type: "comment_added" },
     }).catch(() => {});
 
-    // Notify reporter + previous commenters
     notifyCommentAdded({ issueId, actorId: user.id }).catch(() => {});
 
-    // Notify @mentioned users
     notifyMentioned({ html: body, actorId: user.id, issueId }).catch(() => {});
 
-    // Broadcast real-time event
     broadcastCommentEvent("comment.added", comment.id, issueId, user.id, { body }).catch(() => {});
 
     return { success: true, data: { id: comment.id } };
@@ -300,8 +271,6 @@ export async function addComment(
     return { success: false, error: "Failed to add comment." };
   }
 }
-
-// ─── deleteComment ────────────────────────────────────────────────────────────
 
 export async function deleteComment(commentId: string): Promise<ActionResult> {
   const user = await requireUser();
@@ -322,22 +291,9 @@ export async function deleteComment(commentId: string): Promise<ActionResult> {
   }
 }
 
-// ─── moveIssue ────────────────────────────────────────────────────────────────
+const POSITION_GAP     = 1000;
+const REBALANCE_THRESHOLD = 0.001;
 
-const POSITION_GAP     = 1000;   // initial spacing between issues
-const REBALANCE_THRESHOLD = 0.001; // rebalance when gap drops below this
-
-/**
- * Moves an issue to a new status column and/or position.
- *
- * Position algorithm (midpoint):
- *   - Dragged between two issues: newPos = (above.position + below.position) / 2
- *   - Dragged to top of column:   newPos = firstIssue.position - POSITION_GAP
- *   - Dragged to bottom:          newPos = lastIssue.position  + POSITION_GAP
- *
- * When the gap between adjacent positions drops below REBALANCE_THRESHOLD,
- * all issues in the column are rebalanced with POSITION_GAP spacing.
- */
 export async function moveIssue(
   issueId: string,
   newStatus: IssueStatus,
@@ -351,7 +307,6 @@ export async function moveIssue(
       data: { status: newStatus, position: newPosition },
     });
 
-    // Check if rebalance is needed for this column
     const columnIssues = await prisma.issue.findMany({
       where: {
         projectId: (await prisma.issue.findUnique({ where: { id: issueId }, select: { projectId: true } }))!.projectId,
@@ -361,7 +316,6 @@ export async function moveIssue(
       select: { id: true, position: true },
     });
 
-    // Find minimum gap between adjacent issues
     let needsRebalance = false;
     for (let i = 1; i < columnIssues.length; i++) {
       if (columnIssues[i].position - columnIssues[i - 1].position < REBALANCE_THRESHOLD) {
@@ -371,7 +325,7 @@ export async function moveIssue(
     }
 
     if (needsRebalance) {
-      // Rebalance: assign evenly spaced positions
+
       await prisma.$transaction(
         columnIssues.map((issue, index) =>
           prisma.issue.update({
@@ -382,7 +336,6 @@ export async function moveIssue(
       );
     }
 
-    // Broadcast real-time move event
     broadcastIssueEvent("issue.moved", issueId, "system", {
       newStatus: newStatus,
       newPosition: newPosition,
@@ -393,8 +346,6 @@ export async function moveIssue(
     return { success: false, error: "Failed to move issue." };
   }
 }
-
-// ─── editComment ──────────────────────────────────────────────────────────────
 
 export async function editComment(
   commentId: string,
@@ -420,7 +371,6 @@ export async function editComment(
       data: { body },
     });
 
-    // Re-notify any newly @mentioned users on edit
     const updatedComment = await prisma.comment.findUnique({
       where: { id: commentId },
       select: { issueId: true },
@@ -435,8 +385,6 @@ export async function editComment(
     return { success: false, error: "Failed to edit comment." };
   }
 }
-
-// ─── toggleCommentReaction ────────────────────────────────────────────────────
 
 export async function toggleCommentReaction(
   commentId: string,
@@ -468,8 +416,6 @@ export async function toggleCommentReaction(
   }
 }
 
-// ─── Label actions ────────────────────────────────────────────────────────────
-
 export async function addLabelToIssue(
   issueId: string,
   labelId: string,
@@ -498,8 +444,6 @@ export async function removeLabelFromIssue(
   }
 }
 
-// ─── createSubTask ────────────────────────────────────────────────────────────
-
 export interface CreateSubTaskInput {
   parentId: string;
   projectId: string;
@@ -507,10 +451,6 @@ export interface CreateSubTaskInput {
   assigneeId?: string | null;
 }
 
-/**
- * Creates a sub-task linked to a parent issue.
- * Sub-tasks always have type=SUBTASK and start in BACKLOG status.
- */
 export async function createSubTask(
   input: CreateSubTaskInput,
 ): Promise<ActionResult<{ id: string; key: number }>> {
@@ -558,12 +498,6 @@ export async function createSubTask(
   }
 }
 
-// ─── duplicateIssue ───────────────────────────────────────────────────────────
-
-/**
- * Creates a copy of an issue with the same title, type, priority, description,
- * and labels. The new issue gets the next available key and starts in BACKLOG.
- */
 export async function duplicateIssue(
   issueId: string,
 ): Promise<ActionResult<{ id: string; key: number }>> {
@@ -580,7 +514,7 @@ export async function duplicateIssue(
 
   try {
     const newIssue = await prisma.$transaction(async (tx) => {
-      // Get next key
+
       const last = await tx.issue.findFirst({
         where: { projectId: source.projectId },
         orderBy: { key: "desc" },
@@ -588,7 +522,6 @@ export async function duplicateIssue(
       });
       const key = (last?.key ?? 0) + 1;
 
-      // Get position at end of backlog
       const lastBacklog = await tx.issue.findFirst({
         where: { projectId: source.projectId, status: "BACKLOG" },
         orderBy: { position: "desc" },
@@ -608,12 +541,11 @@ export async function duplicateIssue(
           priority:    source.priority,
           position,
           estimate:    source.estimate,
-          dueDate:     null, // don't copy due date
+          dueDate:     null,
         },
         select: { id: true, key: true },
       });
 
-      // Copy labels
       if (source.labels.length > 0) {
         await tx.issueLabel.createMany({
           data: source.labels.map((l) => ({
@@ -626,7 +558,6 @@ export async function duplicateIssue(
       return created;
     });
 
-    // Log activity
     await prisma.activity.create({
       data: { issueId: newIssue.id, actorId: user.id, type: "issue_created" },
     }).catch(() => {});
@@ -639,8 +570,6 @@ export async function duplicateIssue(
   }
 }
 
-// ─── bulkUpdateIssues ─────────────────────────────────────────────────────────
-
 export interface BulkUpdateInput {
   issueIds: string[];
   status?: IssueStatus;
@@ -648,10 +577,6 @@ export interface BulkUpdateInput {
   assigneeId?: string | null;
 }
 
-/**
- * Updates multiple issues at once.
- * Only updates fields that are explicitly provided.
- */
 export async function bulkUpdateIssues(
   input: BulkUpdateInput,
 ): Promise<ActionResult<{ updatedCount: number }>> {
@@ -682,12 +607,6 @@ export async function bulkUpdateIssues(
   }
 }
 
-// ─── bulkDeleteIssues ─────────────────────────────────────────────────────────
-
-/**
- * Permanently deletes multiple issues.
- * Only OWNER or ADMIN can bulk-delete.
- */
 export async function bulkDeleteIssues(
   issueIds: string[],
 ): Promise<ActionResult<{ deletedCount: number }>> {
@@ -697,7 +616,6 @@ export async function bulkDeleteIssues(
     return { success: false, error: "No issues selected." };
   }
 
-  // Verify the user has permission (OWNER or ADMIN in the workspace)
   const firstIssue = await prisma.issue.findFirst({
     where: { id: { in: issueIds } },
     select: { project: { select: { workspaceId: true } } },
@@ -729,11 +647,6 @@ export async function bulkDeleteIssues(
   }
 }
 
-// ─── bulkMoveToSprint ─────────────────────────────────────────────────────────
-
-/**
- * Moves multiple issues to a sprint (or removes them from any sprint if sprintId is null).
- */
 export async function bulkMoveToSprint(
   issueIds: string[],
   sprintId: string | null,

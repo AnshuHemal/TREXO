@@ -12,8 +12,6 @@ import { getStatusConfig, getPriorityConfig } from "@/lib/issue-config";
 import { cn } from "@/lib/utils";
 import { createSubTask, updateIssue } from "../actions";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 export interface SubTaskItem {
   id: string;
   key: number;
@@ -31,15 +29,11 @@ interface SubTaskListProps {
   onOpenSubTask: (id: string) => void;
 }
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
 function getInitials(name: string) {
   const parts = name.trim().split(/\s+/);
   if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
   return name.slice(0, 2).toUpperCase();
 }
-
-// ─── Progress bar ─────────────────────────────────────────────────────────────
 
 function SubTaskProgress({ subTasks }: { subTasks: SubTaskItem[] }) {
   if (subTasks.length === 0) return null;
@@ -64,8 +58,6 @@ function SubTaskProgress({ subTasks }: { subTasks: SubTaskItem[] }) {
     </div>
   );
 }
-
-// ─── Sub-task row ─────────────────────────────────────────────────────────────
 
 function SubTaskRow({
   subTask,
@@ -95,7 +87,7 @@ function SubTaskRow({
       transition={{ duration: 0.2, delay: index * 0.04 }}
       className="group flex items-center gap-2.5 rounded-lg border border-border bg-background px-3 py-2 hover:border-primary/30 hover:bg-accent/20 transition-colors"
     >
-      {/* Status toggle checkbox */}
+      {}
       <button
         type="button"
         onClick={(e) => { e.stopPropagation(); onStatusToggle(subTask.id, subTask.status); }}
@@ -110,15 +102,15 @@ function SubTaskRow({
         {isDone && <Check className="size-2.5" strokeWidth={3} />}
       </button>
 
-      {/* Priority */}
+      {}
       <PriorityIcon className={cn("size-3.5 shrink-0", priority.color)} />
 
-      {/* Key */}
+      {}
       <span className="shrink-0 font-mono text-[11px] text-muted-foreground">
         {projectKey}-{subTask.key}
       </span>
 
-      {/* Title — clickable to open detail */}
+      {}
       <button
         type="button"
         onClick={onOpen}
@@ -130,13 +122,13 @@ function SubTaskRow({
         {subTask.title}
       </button>
 
-      {/* Status */}
+      {}
       <div className="hidden shrink-0 items-center gap-1 sm:flex">
         <StatusIcon className={cn("size-3.5", status.color)} />
         <span className="text-sm text-muted-foreground">{status.label}</span>
       </div>
 
-      {/* Assignee */}
+      {}
       <div className="shrink-0">
         {subTask.assignee ? (
           <Avatar className="size-5">
@@ -150,8 +142,6 @@ function SubTaskRow({
     </motion.div>
   );
 }
-
-// ─── Main component ───────────────────────────────────────────────────────────
 
 export function SubTaskList({
   parentId,
@@ -197,7 +187,6 @@ export function SubTaskList({
       ? "TODO"
       : "DONE";
 
-    // Optimistic update
     setSubTasks((prev) =>
       prev.map((s) => s.id === id ? { ...s, status: newStatus } : s),
     );
@@ -205,7 +194,7 @@ export function SubTaskList({
     startTransition(async () => {
       const result = await updateIssue(id, { status: newStatus as never });
       if (!result.success) {
-        // Revert on failure
+
         setSubTasks((prev) =>
           prev.map((s) => s.id === id ? { ...s, status: currentStatus } : s),
         );
@@ -218,7 +207,7 @@ export function SubTaskList({
 
   return (
     <div className="flex flex-col gap-2">
-      {/* Section header */}
+      {}
       <div className="flex items-center justify-between">
         <button
           type="button"
@@ -253,10 +242,10 @@ export function SubTaskList({
         </Button>
       </div>
 
-      {/* Progress bar */}
+      {}
       {totalCount > 0 && <SubTaskProgress subTasks={subTasks} />}
 
-      {/* Sub-task list */}
+      {}
       <AnimatePresence>
         {isExpanded && (
           <motion.div
@@ -279,7 +268,7 @@ export function SubTaskList({
               ))}
             </AnimatePresence>
 
-            {/* Inline create */}
+            {}
             <AnimatePresence>
               {isCreating && (
                 <motion.div
@@ -329,7 +318,7 @@ export function SubTaskList({
               )}
             </AnimatePresence>
 
-            {/* Empty state */}
+            {}
             {subTasks.length === 0 && !isCreating && (
               <p className="text-sm text-muted-foreground">
                 No sub-tasks yet.{" "}

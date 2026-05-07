@@ -11,18 +11,6 @@ import { emailOtp } from "@/lib/auth-client";
 import { FadeIn } from "@/components/motion/fade-in";
 import { checkEmailExists } from "../actions";
 
-// ─── Component ────────────────────────────────────────────────────────────────
-
-/**
- * Step 1 of the forgot-password flow.
- *
- * Before sending the OTP, calls the checkEmailExists Server Action to verify
- * the email is registered. This prevents sending OTPs to unknown addresses
- * and gives the user a clear error message without leaking account existence
- * to timing attacks (the DB check is fast and consistent).
- *
- * On success, navigates to the verify step with the email in the URL.
- */
 export function ForgotPasswordForm() {
   const [email, setEmail]         = useState("");
   const [isPending, setIsPending] = useState(false);
@@ -35,7 +23,6 @@ export function ForgotPasswordForm() {
 
     const trimmedEmail = email.toLowerCase().trim();
 
-    // ── Step 1: check the email exists in the database ──────────────────────
     const { exists, error: checkError } = await checkEmailExists(trimmedEmail);
 
     if (checkError) {
@@ -45,13 +32,12 @@ export function ForgotPasswordForm() {
     }
 
     if (!exists) {
-      // Use a generic message — don't confirm whether the account exists.
+
       setError("If this email is registered, you'll receive a reset code shortly.");
       setIsPending(false);
       return;
     }
 
-    // ── Step 2: send the OTP ─────────────────────────────────────────────────
     const { error: authError } = await emailOtp.sendVerificationOtp({
       email: trimmedEmail,
       type: "forget-password",
@@ -70,7 +56,7 @@ export function ForgotPasswordForm() {
     <FadeIn className="flex flex-col gap-6">
       <div className="rounded-2xl border border-border bg-card px-8 py-10 shadow-md">
 
-        {/* Header */}
+        {}
         <FadeIn direction="down" delay={0.05} className="mb-8 flex flex-col items-center gap-3 text-center">
           <motion.div
             className="flex size-14 items-center justify-center rounded-2xl bg-primary/10"
@@ -91,7 +77,7 @@ export function ForgotPasswordForm() {
           </div>
         </FadeIn>
 
-        {/* Form */}
+        {}
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <FadeIn delay={0.1} className="flex flex-col gap-1.5">
             <Label htmlFor="email">Email address</Label>
@@ -111,7 +97,7 @@ export function ForgotPasswordForm() {
             />
           </FadeIn>
 
-          {/* Inline error / info */}
+          {}
           <AnimatePresence mode="wait">
             {error && (
               <motion.div
@@ -150,7 +136,7 @@ export function ForgotPasswordForm() {
 
       </div>
 
-      {/* Back link */}
+      {}
       <FadeIn direction="none" delay={0.2}>
         <p className="text-center text-sm text-muted-foreground">
           Remember your password?{" "}

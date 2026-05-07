@@ -3,8 +3,6 @@
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/session";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 export interface FilterState {
   search?: string;
   sortKey?: string;
@@ -30,13 +28,6 @@ export interface ActionResult<T = void> {
   error?: string;
 }
 
-// ─── getSavedFilters ──────────────────────────────────────────────────────────
-
-/**
- * Returns all saved filters for a project visible to the current user:
- * - Their own personal filters
- * - Shared filters from any workspace member
- */
 export async function getSavedFilters(
   projectId: string,
 ): Promise<ActionResult<SavedFilterItem[]>> {
@@ -70,8 +61,6 @@ export async function getSavedFilters(
     return { success: false, error: "Failed to load saved filters." };
   }
 }
-
-// ─── createSavedFilter ────────────────────────────────────────────────────────
 
 export async function createSavedFilter(input: {
   workspaceId: string;
@@ -120,8 +109,6 @@ export async function createSavedFilter(input: {
   }
 }
 
-// ─── updateSavedFilter ────────────────────────────────────────────────────────
-
 export async function updateSavedFilter(
   filterId: string,
   input: { name?: string; filters?: FilterState; isShared?: boolean },
@@ -168,8 +155,6 @@ export async function updateSavedFilter(
     return { success: false, error: "Failed to update filter." };
   }
 }
-
-// ─── deleteSavedFilter ────────────────────────────────────────────────────────
 
 export async function deleteSavedFilter(
   filterId: string,

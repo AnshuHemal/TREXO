@@ -22,7 +22,6 @@ export default async function ProjectNotificationsPage({
   const { slug, key } = await params;
   const user = await requireUser();
 
-  // Any workspace member can access their own notification settings
   const membership = await prisma.workspaceMember.findFirst({
     where: { userId: user.id, workspace: { slug } },
     include: { workspace: { select: { id: true, name: true, slug: true } } },
@@ -39,13 +38,11 @@ export default async function ProjectNotificationsPage({
 
   if (!project) notFound();
 
-  // Check if the user has muted this project
   const mute = await prisma.projectNotificationMute.findUnique({
     where: { userId_projectId: { userId: user.id, projectId: project.id } },
     select: { id: true },
   });
 
-  // Also fetch workspace-level prefs for context
   const workspacePrefs = await prisma.notificationPreference.findUnique({
     where: { userId: user.id },
     select: { assigned: true, mentioned: true, statusChanged: true, commentAdded: true },

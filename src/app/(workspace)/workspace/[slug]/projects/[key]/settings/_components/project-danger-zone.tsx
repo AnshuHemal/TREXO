@@ -18,15 +18,11 @@ import {
 } from "@/components/ui/alert-dialog";
 import { deleteProject } from "../actions";
 
-// ─── Props ────────────────────────────────────────────────────────────────────
-
 interface ProjectDangerZoneProps {
   projectId: string;
   projectName: string;
   workspaceSlug: string;
 }
-
-// ─── Component ────────────────────────────────────────────────────────────────
 
 export function ProjectDangerZone({
   projectId,
@@ -55,7 +51,7 @@ export function ProjectDangerZone({
     startTransition(async () => {
       try {
         await deleteProject(projectId, workspaceSlug);
-        // deleteProject redirects server-side; if we get here something went wrong
+
         window.location.href = `/workspace/${workspaceSlug}`;
       } catch (err) {
         setError(

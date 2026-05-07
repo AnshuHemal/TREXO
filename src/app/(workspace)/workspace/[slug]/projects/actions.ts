@@ -4,16 +4,12 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/session";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 export interface ActionResult<T = void> {
   success: boolean;
   data?: T;
   error?: string;
   fieldErrors?: Record<string, string>;
 }
-
-// ─── checkProjectKey ──────────────────────────────────────────────────────────
 
 export async function checkProjectKey(
   workspaceId: string,
@@ -34,15 +30,12 @@ export async function checkProjectKey(
   return { available: !existing };
 }
 
-// ─── createProject ────────────────────────────────────────────────────────────
-
 export async function createProject(
   workspaceId: string,
   data: { name: string; key: string; description?: string },
 ): Promise<ActionResult<{ id: string; key: string }>> {
   const user = await requireUser();
 
-  // Permission check
   const membership = await prisma.workspaceMember.findFirst({
     where: {
       workspaceId,
@@ -59,7 +52,6 @@ export async function createProject(
     };
   }
 
-  // ── Validation ──────────────────────────────────────────────────────────────
   const fieldErrors: Record<string, string> = {};
 
   const name = data.name.trim();
@@ -82,7 +74,6 @@ export async function createProject(
     return { success: false, fieldErrors };
   }
 
-  // ── Key uniqueness ──────────────────────────────────────────────────────────
   const existing = await prisma.project.findFirst({
     where: { workspaceId, key },
     select: { id: true },
@@ -95,7 +86,6 @@ export async function createProject(
     };
   }
 
-  // ── Create ──────────────────────────────────────────────────────────────────
   try {
     const project = await prisma.project.create({
       data: {
@@ -113,15 +103,12 @@ export async function createProject(
   }
 }
 
-// ─── updateProject ────────────────────────────────────────────────────────────
-
 export async function updateProject(
   projectId: string,
   data: { name: string; key: string; description?: string },
 ): Promise<ActionResult> {
   const user = await requireUser();
 
-  // Fetch project to get workspaceId
   const project = await prisma.project.findUnique({
     where: { id: projectId },
     select: { workspaceId: true },
@@ -131,7 +118,6 @@ export async function updateProject(
     return { success: false, error: "Project not found." };
   }
 
-  // Permission check
   const membership = await prisma.workspaceMember.findFirst({
     where: {
       workspaceId: project.workspaceId,
@@ -148,7 +134,6 @@ export async function updateProject(
     };
   }
 
-  // ── Validation ──────────────────────────────────────────────────────────────
   const fieldErrors: Record<string, string> = {};
 
   const name = data.name.trim();
@@ -171,7 +156,6 @@ export async function updateProject(
     return { success: false, fieldErrors };
   }
 
-  // ── Key uniqueness (exclude current project) ────────────────────────────────
   const existing = await prisma.project.findFirst({
     where: {
       workspaceId: project.workspaceId,
@@ -188,7 +172,6 @@ export async function updateProject(
     };
   }
 
-  // ── Update ──────────────────────────────────────────────────────────────────
   try {
     await prisma.project.update({
       where: { id: projectId },
@@ -201,15 +184,12 @@ export async function updateProject(
   }
 }
 
-// ─── deleteProject ────────────────────────────────────────────────────────────
-
 export async function deleteProject(
   projectId: string,
   workspaceSlug: string,
 ): Promise<never> {
   const user = await requireUser();
 
-  // Fetch project to get workspaceId
   const project = await prisma.project.findUnique({
     where: { id: projectId },
     select: { workspaceId: true },
@@ -219,7 +199,6 @@ export async function deleteProject(
     throw new Error("Project not found.");
   }
 
-  // Permission check — OWNER or ADMIN
   const membership = await prisma.workspaceMember.findFirst({
     where: {
       workspaceId: project.workspaceId,

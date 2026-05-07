@@ -45,7 +45,6 @@ export default async function ProjectAccessPage({ params }: AccessPageProps) {
 
   const canManage = await canManageProject(user.id, project.id);
 
-  // All workspace members (for the add-member dropdown)
   const wsMembers = await prisma.workspaceMember.findMany({
     where: { workspaceId: workspace.id },
     include: { user: { select: { id: true, name: true, email: true, image: true } } },

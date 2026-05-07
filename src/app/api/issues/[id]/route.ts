@@ -2,11 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getUser } from "@/lib/session";
 
-/**
- * GET /api/issues/[id]
- * Returns full issue detail including comments, activities, labels,
- * sub-tasks, and parent issue info.
- */
 export async function GET(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
@@ -44,7 +39,7 @@ export async function GET(
           label: { select: { id: true, name: true, color: true } },
         },
       },
-      // Sub-tasks
+
       subTasks: {
         orderBy: { key: "asc" },
         select: {
@@ -56,7 +51,7 @@ export async function GET(
           assignee: { select: { id: true, name: true, image: true } },
         },
       },
-      // Parent issue (for breadcrumb in sub-task detail)
+
       parent: {
         select: {
           id: true,
@@ -65,7 +60,7 @@ export async function GET(
           project: { select: { key: true } },
         },
       },
-      // Outgoing links (this issue is the source)
+
       outgoingLinks: {
         include: {
           target: {
@@ -77,7 +72,7 @@ export async function GET(
           },
         },
       },
-      // Incoming links (this issue is the target)
+
       incomingLinks: {
         include: {
           source: {
@@ -89,22 +84,20 @@ export async function GET(
           },
         },
       },
-      // Project for custom field definitions
+
       project: {
         select: { customFieldsConfig: true },
       },
-      // Watchers count
+
       _count: { select: { watchers: true } },
     },
   });
 
   if (!issue) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-  // Parse custom field definitions from the project
   const { parseCustomFieldsConfig } = await import("@/lib/custom-fields");
   const customFieldDefs = parseCustomFieldsConfig(issue.project?.customFieldsConfig).fields;
 
-  // Check if current user is watching
   const isWatching = await prisma.issueWatcher.findUnique({
     where: { issueId_userId: { issueId: id, userId: user.id } },
     select: { id: true },

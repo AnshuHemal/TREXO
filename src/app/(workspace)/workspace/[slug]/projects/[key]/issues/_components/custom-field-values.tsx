@@ -14,16 +14,12 @@ import { cn } from "@/lib/utils";
 import type { CustomFieldDef, CustomFieldValues } from "@/lib/custom-fields";
 import { updateIssueCustomFields } from "../../settings/custom-fields/actions";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 interface CustomFieldValuesProps {
   issueId: string;
   fields: CustomFieldDef[];
   initialValues: CustomFieldValues;
   disabled?: boolean;
 }
-
-// ─── Field icons ──────────────────────────────────────────────────────────────
 
 const FIELD_ICONS = {
   text:     Type,
@@ -32,8 +28,6 @@ const FIELD_ICONS = {
   dropdown: ChevronDown,
   url:      Link2,
 };
-
-// ─── Single field editor ──────────────────────────────────────────────────────
 
 function FieldEditor({
   field,
@@ -136,8 +130,6 @@ function FieldEditor({
       return null;
   }
 }
-
-// ─── Main component ───────────────────────────────────────────────────────────
 
 export function CustomFieldValues({
   issueId,

@@ -31,7 +31,6 @@ export default async function SprintBoardPage({ params }: SprintBoardPageProps) 
 
   const workflowConfig = parseWorkflowConfig(project.workflowConfig);
 
-  // ── Active sprint ─────────────────────────────────────────────────────────────
   const activeSprint = await prisma.sprint.findFirst({
     where: { projectId: project.id, status: "ACTIVE" },
     select: {
@@ -44,14 +43,12 @@ export default async function SprintBoardPage({ params }: SprintBoardPageProps) 
     },
   });
 
-  // ── Planned sprints (for "no active sprint" state) ────────────────────────────
   const plannedSprints = await prisma.sprint.findMany({
     where: { projectId: project.id, status: "PLANNED" },
     select: { id: true, name: true },
     orderBy: { createdAt: "asc" },
   });
 
-  // If no active sprint, show the empty state
   if (!activeSprint) {
     return (
       <NoActiveSprint
@@ -62,7 +59,6 @@ export default async function SprintBoardPage({ params }: SprintBoardPageProps) 
     );
   }
 
-  // ── Issues in the active sprint ───────────────────────────────────────────────
   const issues = await prisma.issue.findMany({
     where: { projectId: project.id, sprintId: activeSprint.id },
     orderBy: { position: "asc" },
@@ -74,7 +70,6 @@ export default async function SprintBoardPage({ params }: SprintBoardPageProps) 
     },
   });
 
-  // ── Epic lookup ───────────────────────────────────────────────────────────────
   const epicMap = new Map<string, { id: string; title: string }>();
   for (const issue of issues) {
     if (issue.parent && issue.parent.type === "EPIC") {
@@ -82,7 +77,6 @@ export default async function SprintBoardPage({ params }: SprintBoardPageProps) 
     }
   }
 
-  // ── Blocked issues ────────────────────────────────────────────────────────────
   const issueIds = issues.map((i) => i.id);
   let blockedIds = new Set<string>();
   try {
@@ -96,12 +90,9 @@ export default async function SprintBoardPage({ params }: SprintBoardPageProps) 
     });
     blockedIds = new Set(blockingLinks.map((l) => l.targetId));
   } catch {
-    // stale client — ignore
+
   }
 
-  // ── Status change timestamps (for aging) ──────────────────────────────────────
-  // For each issue, find the most recent status_changed activity.
-  // Falls back to issue.createdAt if no status change activity exists.
   const statusActivities = await prisma.activity.findMany({
     where: {
       issueId: { in: issueIds },
@@ -111,7 +102,6 @@ export default async function SprintBoardPage({ params }: SprintBoardPageProps) 
     orderBy: { createdAt: "desc" },
   });
 
-  // Build a map: issueId → most recent status change date
   const statusChangedAtMap = new Map<string, Date>();
   for (const act of statusActivities) {
     if (!statusChangedAtMap.has(act.issueId)) {
@@ -119,21 +109,18 @@ export default async function SprintBoardPage({ params }: SprintBoardPageProps) 
     }
   }
 
-  // ── Workspace members ─────────────────────────────────────────────────────────
   const members = await prisma.workspaceMember.findMany({
     where: { workspaceId: workspace.id },
     include: { user: { select: { id: true, name: true, email: true, image: true } } },
     orderBy: { createdAt: "asc" },
   });
 
-  // ── Other planned sprints (for complete sprint dialog) ────────────────────────
   const otherSprints = await prisma.sprint.findMany({
     where: { projectId: project.id, status: "PLANNED" },
     select: { id: true, name: true },
     orderBy: { createdAt: "asc" },
   });
 
-  // ── Epics for filter panel ────────────────────────────────────────────────────
   const epics = await prisma.issue.findMany({
     where: { projectId: project.id, type: "EPIC" },
     select: { id: true, key: true, title: true },
@@ -167,7 +154,6 @@ export default async function SprintBoardPage({ params }: SprintBoardPageProps) 
     isBlocked: blockedIds.has(i.id),
   }));
 
-  // ── All workspace labels (for label picker in modal) ─────────────────────────
   const allLabels = await prisma.label.findMany({
     orderBy: { name: "asc" },
     select: { id: true, name: true, color: true },

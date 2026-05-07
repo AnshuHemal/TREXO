@@ -7,8 +7,6 @@ import { Sun, Moon, Monitor, CheckCircle2, AlertCircle, Check } from "lucide-rea
 import { cn } from "@/lib/utils";
 import { saveUserTheme, type ThemeValue } from "@/lib/theme-actions";
 
-// ─── Theme option config ──────────────────────────────────────────────────────
-
 const THEME_OPTIONS: {
   value: ThemeValue;
   label: string;
@@ -57,8 +55,6 @@ const THEME_OPTIONS: {
   },
 ];
 
-// ─── Mini preview card ────────────────────────────────────────────────────────
-
 function ThemePreview({
   preview,
   selected,
@@ -74,7 +70,7 @@ function ThemePreview({
         preview.bg,
       )}
     >
-      {/* Fake sidebar */}
+      {}
       <div className={cn("absolute left-0 top-0 h-full w-8 border-r", preview.border, preview.card)}>
         <div className="flex flex-col gap-1 p-1.5 pt-2">
           <div className={cn("h-1.5 w-4 rounded-full", preview.muted)} />
@@ -82,13 +78,13 @@ function ThemePreview({
           <div className={cn("h-1.5 w-4 rounded-full", preview.muted)} />
         </div>
       </div>
-      {/* Fake content */}
+      {}
       <div className="absolute left-10 right-2 top-2 flex flex-col gap-1.5">
         <div className={cn("h-2 w-16 rounded-full", preview.text)} />
         <div className={cn("h-1.5 w-24 rounded-full", preview.muted)} />
         <div className={cn("mt-1 h-8 w-full rounded-md border", preview.border, preview.card)} />
       </div>
-      {/* Selected checkmark */}
+      {}
       {selected && (
         <div className="absolute right-1.5 top-1.5 flex size-5 items-center justify-center rounded-full bg-primary">
           <Check className="size-3 text-primary-foreground" />
@@ -97,8 +93,6 @@ function ThemePreview({
     </div>
   );
 }
-
-// ─── Main component ───────────────────────────────────────────────────────────
 
 interface AppearanceFormProps {
   currentTheme: ThemeValue;
@@ -128,7 +122,7 @@ export function AppearanceForm({ currentTheme }: AppearanceFormProps) {
 
   return (
     <div className="flex flex-col gap-6">
-      {/* Theme picker */}
+      {}
       <div className="rounded-xl border border-border bg-card p-6">
         <h2 className="mb-1 text-base font-semibold text-foreground">Color theme</h2>
         <p className="mb-5 text-sm text-muted-foreground">
@@ -158,10 +152,10 @@ export function AppearanceForm({ currentTheme }: AppearanceFormProps) {
                 aria-pressed={isSelected}
                 aria-label={`Select ${label} theme`}
               >
-                {/* Preview */}
+                {}
                 <ThemePreview preview={preview} selected={isSelected} />
 
-                {/* Label row */}
+                {}
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <div className={cn(
@@ -181,7 +175,7 @@ export function AppearanceForm({ currentTheme }: AppearanceFormProps) {
                     </div>
                   </div>
 
-                  {/* Active indicator */}
+                  {}
                   <AnimatePresence>
                     {isSelected && (
                       <motion.div
@@ -201,7 +195,7 @@ export function AppearanceForm({ currentTheme }: AppearanceFormProps) {
           })}
         </div>
 
-        {/* Status feedback */}
+        {}
         <AnimatePresence mode="wait">
           {status === "saving" && (
             <motion.p
@@ -244,7 +238,7 @@ export function AppearanceForm({ currentTheme }: AppearanceFormProps) {
         </AnimatePresence>
       </div>
 
-      {/* Info card */}
+      {}
       <motion.div
         initial={{ opacity: 0, y: 6 }}
         animate={{ opacity: 1, y: 0 }}

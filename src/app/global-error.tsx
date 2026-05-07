@@ -2,10 +2,6 @@
 
 import { ErrorScreen } from "@/components/shared/error-screen";
 
-/**
- * Global error boundary — catches errors in the root layout itself.
- * Must include <html> and <body> since the root layout is unavailable.
- */
 export default function GlobalError({
   error,
   reset,

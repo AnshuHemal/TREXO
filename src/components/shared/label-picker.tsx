@@ -5,8 +5,6 @@ import { motion, AnimatePresence } from "motion/react";
 import { Tag, Plus, X, Check, Loader2, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 export interface LabelOption {
   id: string;
   name: string;
@@ -21,8 +19,6 @@ interface LabelPickerProps {
   onRemove: (labelId: string) => Promise<void>;
   disabled?: boolean;
 }
-
-// ─── Label badge ──────────────────────────────────────────────────────────────
 
 export function LabelBadge({
   label,
@@ -69,8 +65,6 @@ export function LabelBadge({
   );
 }
 
-// ─── Component ────────────────────────────────────────────────────────────────
-
 export function LabelPicker({
   issueId: _issueId,
   allLabels,
@@ -111,7 +105,7 @@ export function LabelPicker({
 
   return (
     <div className="relative flex flex-col gap-1.5">
-      {/* Selected labels */}
+      {}
       <div className="flex flex-wrap gap-1">
         <AnimatePresence mode="popLayout">
           {selectedLabels.map((label) => (
@@ -142,7 +136,7 @@ export function LabelPicker({
         )}
       </div>
 
-      {/* Dropdown */}
+      {}
       <AnimatePresence>
         {open && (
           <>
@@ -155,7 +149,7 @@ export function LabelPicker({
               transition={{ duration: 0.13, ease: [0.25, 0.1, 0.25, 1] }}
               className="absolute left-0 top-full z-50 mt-1.5 w-56 overflow-hidden rounded-xl border border-border bg-popover shadow-xl"
             >
-              {/* Search */}
+              {}
               <div className="flex items-center gap-2 border-b border-border px-3 py-2">
                 <Search className="size-3.5 shrink-0 text-muted-foreground" />
                 <input
@@ -172,7 +166,7 @@ export function LabelPicker({
                 )}
               </div>
 
-              {/* Label list */}
+              {}
               {filtered.length === 0 ? (
                 <div className="flex flex-col items-center gap-1.5 px-3 py-5 text-center">
                   <Tag className="size-5 text-muted-foreground/40" />
@@ -200,7 +194,7 @@ export function LabelPicker({
                         whileHover={{ backgroundColor: "var(--accent)" }}
                         className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left transition-colors disabled:opacity-50"
                       >
-                        {/* Color dot */}
+                        {}
                         <span
                           className="size-3 shrink-0 rounded-full"
                           style={{ backgroundColor: label.color }}
@@ -223,7 +217,7 @@ export function LabelPicker({
                 </div>
               )}
 
-              {/* Footer hint */}
+              {}
               <div className="border-t border-border px-3 py-2">
                 <p className="text-[10px] text-muted-foreground/60">
                   Manage labels in{" "}

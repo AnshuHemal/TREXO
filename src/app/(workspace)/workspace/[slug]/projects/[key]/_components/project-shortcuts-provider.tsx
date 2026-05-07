@@ -6,8 +6,6 @@ import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { KeyboardShortcutsModal } from "@/components/shared/keyboard-shortcuts-modal";
 import { useWorkspaceSafe } from "@/components/providers/workspace-provider";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 interface ProjectShortcutsProviderProps {
   children: React.ReactNode;
   workspaceSlug: string;
@@ -15,34 +13,26 @@ interface ProjectShortcutsProviderProps {
   onCreateIssue: () => void;
 }
 
-// ─── Shortcut definitions (shown in help modal) ───────────────────────────────
-
 const SHORTCUT_DEFS = [
-  // General
+
   { keys: "?",   description: "Show keyboard shortcuts",  group: "General"    },
   { keys: "⌘k",  description: "Open search palette",      group: "General"    },
 
-  // Workspace navigation
   { keys: "g h", description: "Go to workspace home",     group: "Navigation" },
   { keys: "g m", description: "Go to My Issues",          group: "Navigation" },
 
-  // Project navigation
   { keys: "g b", description: "Go to Board",              group: "Navigation" },
   { keys: "g l", description: "Go to Backlog",            group: "Navigation" },
   { keys: "g e", description: "Go to Epics",              group: "Navigation" },
   { keys: "g s", description: "Go to Sprints",            group: "Navigation" },
   { keys: "g r", description: "Go to Roadmap",            group: "Navigation" },
 
-  // Issues
   { keys: "c",   description: "Create new issue",         group: "Issues"     },
 
-  // Issue Detail
   { keys: "e",   description: "Edit issue title",         group: "Issue Detail" },
   { keys: "a",   description: "Assign to me",             group: "Issue Detail" },
   { keys: "esc", description: "Close modal / dialog",     group: "Issue Detail" },
 ];
-
-// ─── Component ────────────────────────────────────────────────────────────────
 
 export function ProjectShortcutsProvider({
   children,
@@ -66,7 +56,7 @@ export function ProjectShortcutsProvider({
   );
 
   useKeyboardShortcuts([
-    // Workspace navigation
+
     {
       keys: "g h",
       description: "Go to workspace home",
@@ -79,7 +69,7 @@ export function ProjectShortcutsProvider({
       group: "Navigation",
       handler: () => navigate(`${wsBase}/my-issues`),
     },
-    // Project navigation
+
     {
       keys: "g b",
       description: "Go to Board",
@@ -110,14 +100,14 @@ export function ProjectShortcutsProvider({
       group: "Navigation",
       handler: () => navigate(`${base}/roadmap`),
     },
-    // Issues
+
     {
       keys: "c",
       description: "Create new issue",
       group: "Issues",
       handler: onCreateIssue,
     },
-    // Help
+
     {
       keys: "?",
       description: "Show keyboard shortcuts",
@@ -126,7 +116,6 @@ export function ProjectShortcutsProvider({
     },
   ]);
 
-  // Suppress unused warning — ctx used for future workspace-aware shortcuts
   void ctx;
 
   return (

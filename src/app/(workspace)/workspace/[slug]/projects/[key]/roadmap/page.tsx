@@ -27,7 +27,6 @@ export default async function RoadmapPage({ params }: RoadmapPageProps) {
 
   if (!project) notFound();
 
-  // ── Sprints ───────────────────────────────────────────────────────────────────
   const sprints = await prisma.sprint.findMany({
     where: { projectId: project.id },
     orderBy: { createdAt: "asc" },
@@ -37,7 +36,6 @@ export default async function RoadmapPage({ params }: RoadmapPageProps) {
     },
   });
 
-  // ── Epics ─────────────────────────────────────────────────────────────────────
   const epics = await prisma.issue.findMany({
     where: { projectId: project.id, type: "EPIC" },
     orderBy: { createdAt: "asc" },
@@ -49,7 +47,6 @@ export default async function RoadmapPage({ params }: RoadmapPageProps) {
     },
   });
 
-  // ── Issues with due dates (for issue-level timeline) ──────────────────────────
   const issues = await prisma.issue.findMany({
     where: {
       projectId: project.id,
@@ -67,7 +64,6 @@ export default async function RoadmapPage({ params }: RoadmapPageProps) {
     },
   });
 
-  // ── Workspace members (for group-by assignee) ─────────────────────────────────
   const members = await prisma.workspaceMember.findMany({
     where: { workspaceId: workspace.id },
     include: { user: { select: { id: true, name: true, image: true } } },

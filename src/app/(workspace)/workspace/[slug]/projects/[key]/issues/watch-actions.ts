@@ -9,12 +9,6 @@ export interface ActionResult<T = void> {
   error?: string;
 }
 
-// ─── toggleWatchIssue ─────────────────────────────────────────────────────────
-
-/**
- * Toggle the current user's watch status on an issue.
- * Returns { watching: true } if now watching, { watching: false } if unwatched.
- */
 export async function toggleWatchIssue(
   issueId: string,
 ): Promise<ActionResult<{ watching: boolean; watcherCount: number }>> {
@@ -39,8 +33,6 @@ export async function toggleWatchIssue(
     return { success: false, error: "Failed to update watch status." };
   }
 }
-
-// ─── getWatchStatus ───────────────────────────────────────────────────────────
 
 export async function getWatchStatus(
   issueId: string,

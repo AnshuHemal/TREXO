@@ -29,7 +29,6 @@ export default async function BacklogPage({ params }: BacklogPageProps) {
 
   if (!project) notFound();
 
-  // Fetch all issues with relations
   const issues = await prisma.issue.findMany({
     where: { projectId: project.id },
     orderBy: [{ status: "asc" }, { position: "asc" }, { createdAt: "desc" }],
@@ -41,7 +40,6 @@ export default async function BacklogPage({ params }: BacklogPageProps) {
     },
   });
 
-  // Build epic map from parent relationships
   const epicMap = new Map<string, { id: string; title: string }>();
   for (const issue of issues) {
     if (issue.parent && issue.parent.type === "EPIC") {
@@ -49,7 +47,6 @@ export default async function BacklogPage({ params }: BacklogPageProps) {
     }
   }
 
-  // Find blocked issues (have an incoming BLOCKS link from an unresolved issue)
   const issueIds = issues.map((i) => i.id);
   let blockedIds = new Set<string>();
   try {
@@ -63,17 +60,15 @@ export default async function BacklogPage({ params }: BacklogPageProps) {
     });
     blockedIds = new Set(blockingLinks.map((l) => l.targetId));
   } catch {
-    // stale client — ignore
+
   }
 
-  // Fetch workspace members for assignee picker
   const members = await prisma.workspaceMember.findMany({
     where: { workspaceId: workspace.id },
     include: { user: { select: { id: true, name: true, email: true, image: true } } },
     orderBy: { createdAt: "asc" },
   });
 
-  // Fetch saved filters for this project (personal + shared)
   const savedFilters = await prisma.savedFilter.findMany({
     where: {
       projectId: project.id,
@@ -90,7 +85,6 @@ export default async function BacklogPage({ params }: BacklogPageProps) {
     },
   });
 
-  // Fetch active + planned sprints for sprint planning
   const sprints = await prisma.sprint.findMany({
     where: {
       projectId: project.id,
@@ -100,14 +94,12 @@ export default async function BacklogPage({ params }: BacklogPageProps) {
     orderBy: [{ status: "asc" }, { createdAt: "asc" }],
   });
 
-  // Fetch epics for filter + labels
   const epics = await prisma.issue.findMany({
     where: { projectId: project.id, type: "EPIC" },
     select: { id: true, key: true, title: true },
     orderBy: { key: "asc" },
   });
 
-  // All workspace labels for the label picker in the modal
   const allLabels = await prisma.label.findMany({
     orderBy: { name: "asc" },
     select: { id: true, name: true, color: true },

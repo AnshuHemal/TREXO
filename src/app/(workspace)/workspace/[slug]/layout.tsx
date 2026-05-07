@@ -49,7 +49,6 @@ export default async function WorkspaceLayout({
     orderBy: { createdAt: "asc" },
   });
 
-  // Filter projects to only those the user can access
   const allProjectIds = workspace.projects.map((p) => p.id);
   let accessibleIds: Set<string>;
   try {
@@ -57,12 +56,11 @@ export default async function WorkspaceLayout({
       await filterAccessibleProjects(user.id, workspace.id, allProjectIds),
     );
   } catch {
-    // Stale client — show all projects until server restarts
+
     accessibleIds = new Set(allProjectIds);
   }
   const visibleProjects = workspace.projects.filter((p) => accessibleIds.has(p.id));
 
-  // Flatten members for search + topbar — include email for command palette
   const memberList = workspace.members.map((m) => ({
     id: m.user.id,
     name: m.user.name,

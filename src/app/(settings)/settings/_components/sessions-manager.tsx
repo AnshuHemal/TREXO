@@ -7,8 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { authClient } from "@/lib/auth-client";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 interface SessionItem {
   id: string;
   token: string;
@@ -22,8 +20,6 @@ interface SessionsManagerProps {
   sessions: SessionItem[];
   currentToken: string;
 }
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function parseDevice(userAgent: string | null): { label: string; icon: React.ElementType } {
   if (!userAgent) return { label: "Unknown device", icon: Globe };
@@ -46,8 +42,6 @@ function parseBrowser(userAgent: string | null): string {
 function formatDate(date: Date) {
   return new Intl.DateTimeFormat("en", { month: "short", day: "numeric", year: "numeric" }).format(new Date(date));
 }
-
-// ─── Component ────────────────────────────────────────────────────────────────
 
 export function SessionsManager({ sessions: initialSessions, currentToken }: SessionsManagerProps) {
   const [sessions, setSessions]       = useState(initialSessions);
@@ -77,7 +71,7 @@ export function SessionsManager({ sessions: initialSessions, currentToken }: Ses
 
   return (
     <div className="flex flex-col gap-4">
-      {/* Session list */}
+      {}
       <div className="flex flex-col gap-2">
         {sessions.map((session, i) => {
           const isCurrent = session.token === currentToken;
@@ -134,7 +128,7 @@ export function SessionsManager({ sessions: initialSessions, currentToken }: Ses
         })}
       </div>
 
-      {/* Revoke all others */}
+      {}
       {otherSessions.length > 0 && (
         <Button
           variant="outline"

@@ -6,13 +6,6 @@ import { Logo } from "@/components/shared/logo";
 import { ThemeToggle } from "@/components/shared/theme-toggle";
 import { FadeIn } from "@/components/motion/fade-in";
 
-/**
- * Dashboard layout — personal home shown after login.
- *
- * Guard: if the user has no workspace at all, redirect to /onboarding.
- * If they have exactly one workspace, redirect straight to it (fast path).
- * If they have multiple, render the workspace picker (children).
- */
 export default async function DashboardLayout({
   children,
 }: {
@@ -24,28 +17,27 @@ export default async function DashboardLayout({
     where: { userId: user.id },
     select: { workspace: { select: { slug: true } } },
     orderBy: { createdAt: "asc" },
-    take: 2, // only need to know if 0, 1, or 2+
+    take: 2,
   });
 
   if (memberships.length === 0) {
     redirect("/onboarding");
   }
 
-  // Always show the picker — even with a single workspace
   return (
     <div className="relative flex min-h-screen flex-col">
-      {/* Grid background */}
+      {}
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,var(--border)_1px,transparent_1px),linear-gradient(to_bottom,var(--border)_1px,transparent_1px)] bg-size-[4rem_4rem] opacity-40"
       />
-      {/* Radial fade */}
+      {}
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_50%,transparent_40%,var(--background)_100%)]"
       />
 
-      {/* Topbar */}
+      {}
       <FadeIn
         direction="down"
         className="relative z-10 flex items-center justify-between border-b border-border bg-background/80 px-6 py-4 backdrop-blur-sm"
@@ -54,12 +46,12 @@ export default async function DashboardLayout({
         <ThemeToggle />
       </FadeIn>
 
-      {/* Content */}
+      {}
       <main className="relative z-10 flex flex-1 flex-col items-center justify-center px-4 py-12">
         {children}
       </main>
 
-      {/* Footer */}
+      {}
       <FadeIn
         direction="none"
         delay={0.4}

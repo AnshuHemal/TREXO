@@ -4,8 +4,6 @@ import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/session";
 import { canManageProject } from "@/lib/project-access";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 export interface ActionResult<T = void> {
   success: boolean;
   data?: T;
@@ -14,8 +12,6 @@ export interface ActionResult<T = void> {
 
 export type ProjectRole = "LEAD" | "MEMBER" | "VIEWER";
 export type ProjectVisibility = "PUBLIC" | "PRIVATE";
-
-// ─── updateProjectVisibility ──────────────────────────────────────────────────
 
 export async function updateProjectVisibility(
   projectId: string,
@@ -36,8 +32,6 @@ export async function updateProjectVisibility(
     return { success: false, error: "Failed to update visibility." };
   }
 }
-
-// ─── addProjectMember ─────────────────────────────────────────────────────────
 
 export async function addProjectMember(
   projectId: string,
@@ -61,8 +55,6 @@ export async function addProjectMember(
   }
 }
 
-// ─── removeProjectMember ──────────────────────────────────────────────────────
-
 export async function removeProjectMember(
   projectId: string,
   userId: string,
@@ -81,8 +73,6 @@ export async function removeProjectMember(
     return { success: false, error: "Failed to remove member." };
   }
 }
-
-// ─── updateProjectMemberRole ──────────────────────────────────────────────────
 
 export async function updateProjectMemberRole(
   projectId: string,

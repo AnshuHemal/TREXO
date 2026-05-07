@@ -12,8 +12,6 @@ import { cn } from "@/lib/utils";
 import { getStatusConfig, getPriorityConfig, getTypeConfig } from "@/lib/issue-config";
 import { FadeIn } from "@/components/motion/fade-in";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 interface ReportIssue {
   id: string; key: number; title: string;
   type: string; status: string; priority: string;
@@ -36,8 +34,6 @@ interface SprintReportClientProps {
   report: SprintReport;
 }
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
 function getInitials(name: string) {
   const parts = name.trim().split(/\s+/);
   return parts.length >= 2 ? (parts[0][0] + parts[1][0]).toUpperCase() : name.slice(0, 2).toUpperCase();
@@ -53,8 +49,6 @@ function getDuration(start: Date | null, end: Date | null) {
   const days = Math.ceil((new Date(end).getTime() - new Date(start).getTime()) / 86_400_000);
   return `${days} day${days !== 1 ? "s" : ""}`;
 }
-
-// ─── Issue row ────────────────────────────────────────────────────────────────
 
 function IssueRow({ issue, projectKey, index }: { issue: ReportIssue; projectKey: string; index: number }) {
   const status   = getStatusConfig(issue.status);
@@ -104,8 +98,6 @@ function IssueRow({ issue, projectKey, index }: { issue: ReportIssue; projectKey
   );
 }
 
-// ─── Main component ───────────────────────────────────────────────────────────
-
 export function SprintReportClient({ project, workspaceSlug, report }: SprintReportClientProps) {
   const completionRate = report.totalIssues > 0
     ? Math.round((report.completedIssues / report.totalIssues) * 100)
@@ -117,7 +109,7 @@ export function SprintReportClient({ project, workspaceSlug, report }: SprintRep
 
   return (
     <div className="flex flex-1 flex-col">
-      {/* Header */}
+      {}
       <div className="border-b border-border px-6 py-4">
         <FadeIn direction="down">
           <div className="flex items-center gap-3">
@@ -136,7 +128,7 @@ export function SprintReportClient({ project, workspaceSlug, report }: SprintRep
       <div className="flex-1 overflow-y-auto p-6">
         <div className="mx-auto max-w-4xl flex flex-col gap-6">
 
-          {/* Sprint meta */}
+          {}
           <FadeIn direction="down">
             <div className="rounded-xl border border-border bg-card p-6">
               <div className="flex items-start justify-between gap-4">
@@ -168,7 +160,7 @@ export function SprintReportClient({ project, workspaceSlug, report }: SprintRep
             </div>
           </FadeIn>
 
-          {/* Stats grid */}
+          {}
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             {[
               {
@@ -221,7 +213,7 @@ export function SprintReportClient({ project, workspaceSlug, report }: SprintRep
             ))}
           </div>
 
-          {/* Progress bar */}
+          {}
           <FadeIn delay={0.1}>
             <div className="rounded-xl border border-border bg-card p-5">
               <div className="mb-3 flex items-center justify-between text-sm">
@@ -248,7 +240,7 @@ export function SprintReportClient({ project, workspaceSlug, report }: SprintRep
             </div>
           </FadeIn>
 
-          {/* Completed issues */}
+          {}
           <FadeIn delay={0.15}>
             <div className="rounded-xl border border-border bg-card overflow-hidden">
               <div className="flex items-center gap-2.5 border-b border-border px-5 py-3.5">
@@ -269,7 +261,7 @@ export function SprintReportClient({ project, workspaceSlug, report }: SprintRep
             </div>
           </FadeIn>
 
-          {/* Carried over issues */}
+          {}
           {report.carriedOverList.length > 0 && (
             <FadeIn delay={0.2}>
               <div className="rounded-xl border border-amber-500/30 bg-card overflow-hidden">
@@ -291,7 +283,7 @@ export function SprintReportClient({ project, workspaceSlug, report }: SprintRep
             </FadeIn>
           )}
 
-          {/* Actions */}
+          {}
           <FadeIn delay={0.25}>
             <div className="flex items-center gap-3">
               <Button variant="outline" asChild>

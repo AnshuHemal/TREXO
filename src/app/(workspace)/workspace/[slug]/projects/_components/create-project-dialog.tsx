@@ -18,13 +18,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { createProject, checkProjectKey } from "../actions";
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-/**
- * Derives a project key from a name.
- * - Multi-word: first letter of each word, uppercase, max 3 chars. e.g. "Trexo App" → "TRA"
- * - Single word: first 3 letters uppercase. e.g. "Backend" → "BAC"
- */
 function nameToKey(name: string): string {
   const words = name.trim().split(/[\s\-_/\\]+/).filter(Boolean);
   if (words.length === 0) return "";
@@ -38,15 +31,11 @@ function nameToKey(name: string): string {
     .slice(0, 3);
 }
 
-// ─── Props ────────────────────────────────────────────────────────────────────
-
 interface CreateProjectDialogProps {
   workspaceId: string;
   workspaceSlug: string;
   trigger?: React.ReactNode;
 }
-
-// ─── Component ────────────────────────────────────────────────────────────────
 
 export function CreateProjectDialog({
   workspaceId,
@@ -92,7 +81,7 @@ export function CreateProjectDialog({
   }
 
   function handleKeyChange(value: string) {
-    // Force uppercase, only A-Z letters, max 10 chars
+
     const cleaned = value.replace(/[^a-zA-Z]/g, "").toUpperCase().slice(0, 10);
     setKeyEdited(true);
     setKey(cleaned);
@@ -135,7 +124,6 @@ export function CreateProjectDialog({
         return;
       }
 
-      // Navigate to the new project
       window.location.href = `/workspace/${workspaceSlug}/projects/${result.data!.key}`;
     });
   }
@@ -172,7 +160,7 @@ export function CreateProjectDialog({
           </DialogHeader>
 
           <form onSubmit={handleSubmit} className="mt-4 flex flex-col gap-5">
-            {/* Project name */}
+            {}
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="proj-name">Project name</Label>
               <Input
@@ -201,7 +189,7 @@ export function CreateProjectDialog({
               </AnimatePresence>
             </div>
 
-            {/* Project key */}
+            {}
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="proj-key">Project key</Label>
               <div
@@ -296,7 +284,7 @@ export function CreateProjectDialog({
               </AnimatePresence>
             </div>
 
-            {/* Description */}
+            {}
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="proj-desc">
                 Description{" "}
@@ -335,7 +323,7 @@ export function CreateProjectDialog({
               </div>
             </div>
 
-            {/* Server error */}
+            {}
             <AnimatePresence mode="wait">
               {serverError && (
                 <motion.div
@@ -351,7 +339,7 @@ export function CreateProjectDialog({
               )}
             </AnimatePresence>
 
-            {/* Actions */}
+            {}
             <div className="flex justify-end gap-2">
               <Button
                 type="button"

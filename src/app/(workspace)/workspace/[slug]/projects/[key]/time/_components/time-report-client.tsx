@@ -12,8 +12,6 @@ import { cn } from "@/lib/utils";
 import { formatMinutes } from "@/lib/time-utils";
 import { fadeUpVariants, StaggerChildren } from "@/components/motion/fade-in";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 interface TimeLogEntry {
   id: string;
   minutes: number;
@@ -35,8 +33,6 @@ interface TimeReportClientProps {
   projectKey: string;
 }
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
 function getInitials(name: string) {
   const parts = name.trim().split(/\s+/);
   return parts.length >= 2 ? (parts[0][0] + parts[1][0]).toUpperCase() : name.slice(0, 2).toUpperCase();
@@ -45,8 +41,6 @@ function getInitials(name: string) {
 function formatDate(date: Date) {
   return new Intl.DateTimeFormat("en", { month: "short", day: "numeric", year: "numeric" }).format(new Date(date));
 }
-
-// ─── Stat card ────────────────────────────────────────────────────────────────
 
 function StatCard({ label, value, icon: Icon, sub }: {
   label: string; value: string; icon: React.ElementType; sub?: string;
@@ -63,14 +57,11 @@ function StatCard({ label, value, icon: Icon, sub }: {
   );
 }
 
-// ─── Component ────────────────────────────────────────────────────────────────
-
 export function TimeReportClient({ logs, members, projectKey }: TimeReportClientProps) {
   const [filterMember, setFilterMember] = useState("all");
   const [filterPeriod, setFilterPeriod] = useState("all");
   const [filterNow] = useState(() => Date.now());
 
-  // Filter logs
   const filtered = useMemo(() => {
     return logs.filter((l) => {
       if (filterMember !== "all" && l.user.id !== filterMember) return false;
@@ -84,7 +75,6 @@ export function TimeReportClient({ logs, members, projectKey }: TimeReportClient
   const uniqueIssues = new Set(filtered.map((l) => l.issue.id)).size;
   const uniqueMembers = new Set(filtered.map((l) => l.user.id)).size;
 
-  // Per-member breakdown
   const byMember = useMemo(() => {
     const map = new Map<string, { user: Member; minutes: number; count: number }>();
     for (const l of filtered) {
@@ -103,7 +93,7 @@ export function TimeReportClient({ logs, members, projectKey }: TimeReportClient
 
   return (
     <div className="flex flex-col gap-6">
-      {/* Filters */}
+      {}
       <div className="flex flex-wrap items-center gap-2">
         <Filter className="size-3.5 shrink-0 text-muted-foreground" />
 
@@ -146,14 +136,14 @@ export function TimeReportClient({ logs, members, projectKey }: TimeReportClient
         )}
       </div>
 
-      {/* Stats */}
+      {}
       <StaggerChildren className="grid grid-cols-2 gap-4 sm:grid-cols-3">
         <StatCard label="Total logged"   value={formatMinutes(totalMinutes)} icon={Clock}  sub={`${filtered.length} entries`} />
         <StatCard label="Issues tracked" value={String(uniqueIssues)}        icon={Timer}  sub="unique issues" />
         <StatCard label="Contributors"   value={String(uniqueMembers)}       icon={Users}  sub="team members" />
       </StaggerChildren>
 
-      {/* Per-member breakdown */}
+      {}
       {byMember.length > 0 && (
         <motion.div
           initial={{ opacity: 0, y: 6 }}
@@ -197,7 +187,7 @@ export function TimeReportClient({ logs, members, projectKey }: TimeReportClient
         </motion.div>
       )}
 
-      {/* Log table */}
+      {}
       <motion.div
         initial={{ opacity: 0, y: 6 }}
         animate={{ opacity: 1, y: 0 }}

@@ -22,8 +22,6 @@ import { cn } from "@/lib/utils";
 import { ISSUE_TYPES, ISSUE_STATUSES, ISSUE_PRIORITIES, getPriorityConfig, getTypeConfig } from "@/lib/issue-config";
 import { createIssue } from "../actions";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 interface Member {
   id: string;
   name: string;
@@ -53,15 +51,11 @@ interface CreateIssueDialogProps {
   onOpenChange?: (open: boolean) => void;
 }
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
 function getInitials(name: string) {
   const parts = name.trim().split(/\s+/);
   if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
   return name.slice(0, 2).toUpperCase();
 }
-
-// ─── Template icon map ────────────────────────────────────────────────────────
 
 const TEMPLATE_ICONS: Record<string, React.ElementType> = {
   BUG:     Bug,
@@ -70,8 +64,6 @@ const TEMPLATE_ICONS: Record<string, React.ElementType> = {
   SUBTASK: GitBranch,
   TASK:    CheckCircle2,
 };
-
-// ─── Template picker panel ────────────────────────────────────────────────────
 
 function TemplatePicker({
   templates,
@@ -96,7 +88,7 @@ function TemplatePicker({
       className="overflow-hidden rounded-xl border border-border bg-card shadow-xl"
     >
       <div className="flex">
-        {/* Template list */}
+        {}
         <div className="w-52 shrink-0 border-r border-border">
           <div className="border-b border-border px-3 py-2">
             <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
@@ -137,7 +129,7 @@ function TemplatePicker({
           </div>
         </div>
 
-        {/* Preview panel */}
+        {}
         <div className="flex-1 min-w-0">
           <div className="border-b border-border px-3 py-2">
             <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
@@ -146,7 +138,7 @@ function TemplatePicker({
           </div>
           {previewTpl ? (
             <div className="p-3">
-              {/* Meta */}
+              {}
               <div className="mb-2 flex flex-wrap items-center gap-1.5">
                 {(() => {
                   const typeCfg = getTypeConfig(previewTpl.type);
@@ -175,7 +167,7 @@ function TemplatePicker({
                 )}
               </div>
 
-              {/* Description preview */}
+              {}
               {previewTpl.description ? (
                 <pre className="max-h-40 overflow-y-auto whitespace-pre-wrap rounded-lg border border-border bg-muted/30 p-2.5 font-mono text-[11px] leading-relaxed text-muted-foreground">
                   {previewTpl.description}
@@ -209,8 +201,6 @@ function TemplatePicker({
   );
 }
 
-// ─── Component ────────────────────────────────────────────────────────────────
-
 export function CreateIssueDialog({
   projectId,
   projectKey,
@@ -234,7 +224,6 @@ export function CreateIssueDialog({
   const [serverError, setServerError]   = useState<string | null>(null);
   const [isPending, startTransition]    = useTransition();
 
-  // Template picker state
   const [showTemplatePicker, setShowTemplatePicker] = useState(false);
   const [appliedTemplateId, setAppliedTemplateId]   = useState<string | null>(null);
 
@@ -245,14 +234,14 @@ export function CreateIssueDialog({
   function applyTemplate(tpl: IssueTemplateOption) {
     setType(tpl.type);
     setPriority(tpl.priority);
-    // Apply title prefix
+
     if (tpl.titlePrefix) {
       setTitle((prev) => {
         if (prev.startsWith(tpl.titlePrefix!)) return prev;
         return tpl.titlePrefix + " " + prev.trimStart();
       });
     }
-    // Apply description template
+
     if (tpl.description) {
       setDescription(tpl.description);
     }
@@ -340,7 +329,7 @@ export function CreateIssueDialog({
 
           <form onSubmit={handleSubmit} className="mt-4 flex flex-col gap-4">
 
-            {/* Template picker */}
+            {}
             {templates.length > 0 && (
               <div className="flex flex-col gap-1.5">
                 <Button
@@ -378,7 +367,7 @@ export function CreateIssueDialog({
               </div>
             )}
 
-            {/* Title */}
+            {}
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="issue-title">Title</Label>
               <Input
@@ -400,7 +389,7 @@ export function CreateIssueDialog({
               </AnimatePresence>
             </div>
 
-            {/* Description (shown when template applied or user expands) */}
+            {}
             <AnimatePresence>
               {description && (
                 <motion.div
@@ -435,7 +424,7 @@ export function CreateIssueDialog({
               )}
             </AnimatePresence>
 
-            {/* Type + Status + Priority row */}
+            {}
             <div className="grid grid-cols-3 gap-3">
               <div className="flex flex-col gap-1.5">
                 <Label>Type</Label>
@@ -495,7 +484,7 @@ export function CreateIssueDialog({
               </div>
             </div>
 
-            {/* Assignee */}
+            {}
             <div className="flex flex-col gap-1.5">
               <Label>Assignee</Label>
               <Select value={assigneeId} onValueChange={setAssigneeId} disabled={isPending}>
@@ -519,7 +508,7 @@ export function CreateIssueDialog({
               </Select>
             </div>
 
-            {/* Server error */}
+            {}
             <AnimatePresence mode="wait">
               {serverError && (
                 <motion.div key="se" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
@@ -529,7 +518,7 @@ export function CreateIssueDialog({
               )}
             </AnimatePresence>
 
-            {/* Actions */}
+            {}
             <div className="flex justify-end gap-2 pt-1">
               <Button type="button" variant="outline" disabled={isPending} onClick={() => handleOpenChange(false)}>
                 Cancel

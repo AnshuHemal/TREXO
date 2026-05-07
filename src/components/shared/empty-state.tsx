@@ -3,8 +3,6 @@
 import { motion } from "motion/react";
 import { cn } from "@/lib/utils";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 interface EmptyStateProps {
   icon: React.ElementType;
   iconColor?: string;
@@ -14,12 +12,10 @@ interface EmptyStateProps {
   action?: React.ReactNode;
   size?: "sm" | "md" | "lg";
   className?: string;
-  /** If true, renders inside a dashed border card */
+
   bordered?: boolean;
   delay?: number;
 }
-
-// ─── Component ────────────────────────────────────────────────────────────────
 
 export function EmptyState({
   icon: Icon,
@@ -65,7 +61,7 @@ export function EmptyState({
         className,
       )}
     >
-      {/* Icon */}
+      {}
       <motion.div
         initial={{ scale: 0.8, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
@@ -80,7 +76,7 @@ export function EmptyState({
         <Icon className={cn(iconInnerSizes[size], iconColor)} />
       </motion.div>
 
-      {/* Text */}
+      {}
       <motion.div
         initial={{ opacity: 0, y: 4 }}
         animate={{ opacity: 1, y: 0 }}
@@ -98,7 +94,7 @@ export function EmptyState({
         )}
       </motion.div>
 
-      {/* Action */}
+      {}
       {action && (
         <motion.div
           initial={{ opacity: 0, y: 4 }}

@@ -5,8 +5,6 @@ import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/session";
 import { sendWorkspaceInvite } from "@/lib/invite-actions";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 export interface ActionResult<T = void> {
   success: boolean;
   data?: T;
@@ -14,12 +12,6 @@ export interface ActionResult<T = void> {
   fieldErrors?: Record<string, string>;
 }
 
-// ─── checkSlugAvailable ───────────────────────────────────────────────────────
-
-/**
- * Checks whether a workspace slug is available.
- * Called on-the-fly as the user types the slug field.
- */
 export async function checkSlugAvailable(
   slug: string,
 ): Promise<{ available: boolean }> {
@@ -33,8 +25,6 @@ export async function checkSlugAvailable(
   return { available: !existing };
 }
 
-// ─── createWorkspace ──────────────────────────────────────────────────────────
-
 export interface CreateWorkspaceInput {
   name: string;
   slug: string;
@@ -45,17 +35,11 @@ export interface CreateWorkspaceResult {
   slug: string;
 }
 
-/**
- * Creates a new workspace and adds the current user as OWNER.
- * Validates name + slug, checks slug uniqueness, then creates both
- * Workspace and WorkspaceMember records in a single transaction.
- */
 export async function createWorkspace(
   input: CreateWorkspaceInput,
 ): Promise<ActionResult<CreateWorkspaceResult>> {
   const user = await requireUser();
 
-  // ── Validation ──────────────────────────────────────────────────────────────
   const fieldErrors: Record<string, string> = {};
 
   const name = input.name.trim();
@@ -74,7 +58,6 @@ export async function createWorkspace(
     return { success: false, fieldErrors };
   }
 
-  // ── Slug uniqueness ─────────────────────────────────────────────────────────
   const existing = await prisma.workspace.findUnique({
     where: { slug },
     select: { id: true },
@@ -87,7 +70,6 @@ export async function createWorkspace(
     };
   }
 
-  // ── Create workspace + owner membership in a transaction ────────────────────
   try {
     const workspace = await prisma.$transaction(async (tx) => {
       const ws = await tx.workspace.create({
@@ -117,17 +99,11 @@ export async function createWorkspace(
   }
 }
 
-// ─── sendInvites ──────────────────────────────────────────────────────────────
-
 export interface SendInvitesInput {
   workspaceId: string;
   emails: string[];
 }
 
-/**
- * Sends workspace invitations via Brevo SMTP.
- * Creates Invitation records and sends invite emails with accept links.
- */
 export async function sendInvites(
   input: SendInvitesInput,
 ): Promise<ActionResult> {
@@ -139,7 +115,6 @@ export async function sendInvites(
     return { success: false, error: "No valid email addresses provided." };
   }
 
-  // Send real invitations via Brevo SMTP
   const results = await Promise.allSettled(
     validEmails.map((email) => sendWorkspaceInvite(input.workspaceId, email)),
   );
@@ -155,13 +130,6 @@ export async function sendInvites(
   return { success: true };
 }
 
-// ─── completeOnboarding ───────────────────────────────────────────────────────
-
-/**
- * Called at the end of the wizard to redirect the user into their workspace.
- * Using a Server Action for the redirect ensures it happens server-side
- * and avoids the router-not-initialized issue.
- */
 export async function completeOnboarding(slug: string): Promise<never> {
   redirect(`/workspace/${slug}`);
 }

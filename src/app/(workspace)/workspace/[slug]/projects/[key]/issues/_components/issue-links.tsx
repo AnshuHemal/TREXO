@@ -25,8 +25,6 @@ import {
   type LinkType,
 } from "../link-actions";
 
-// ─── Link type config ─────────────────────────────────────────────────────────
-
 const LINK_TYPES: {
   value: LinkType;
   label: string;
@@ -73,16 +71,12 @@ function getLinkTypeConfig(type: LinkType) {
   return LINK_TYPES.find((t) => t.value === type) ?? LINK_TYPES[3];
 }
 
-// ─── Props ────────────────────────────────────────────────────────────────────
-
 interface IssueLinksProps {
   issueId: string;
   projectId: string;
   initialLinks: IssueLinkItem[];
   onOpenIssue?: (issueId: string) => void;
 }
-
-// ─── Add Link Dialog ──────────────────────────────────────────────────────────
 
 function AddLinkDialog({
   open,
@@ -154,7 +148,7 @@ function AddLinkDialog({
         </DialogHeader>
 
         <div className="flex flex-col gap-4 py-1">
-          {/* Link type */}
+          {}
           <div className="flex flex-col gap-1.5">
             <label className="text-sm font-medium text-muted-foreground">Relationship type</label>
             <Select value={linkType} onValueChange={(v) => setLinkType(v as LinkType)}>
@@ -173,7 +167,7 @@ function AddLinkDialog({
               </SelectContent>
             </Select>
 
-            {/* Relationship preview */}
+            {}
             <div className={cn(
               "flex items-center gap-2 rounded-lg px-3 py-2 text-sm",
               selectedTypeConfig.bg,
@@ -187,7 +181,7 @@ function AddLinkDialog({
             </div>
           </div>
 
-          {/* Search */}
+          {}
           <div className="flex flex-col gap-1.5">
             <label className="text-sm font-medium text-muted-foreground">Search issues</label>
             <div className="relative">
@@ -204,7 +198,7 @@ function AddLinkDialog({
               )}
             </div>
 
-            {/* Results */}
+            {}
             <AnimatePresence>
               {results.length > 0 && (
                 <motion.div
@@ -278,8 +272,6 @@ function AddLinkDialog({
   );
 }
 
-// ─── Linked issue row ─────────────────────────────────────────────────────────
-
 function LinkedIssueRow({
   link,
   onRemove,
@@ -307,13 +299,13 @@ function LinkedIssueRow({
       transition={{ duration: 0.15 }}
       className="group flex items-center gap-2.5 rounded-lg border border-border bg-card px-3 py-2 transition-colors hover:border-primary/30 hover:bg-accent/20"
     >
-      {/* Type + priority icons */}
+      {}
       <div className="flex shrink-0 items-center gap-1">
         <PriorityIcon className={cn("size-3.5", priority.color)} />
         <TypeIcon className={cn("size-3.5", type.color)} />
       </div>
 
-      {/* Key + title */}
+      {}
       <button
         type="button"
         onClick={() => onOpen?.(link.issue.id)}
@@ -332,13 +324,13 @@ function LinkedIssueRow({
         </span>
       </button>
 
-      {/* Status */}
+      {}
       <div className="flex shrink-0 items-center gap-1 text-sm text-muted-foreground">
         <StatusIcon className={cn("size-3.5", status.color)} />
         <span className="hidden sm:block">{status.label}</span>
       </div>
 
-      {/* Open full page */}
+      {}
       <a
         href={`/workspace/${link.issue.project.key}/issues/${link.issue.key}`}
         className="shrink-0 text-muted-foreground/40 opacity-0 transition-opacity group-hover:opacity-100 hover:text-muted-foreground"
@@ -348,7 +340,7 @@ function LinkedIssueRow({
         <ExternalLink className="size-3.5" />
       </a>
 
-      {/* Remove */}
+      {}
       <button
         type="button"
         onClick={() => onRemove(link.id)}
@@ -362,15 +354,12 @@ function LinkedIssueRow({
   );
 }
 
-// ─── Main component ───────────────────────────────────────────────────────────
-
 export function IssueLinks({ issueId, projectId, initialLinks, onOpenIssue }: IssueLinksProps) {
   const [links, setLinks]           = useState<IssueLinkItem[]>(initialLinks);
   const [isExpanded, setIsExpanded] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
 
-  // Group links by type
   const grouped = LINK_TYPES.reduce<Record<LinkType, IssueLinkItem[]>>(
     (acc, t) => {
       acc[t.value] = links.filter((l) => l.type === t.value);
@@ -396,7 +385,7 @@ export function IssueLinks({ issueId, projectId, initialLinks, onOpenIssue }: Is
 
   return (
     <div className="flex flex-col gap-2">
-      {/* Section header */}
+      {}
       <div className="flex items-center justify-between">
         <button
           type="button"
@@ -416,7 +405,7 @@ export function IssueLinks({ issueId, projectId, initialLinks, onOpenIssue }: Is
               {links.length}
             </span>
           )}
-          {/* Blocker warning */}
+          {}
           {hasBlockers && (
             <span className="flex items-center gap-1 rounded-full bg-destructive/10 px-2 py-0.5 text-[10px] font-semibold text-destructive">
               <ShieldAlert className="size-3" />
@@ -437,7 +426,7 @@ export function IssueLinks({ issueId, projectId, initialLinks, onOpenIssue }: Is
         </Button>
       </div>
 
-      {/* Collapsible body */}
+      {}
       <AnimatePresence>
         {isExpanded && (
           <motion.div
@@ -481,7 +470,7 @@ export function IssueLinks({ issueId, projectId, initialLinks, onOpenIssue }: Is
                         transition={{ duration: 0.15 }}
                         className="flex flex-col gap-1.5"
                       >
-                        {/* Group label */}
+                        {}
                         <div className="flex items-center gap-1.5">
                           <div className={cn("flex size-4 items-center justify-center rounded", bg)}>
                             <Icon className={cn("size-2.5", color)} />
@@ -494,7 +483,7 @@ export function IssueLinks({ issueId, projectId, initialLinks, onOpenIssue }: Is
                           </span>
                         </div>
 
-                        {/* Issues in group */}
+                        {}
                         <div className="flex flex-col gap-1">
                           <AnimatePresence initial={false}>
                             {group.map((link) => (
@@ -518,7 +507,7 @@ export function IssueLinks({ issueId, projectId, initialLinks, onOpenIssue }: Is
         )}
       </AnimatePresence>
 
-      {/* Add link dialog */}
+      {}
       <AddLinkDialog
         open={dialogOpen}
         onOpenChange={setDialogOpen}
@@ -530,8 +519,6 @@ export function IssueLinks({ issueId, projectId, initialLinks, onOpenIssue }: Is
   );
 }
 
-// ─── Blocked indicator (used on Kanban cards) ─────────────────────────────────
-
 export function BlockedBadge() {
   return (
     <span className="flex items-center gap-0.5 rounded-full bg-destructive/10 px-1.5 py-0.5 text-[10px] font-medium text-destructive">
@@ -540,8 +527,6 @@ export function BlockedBadge() {
     </span>
   );
 }
-
-// ─── Link type label (used in activity log) ───────────────────────────────────
 
 export function formatLinkType(type: string): string {
   const map: Record<string, string> = {

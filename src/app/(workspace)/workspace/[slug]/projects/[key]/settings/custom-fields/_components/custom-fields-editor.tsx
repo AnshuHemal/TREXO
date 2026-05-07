@@ -21,8 +21,6 @@ import {
 } from "@/lib/custom-fields";
 import { saveCustomFieldsConfig } from "../actions";
 
-// ─── Field type icons ─────────────────────────────────────────────────────────
-
 const TYPE_ICONS: Record<CustomFieldType, React.ElementType> = {
   text:     Type,
   number:   Hash,
@@ -38,8 +36,6 @@ const TYPE_COLORS: Record<CustomFieldType, string> = {
   dropdown: "text-purple-600 bg-purple-500/10",
   url:      "text-blue-600 bg-blue-500/10",
 };
-
-// ─── Field row ────────────────────────────────────────────────────────────────
 
 function FieldRow({
   field,
@@ -72,19 +68,19 @@ function FieldRow({
       className="overflow-hidden rounded-xl border border-border bg-card"
       whileDrag={{ scale: 1.01, boxShadow: "0 8px 32px rgba(0,0,0,0.12)" }}
     >
-      {/* Main row */}
+      {}
       <div className="flex items-center gap-3 px-4 py-3">
-        {/* Drag handle */}
+        {}
         <div className="cursor-grab text-muted-foreground/40 hover:text-muted-foreground active:cursor-grabbing">
           <GripVertical className="size-4" />
         </div>
 
-        {/* Type icon */}
+        {}
         <div className={cn("flex size-7 shrink-0 items-center justify-center rounded-lg text-sm font-bold", TYPE_COLORS[field.type])}>
           <Icon className="size-3.5" />
         </div>
 
-        {/* Name */}
+        {}
         <Input
           value={field.name}
           onChange={(e) => onUpdate(field.id, { name: e.target.value })}
@@ -92,7 +88,7 @@ function FieldRow({
           className="h-7 flex-1 border-0 bg-transparent p-0 text-sm font-medium shadow-none focus-visible:ring-0"
         />
 
-        {/* Type selector */}
+        {}
         <Select
           value={field.type}
           onValueChange={(v) => onUpdate(field.id, { type: v as CustomFieldType, options: v === "dropdown" ? (field.options ?? []) : undefined })}
@@ -115,7 +111,7 @@ function FieldRow({
           </SelectContent>
         </Select>
 
-        {/* Required toggle */}
+        {}
         <div className="flex items-center gap-1.5">
           <span className="text-[11px] text-muted-foreground">Required</span>
           <Switch
@@ -125,7 +121,7 @@ function FieldRow({
           />
         </div>
 
-        {/* Expand (for dropdown options) */}
+        {}
         {field.type === "dropdown" && (
           <button
             type="button"
@@ -138,7 +134,7 @@ function FieldRow({
           </button>
         )}
 
-        {/* Delete */}
+        {}
         <button
           type="button"
           onClick={() => onDelete(field.id)}
@@ -149,7 +145,7 @@ function FieldRow({
         </button>
       </div>
 
-      {/* Dropdown options */}
+      {}
       <AnimatePresence>
         {field.type === "dropdown" && isExpanded && (
           <motion.div
@@ -200,8 +196,6 @@ function FieldRow({
     </Reorder.Item>
   );
 }
-
-// ─── Main component ───────────────────────────────────────────────────────────
 
 interface CustomFieldsEditorProps {
   projectId: string;
@@ -261,7 +255,7 @@ export function CustomFieldsEditor({ projectId, initialConfig }: CustomFieldsEdi
   return (
     <div className="flex max-w-3xl flex-col gap-6">
 
-      {/* ── Field list ──────────────────────────────────────────────────── */}
+      {}
       <FadeIn delay={0.05}>
         <div className="rounded-xl border border-border bg-card p-6">
           <div className="mb-5 flex items-start justify-between gap-4">
@@ -304,7 +298,7 @@ export function CustomFieldsEditor({ projectId, initialConfig }: CustomFieldsEdi
             </Reorder.Group>
           )}
 
-          {/* Add field buttons */}
+          {}
           <div className="mt-4 flex flex-wrap gap-2">
             {(Object.keys(FIELD_TYPE_LABELS) as CustomFieldType[]).map((type) => {
               const Icon = TYPE_ICONS[type];
@@ -328,7 +322,7 @@ export function CustomFieldsEditor({ projectId, initialConfig }: CustomFieldsEdi
         </div>
       </FadeIn>
 
-      {/* ── Info ────────────────────────────────────────────────────────── */}
+      {}
       <FadeIn delay={0.1}>
         <div className="flex items-start gap-3 rounded-xl border border-border bg-muted/30 px-4 py-3.5">
           <Info className="mt-0.5 size-4 shrink-0 text-muted-foreground" />

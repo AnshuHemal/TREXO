@@ -17,8 +17,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import { FadeIn } from "@/components/motion/fade-in";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 interface StatusCount    { status: string;   count: number }
 interface PriorityCount  { priority: string; count: number }
 interface TypeCount      { type: string;     count: number }
@@ -45,8 +43,6 @@ interface HealthClientProps {
   doneIssues: number;
   overdueCount: number;
 }
-
-// ─── Static color maps (Tailwind-safe) ───────────────────────────────────────
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; hex: string; icon: React.ElementType }> = {
   BACKLOG:     { label: "Backlog",     color: "text-muted-foreground", hex: "#94a3b8", icon: Circle       },
@@ -81,14 +77,10 @@ const STAT_ICON_BG: Record<string, string> = {
   "text-muted-foreground": "bg-muted/40",
 };
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
 function getInitials(name: string) {
   const parts = name.trim().split(/\s+/);
   return parts.length >= 2 ? (parts[0][0] + parts[1][0]).toUpperCase() : name.slice(0, 2).toUpperCase();
 }
-
-// ─── Stat card ────────────────────────────────────────────────────────────────
 
 function StatCard({
   label, value, sub, icon: Icon, color, delay, trend,
@@ -120,8 +112,6 @@ function StatCard({
   );
 }
 
-// ─── Custom tooltip ───────────────────────────────────────────────────────────
-
 function ChartTooltip({
   active, payload, label,
 }: {
@@ -143,8 +133,6 @@ function ChartTooltip({
     </div>
   );
 }
-
-// ─── Donut chart with center label ───────────────────────────────────────────
 
 function DonutChart({
   data,
@@ -190,7 +178,7 @@ function DonutChart({
           />
         </PieChart>
       </ResponsiveContainer>
-      {/* Center label */}
+      {}
       <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
         <p className="text-2xl font-bold text-foreground">{centerLabel}</p>
         <p className="text-[11px] text-muted-foreground">{centerSub}</p>
@@ -198,8 +186,6 @@ function DonutChart({
     </div>
   );
 }
-
-// ─── Section header ───────────────────────────────────────────────────────────
 
 function SectionHeader({
   icon: Icon,
@@ -227,8 +213,6 @@ function SectionHeader({
   );
 }
 
-// ─── Main component ───────────────────────────────────────────────────────────
-
 export function HealthClient({
   project,
   workspaceSlug,
@@ -249,13 +233,11 @@ export function HealthClient({
 
   const completionRate = totalIssues > 0 ? Math.round((doneIssues / totalIssues) * 100) : 0;
 
-  // Slice trend data based on view
   const visibleTrend =
     trendView === "7d"  ? trendData.slice(-7)
     : trendView === "14d" ? trendData.slice(-14)
     : trendData;
 
-  // ── Status donut data ─────────────────────────────────────────────────────
   const statusDonutData = statusCounts
     .filter((s) => s.count > 0)
     .map((s) => ({
@@ -264,7 +246,6 @@ export function HealthClient({
       color: STATUS_CONFIG[s.status]?.hex ?? "#94a3b8",
     }));
 
-  // ── Priority bar data ─────────────────────────────────────────────────────
   const priorityOrder = ["URGENT", "HIGH", "MEDIUM", "LOW", "NO_PRIORITY"];
   const priorityBarData = priorityOrder
     .map((p) => ({
@@ -274,7 +255,6 @@ export function HealthClient({
     }))
     .filter((d) => d.value > 0);
 
-  // ── Type donut data ───────────────────────────────────────────────────────
   const typeDonutData = typeCounts
     .filter((t) => t.count > 0)
     .map((t) => ({
@@ -283,8 +263,6 @@ export function HealthClient({
       color: TYPE_CONFIG[t.type]?.hex ?? "#94a3b8",
     }));
 
-  // ── Health score (simple heuristic) ──────────────────────────────────────
-  // 0-100: penalise overdue, reward completion rate, penalise high urgent count
   const urgentCount = priorityCounts.find((p) => p.priority === "URGENT")?.count ?? 0;
   const healthScore = Math.max(
     0,
@@ -310,7 +288,7 @@ export function HealthClient({
 
   return (
     <div className="flex flex-1 flex-col">
-      {/* ── Toolbar ──────────────────────────────────────────────────────── */}
+      {}
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-6 py-3">
         <div>
           <h1 className="text-base font-bold text-foreground">Project Health</h1>
@@ -318,7 +296,7 @@ export function HealthClient({
             {project.name} · {totalIssues} total issues
           </p>
         </div>
-        {/* Health score pill */}
+        {}
         <div className={cn(
           "flex items-center gap-2 rounded-full border px-3 py-1.5",
           healthScore >= 75 ? "border-emerald-500/20 bg-emerald-500/10"
@@ -336,10 +314,10 @@ export function HealthClient({
         </div>
       </div>
 
-      {/* ── Content ──────────────────────────────────────────────────────── */}
+      {}
       <div className="flex-1 overflow-y-auto p-6">
 
-        {/* ── Stats row ──────────────────────────────────────────────────── */}
+        {}
         <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
           <StatCard
             label="Total issues"
@@ -377,10 +355,10 @@ export function HealthClient({
           />
         </div>
 
-        {/* ── Row 1: Status donut + Priority breakdown ──────────────────── */}
+        {}
         <div className="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
 
-          {/* Status donut */}
+          {}
           <FadeIn delay={0.1}>
             <div className="rounded-xl border border-border bg-card p-6">
               <SectionHeader
@@ -406,7 +384,7 @@ export function HealthClient({
                       centerLabel={String(totalIssues)}
                       centerSub="total"
                     />
-                    {/* Legend */}
+                    {}
                     <div className="mt-4 grid grid-cols-2 gap-x-4 gap-y-2">
                       {statusCounts
                         .filter((s) => s.count > 0)
@@ -437,7 +415,7 @@ export function HealthClient({
             </div>
           </FadeIn>
 
-          {/* Priority breakdown */}
+          {}
           <FadeIn delay={0.14}>
             <div className="rounded-xl border border-border bg-card p-6">
               <SectionHeader
@@ -488,7 +466,7 @@ export function HealthClient({
                       </BarChart>
                     </ResponsiveContainer>
 
-                    {/* Priority rows with progress bars */}
+                    {}
                     <div className="mt-4 flex flex-col gap-2">
                       {priorityBarData.map((p) => {
                         const total = priorityBarData.reduce((s, d) => s + d.value, 0);
@@ -519,7 +497,7 @@ export function HealthClient({
           </FadeIn>
         </div>
 
-        {/* ── Row 2: Open issues trend ──────────────────────────────────── */}
+        {}
         <FadeIn delay={0.18}>
           <div className="mb-6 rounded-xl border border-border bg-card p-6">
             <div className="mb-5 flex items-center justify-between gap-3">
@@ -528,7 +506,7 @@ export function HealthClient({
                 title="Open Issues Trend"
                 sub="Issues opened vs closed over time"
               />
-              {/* Time range toggle */}
+              {}
               <div className="flex items-center gap-0.5 rounded-lg border border-border bg-muted/40 p-1">
                 {(["7d", "14d", "30d"] as const).map((v) => (
                   <button
@@ -604,10 +582,10 @@ export function HealthClient({
           </div>
         </FadeIn>
 
-        {/* ── Row 3: Type breakdown + Top contributors ──────────────────── */}
+        {}
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
 
-          {/* Issue type donut */}
+          {}
           <FadeIn delay={0.22}>
             <div className="rounded-xl border border-border bg-card p-6">
               <SectionHeader
@@ -665,7 +643,7 @@ export function HealthClient({
             </div>
           </FadeIn>
 
-          {/* Top contributors */}
+          {}
           <FadeIn delay={0.26}>
             <div className="rounded-xl border border-border bg-card overflow-hidden">
               <div className="border-b border-border px-6 py-4">
@@ -707,7 +685,7 @@ export function HealthClient({
                         transition={{ duration: 0.15, delay: i * 0.04 }}
                         className="flex items-center gap-3 px-5 py-3 hover:bg-muted/30 transition-colors"
                       >
-                        {/* Rank */}
+                        {}
                         <span className="w-5 shrink-0 text-center text-sm">
                           {medal ?? (
                             <span className="text-sm font-medium text-muted-foreground">
@@ -716,7 +694,7 @@ export function HealthClient({
                           )}
                         </span>
 
-                        {/* Avatar */}
+                        {}
                         <Avatar className="size-7 shrink-0">
                           <AvatarImage src={c.user.image ?? undefined} />
                           <AvatarFallback className="text-[10px] font-semibold">
@@ -724,7 +702,7 @@ export function HealthClient({
                           </AvatarFallback>
                         </Avatar>
 
-                        {/* Name + bar */}
+                        {}
                         <div className="min-w-0 flex-1">
                           <p className="truncate text-sm font-medium text-foreground">
                             {c.user.name}
@@ -739,7 +717,7 @@ export function HealthClient({
                           </div>
                         </div>
 
-                        {/* Stats */}
+                        {}
                         <div className="flex shrink-0 flex-col items-end gap-0.5">
                           <span className="text-sm font-bold text-foreground">
                             {c.count}
@@ -760,7 +738,7 @@ export function HealthClient({
           </FadeIn>
         </div>
 
-        {/* ── Cycle time insight ────────────────────────────────────────── */}
+        {}
         {avgCycleTime !== null && (
           <FadeIn delay={0.3}>
             <div className="mt-6 rounded-xl border border-border bg-card p-5">

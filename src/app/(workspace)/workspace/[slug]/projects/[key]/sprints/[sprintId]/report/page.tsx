@@ -50,7 +50,6 @@ export default async function SprintReportPage({ params }: SprintReportPageProps
 
   if (!sprint) notFound();
 
-  // Categorize issues
   const completedIssues = sprint.issues.filter(
     (i) => i.status === "DONE" || i.status === "CANCELLED",
   );

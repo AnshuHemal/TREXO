@@ -5,8 +5,6 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 
 import { Zap } from "lucide-react";
 import { FadeIn } from "@/components/motion/fade-in";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 export interface VelocityDataPoint {
   sprintName: string;
   committed: number;
@@ -16,8 +14,6 @@ export interface VelocityDataPoint {
 interface VelocityChartProps {
   data: VelocityDataPoint[];
 }
-
-// ─── Custom tooltip ───────────────────────────────────────────────────────────
 
 function CustomTooltip({ active, payload, label }: {
   active?: boolean;
@@ -39,15 +35,13 @@ function CustomTooltip({ active, payload, label }: {
   );
 }
 
-// ─── Component ────────────────────────────────────────────────────────────────
-
 export function VelocityChart({ data }: VelocityChartProps) {
   const hasData = data.some((d) => d.committed > 0 || d.completed > 0);
 
   return (
     <FadeIn delay={0.25}>
       <div className="rounded-xl border border-border bg-card p-5">
-        {/* Header */}
+        {}
         <div className="mb-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="flex size-8 items-center justify-center rounded-lg bg-primary/10">

@@ -26,8 +26,6 @@ import {
   type MentionMember,
 } from "./mention-suggestion";
 
-// ─── Toolbar button ───────────────────────────────────────────────────────────
-
 function ToolbarButton({
   onClick,
   active,
@@ -61,8 +59,6 @@ function ToolbarButton({
   );
 }
 
-// ─── Props ────────────────────────────────────────────────────────────────────
-
 interface RichTextEditorProps {
   content?: string | null;
   onChange?: (html: string) => void;
@@ -70,14 +66,12 @@ interface RichTextEditorProps {
   placeholder?: string;
   editable?: boolean;
   className?: string;
-  /** Show toolbar. Default: true when editable */
+
   showToolbar?: boolean;
   minHeight?: string;
-  /** When provided, enables @mention support */
+
   members?: MentionMember[];
 }
-
-// ─── Component ────────────────────────────────────────────────────────────────
 
 export function RichTextEditor({
   content,
@@ -103,7 +97,7 @@ export function RichTextEditor({
       Placeholder.configure({ placeholder }),
       TaskList,
       TaskItem.configure({ nested: true }),
-      // Mention extension — only active when members are provided
+
       ...(members && members.length > 0
         ? [
             Mention.configure({
@@ -149,7 +143,7 @@ export function RichTextEditor({
         className,
       )}
     >
-      {/* Toolbar */}
+      {}
       {showBar && (
         <div className="flex flex-wrap items-center gap-0.5 border-b border-border px-2 py-1.5">
           <ToolbarButton
@@ -238,7 +232,7 @@ export function RichTextEditor({
             <Minus className="size-3.5" />
           </ToolbarButton>
 
-          {/* Mention hint — only shown when mentions are enabled */}
+          {}
           {members && members.length > 0 && (
             <>
               <div className="mx-1 h-4 w-px bg-border" />
@@ -250,7 +244,7 @@ export function RichTextEditor({
         </div>
       )}
 
-      {/* Editor area */}
+      {}
       <EditorContent
         editor={editor}
         className="px-3 py-2"

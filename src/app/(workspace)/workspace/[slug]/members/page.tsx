@@ -27,7 +27,6 @@ export default async function MembersPage({ params }: MembersPageProps) {
   const { slug } = await params;
   const user = await requireUser();
 
-  // Verify membership
   const currentMembership = await prisma.workspaceMember.findFirst({
     where: {
       userId: user.id,
@@ -44,7 +43,6 @@ export default async function MembersPage({ params }: MembersPageProps) {
 
   const { workspace } = currentMembership;
 
-  // Fetch all members with user data
   const members = await prisma.workspaceMember.findMany({
     where: { workspaceId: workspace.id },
     include: {
@@ -53,7 +51,7 @@ export default async function MembersPage({ params }: MembersPageProps) {
       },
     },
     orderBy: [
-      // OWNER first, then by join date
+
       { createdAt: "asc" },
     ],
   });
@@ -93,7 +91,7 @@ export default async function MembersPage({ params }: MembersPageProps) {
         </FadeIn>
 
         <div className="flex max-w-2xl flex-col gap-6">
-          {/* Invite form — OWNER/ADMIN only */}
+          {}
           {canInvite && (
             <FadeIn delay={0.05}>
               <div className="rounded-xl border border-border bg-card p-6">
@@ -108,7 +106,7 @@ export default async function MembersPage({ params }: MembersPageProps) {
             </FadeIn>
           )}
 
-          {/* Members list */}
+          {}
           <FadeIn delay={0.1}>
             <div className="rounded-xl border border-border bg-card p-6">
               <h2 className="mb-4 text-base font-semibold text-foreground">

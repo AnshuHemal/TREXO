@@ -10,8 +10,6 @@ import { Button } from "@/components/ui/button";
 import { useWorkspaceSafe } from "@/components/providers/workspace-provider";
 import { useMobileSidebarSafe } from "@/components/providers/mobile-sidebar-provider";
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
 const SEGMENT_LABELS: Record<string, string> = {
   settings:   "Settings",
   members:    "Members",
@@ -23,13 +21,11 @@ const SEGMENT_LABELS: Record<string, string> = {
 
 function derivePageTitle(pathname: string, slug: string): string {
   const base = `/workspace/${slug}`;
-  const rest = pathname.replace(base, "").replace(/^\//, "");
+  const rest = pathname.replace(base, "").replace(/^\
   if (!rest) return "Home";
   const firstSegment = rest.split("/")[0];
   return SEGMENT_LABELS[firstSegment] ?? firstSegment;
 }
-
-// ─── Props ────────────────────────────────────────────────────────────────────
 
 interface WorkspaceTopbarProps {
   workspaceName: string;
@@ -39,8 +35,6 @@ interface WorkspaceTopbarProps {
   projects?: { id: string; name: string; key: string }[];
   members?: { id: string; name: string; image: string | null }[];
 }
-
-// ─── Component ────────────────────────────────────────────────────────────────
 
 export function WorkspaceTopbar({
   workspaceName,
@@ -55,16 +49,15 @@ export function WorkspaceTopbar({
   const ctx = useWorkspaceSafe();
   const mobileSidebar = useMobileSidebarSafe();
 
-  // Prefer context values (always up-to-date) over props
   const resolvedWorkspaceId = workspaceId ?? ctx?.workspaceId;
   const resolvedProjects    = projects.length > 0 ? projects : (ctx?.projects ?? []);
   const resolvedMembers     = members.length  > 0 ? members  : (ctx?.members  ?? []);
 
   return (
     <header className="sticky top-0 z-40 flex h-14 items-center justify-between border-b border-border bg-background/95 px-4 backdrop-blur-sm">
-      {/* Left: hamburger (mobile) + breadcrumb */}
+      {}
       <div className="flex items-center gap-2">
-        {/* Hamburger — only on mobile */}
+        {}
         {mobileSidebar && (
           <Button
             variant="ghost"
@@ -93,9 +86,9 @@ export function WorkspaceTopbar({
         </nav>
       </div>
 
-      {/* Right: search + actions */}
+      {}
       <div className="flex items-center gap-1.5">
-        {/* Global search */}
+        {}
         <GlobalSearch
           workspaceId={resolvedWorkspaceId}
           workspaceSlug={workspaceSlug}
@@ -105,7 +98,7 @@ export function WorkspaceTopbar({
 
         <div className="h-4 w-px bg-border" aria-hidden />
 
-        {/* Keyboard shortcuts hint — hidden on mobile */}
+        {}
         <Button
           variant="ghost"
           size="icon"

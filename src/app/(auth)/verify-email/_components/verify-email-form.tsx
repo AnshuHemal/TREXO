@@ -10,26 +10,9 @@ import { emailOtp, signIn } from "@/lib/auth-client";
 import { FadeIn } from "@/components/motion/fade-in";
 import { cn } from "@/lib/utils";
 
-// ─── Constants ────────────────────────────────────────────────────────────────
-
 const OTP_LENGTH = 6;
-const RESEND_COOLDOWN = 60; // seconds
+const RESEND_COOLDOWN = 60;
 
-// ─── Component ────────────────────────────────────────────────────────────────
-
-/**
- * OTP verification form.
- *
- * Flow:
- *   1. User enters 6-char alphanumeric code (uppercase)
- *   2. emailOtp.verifyEmail() marks the email as verified
- *   3. signIn.email() is called automatically with the stored credentials
- *      so the user lands on /dashboard already authenticated
- *
- * The email + password are passed via URL search params from the signup form.
- * If they're missing (e.g. user navigated here directly), only verification
- * happens and the user is redirected to /login to sign in manually.
- */
 export function VerifyEmailForm() {
   const searchParams = useSearchParams();
   const email    = searchParams.get("email")    ?? "";
@@ -43,17 +26,13 @@ export function VerifyEmailForm() {
 
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
-  // Focus first input on mount
   useEffect(() => { inputRefs.current[0]?.focus(); }, []);
 
-  // Cooldown countdown
   useEffect(() => {
     if (resendCooldown <= 0) return;
     const id = setInterval(() => setResendCooldown((c) => c - 1), 1000);
     return () => clearInterval(id);
   }, [resendCooldown]);
-
-  // ─── Input handlers ─────────────────────────────────────────────────────────
 
   function handleChange(index: number, value: string) {
     const char = value.replace(/[^A-Z0-9]/gi, "").toUpperCase().slice(-1);
@@ -106,14 +85,11 @@ export function VerifyEmailForm() {
     if (pasted.length === OTP_LENGTH) handleVerify(pasted);
   }
 
-  // ─── Verify + auto sign-in ──────────────────────────────────────────────────
-
   const handleVerify = useCallback(async (code: string) => {
     if (status === "loading" || status === "success") return;
     setStatus("loading");
     setErrorMsg(null);
 
-    // Step 1 — verify the OTP
     const { error: verifyError } = await emailOtp.verifyEmail({ email, otp: code });
 
     if (verifyError) {
@@ -131,7 +107,6 @@ export function VerifyEmailForm() {
       return;
     }
 
-    // Step 2 — auto sign-in if we have the password (came from signup flow)
     if (password) {
       const { error: signInError } = await signIn.email({
         email,
@@ -144,16 +119,12 @@ export function VerifyEmailForm() {
         setTimeout(() => { window.location.href = "/dashboard"; }, 1000);
         return;
       }
-      // Sign-in failed (shouldn't happen) — fall through to manual login
+
     }
 
-    // No password available or sign-in failed — verified but not signed in.
-    // Redirect to login so the user can sign in manually.
     setStatus("success");
     setTimeout(() => { window.location.href = "/login"; }, 1000);
   }, [email, password, status]);
-
-  // ─── Resend ─────────────────────────────────────────────────────────────────
 
   async function handleResend() {
     if (resendCooldown > 0 || isResending) return;
@@ -177,18 +148,14 @@ export function VerifyEmailForm() {
     inputRefs.current[0]?.focus();
   }
 
-  // ─── Derived ────────────────────────────────────────────────────────────────
-
   const filledCount = otp.filter(Boolean).length;
   const isComplete  = filledCount === OTP_LENGTH;
-
-  // ─── Render ─────────────────────────────────────────────────────────────────
 
   return (
     <FadeIn className="flex flex-col gap-6">
       <div className="rounded-2xl border border-border bg-card px-8 py-10 shadow-md">
 
-        {/* Header */}
+        {}
         <FadeIn direction="down" delay={0.05} className="mb-8 flex flex-col items-center gap-3 text-center">
           <motion.div
             className="flex size-14 items-center justify-center rounded-2xl bg-primary/10"
@@ -236,7 +203,7 @@ export function VerifyEmailForm() {
           </div>
         </FadeIn>
 
-        {/* OTP inputs */}
+        {}
         <FadeIn delay={0.1} className="mb-6">
           <div
             className="flex items-center justify-center gap-2.5"
@@ -278,7 +245,7 @@ export function VerifyEmailForm() {
             ))}
           </div>
 
-          {/* Progress bar */}
+          {}
           <div className="mt-4 h-0.5 w-full overflow-hidden rounded-full bg-border">
             <motion.div
               className={cn(
@@ -291,7 +258,7 @@ export function VerifyEmailForm() {
           </div>
         </FadeIn>
 
-        {/* Status messages */}
+        {}
         <AnimatePresence mode="wait">
           {status === "success" && (
             <motion.div
@@ -320,7 +287,7 @@ export function VerifyEmailForm() {
           )}
         </AnimatePresence>
 
-        {/* Verify button */}
+        {}
         <FadeIn delay={0.15}>
           <Button
             className="w-full"
@@ -349,7 +316,7 @@ export function VerifyEmailForm() {
           </Button>
         </FadeIn>
 
-        {/* Resend */}
+        {}
         <FadeIn direction="none" delay={0.2} className="mt-4 text-center">
           <p className="text-sm text-muted-foreground">
             Didn&apos;t receive the code?{" "}
@@ -372,7 +339,7 @@ export function VerifyEmailForm() {
 
       </div>
 
-      {/* Back link */}
+      {}
       <FadeIn direction="none" delay={0.25}>
         <p className="text-center text-sm text-muted-foreground">
           Wrong email?{" "}

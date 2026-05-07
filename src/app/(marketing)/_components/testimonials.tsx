@@ -3,8 +3,6 @@
 import { motion } from "motion/react";
 import { Quote } from "lucide-react";
 
-// ─── Testimonial data ─────────────────────────────────────────────────────────
-
 const TESTIMONIALS = [
   {
     quote:
@@ -56,8 +54,6 @@ const TESTIMONIALS = [
   },
 ];
 
-// ─── Card variants ────────────────────────────────────────────────────────────
-
 const containerVariants = {
   hidden: {},
   visible: {
@@ -74,13 +70,11 @@ const cardVariants = {
   },
 };
 
-// ─── Component ────────────────────────────────────────────────────────────────
-
 export function Testimonials() {
   return (
     <section id="testimonials" className="px-6 py-24 lg:py-32">
       <div className="mx-auto max-w-7xl">
-        {/* Section header */}
+        {}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -99,7 +93,7 @@ export function Testimonials() {
           </p>
         </motion.div>
 
-        {/* Grid */}
+        {}
         <motion.div
           variants={containerVariants}
           initial="hidden"
@@ -114,15 +108,15 @@ export function Testimonials() {
               whileHover={{ y: -4, transition: { duration: 0.2 } }}
               className="flex flex-col gap-4 rounded-xl border border-border bg-card p-6 shadow-sm transition-shadow hover:shadow-lg hover:shadow-black/5"
             >
-              {/* Quote icon */}
+              {}
               <Quote className="size-5 text-primary/40" />
 
-              {/* Quote text */}
+              {}
               <p className="flex-1 text-sm leading-relaxed text-muted-foreground">
                 &ldquo;{t.quote}&rdquo;
               </p>
 
-              {/* Author */}
+              {}
               <div className="flex items-center gap-3 border-t border-border pt-4">
                 <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/15 text-sm font-bold text-primary">
                   {t.initials}

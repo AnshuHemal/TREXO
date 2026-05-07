@@ -28,11 +28,10 @@ export default async function SprintsPage({ params }: SprintsPageProps) {
 
   if (!project) notFound();
 
-  // Fetch all sprints with their issues
   const sprints = await prisma.sprint.findMany({
     where: { projectId: project.id },
     orderBy: [
-      // Active first, then planned, then completed
+
       { status: "asc" },
       { createdAt: "asc" },
     ],
@@ -46,7 +45,6 @@ export default async function SprintsPage({ params }: SprintsPageProps) {
     },
   });
 
-  // Backlog issues (not assigned to any sprint)
   const backlogIssues = await prisma.issue.findMany({
     where: { projectId: project.id, sprintId: null },
     orderBy: { position: "asc" },

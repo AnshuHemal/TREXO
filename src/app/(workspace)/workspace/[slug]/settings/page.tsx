@@ -63,7 +63,7 @@ export default async function SettingsPage({ params }: SettingsPageProps) {
         </FadeIn>
 
         <div className="flex max-w-2xl flex-col gap-6">
-          {/* General settings — OWNER/ADMIN only */}
+          {}
           {canManage && (
             <FadeIn delay={0.05}>
               <div className="rounded-xl border border-border bg-card p-6">
@@ -94,7 +94,7 @@ export default async function SettingsPage({ params }: SettingsPageProps) {
             </FadeIn>
           )}
 
-          {/* Danger zone — OWNER only */}
+          {}
           {isOwner && (
             <FadeIn delay={0.1}>
               <div className="rounded-xl border border-destructive/30 bg-card p-6">

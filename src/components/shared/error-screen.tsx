@@ -5,22 +5,18 @@ import { AlertTriangle, RefreshCw, Home } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/shared/logo";
 
-// ─── Props ────────────────────────────────────────────────────────────────────
-
 interface ErrorScreenProps {
-  /** The error object from Next.js error boundary */
+
   error?: Error & { digest?: string };
-  /** Called when the user clicks "Try again" */
+
   reset?: () => void;
-  /** Optional heading override */
+
   title?: string;
-  /** Optional description override */
+
   description?: string;
-  /** Show a "Go home" button */
+
   showHome?: boolean;
 }
-
-// ─── Component ────────────────────────────────────────────────────────────────
 
 export function ErrorScreen({
   error,
@@ -36,7 +32,7 @@ export function ErrorScreen({
 
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center px-4">
-      {/* Grid background */}
+      {}
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,var(--border)_1px,transparent_1px),linear-gradient(to_bottom,var(--border)_1px,transparent_1px)] bg-size-[4rem_4rem] opacity-30"
@@ -46,12 +42,12 @@ export function ErrorScreen({
         className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_50%,transparent_40%,var(--background)_100%)]"
       />
 
-      {/* Logo top-left */}
+      {}
       <div className="absolute left-6 top-6 z-10">
         <Logo size={24} />
       </div>
 
-      {/* Card */}
+      {}
       <motion.div
         initial={{ opacity: 0, y: 16, scale: 0.97 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -59,7 +55,7 @@ export function ErrorScreen({
         className="relative z-10 w-full max-w-md"
       >
         <div className="rounded-2xl border border-border bg-card p-8 shadow-xl text-center">
-          {/* Icon */}
+          {}
           <motion.div
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
@@ -71,7 +67,7 @@ export function ErrorScreen({
             </div>
           </motion.div>
 
-          {/* Text */}
+          {}
           <motion.div
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
@@ -85,7 +81,7 @@ export function ErrorScreen({
             </p>
           </motion.div>
 
-          {/* Error digest (for support) */}
+          {}
           {error?.digest && (
             <motion.p
               initial={{ opacity: 0 }}
@@ -97,7 +93,7 @@ export function ErrorScreen({
             </motion.p>
           )}
 
-          {/* Actions */}
+          {}
           <motion.div
             initial={{ opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}

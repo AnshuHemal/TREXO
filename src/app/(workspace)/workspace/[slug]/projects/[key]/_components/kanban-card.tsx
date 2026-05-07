@@ -19,30 +19,24 @@ import { cn } from "@/lib/utils";
 import { updateIssue } from "../issues/actions";
 import type { BoardIssue } from "./kanban-board";
 
-// ─── Props ────────────────────────────────────────────────────────────────────
-
 interface KanbanCardProps {
   issue: BoardIssue;
   projectKey: string;
   isDragging?: boolean;
   onOpen: () => void;
-  /** Members list for assignee quick-edit */
+
   members?: { id: string; name: string; image: string | null }[];
-  /** Called when a field is updated inline */
+
   onUpdated?: (id: string, field: string, value: string | null) => void;
-  /** Whether this card is keyboard-focused */
+
   isFocused?: boolean;
 }
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function getInitials(name: string) {
   const parts = name.trim().split(/\s+/);
   if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
   return name.slice(0, 2).toUpperCase();
 }
-
-// ─── Quick-edit dropdown ──────────────────────────────────────────────────────
 
 function QuickEditDropdown<T extends string>({
   options,
@@ -102,8 +96,6 @@ function QuickEditDropdown<T extends string>({
     </div>
   );
 }
-
-// ─── Assignee quick-edit ──────────────────────────────────────────────────────
 
 function AssigneeQuickEdit({
   issue,
@@ -187,8 +179,6 @@ function AssigneeQuickEdit({
   );
 }
 
-// ─── Main component ───────────────────────────────────────────────────────────
-
 export function KanbanCard({
   issue: initialIssue,
   projectKey,
@@ -240,7 +230,6 @@ export function KanbanCard({
     : issue.priority === "LOW" ? "border-l-primary"
     : "border-l-transparent";
 
-  // ── Inline field update ───────────────────────────────────────────────────
   function handleFieldUpdate(field: string, value: string | null) {
     const updated = { ...issue, [field]: value };
     if (field === "assigneeId") {
@@ -289,7 +278,7 @@ export function KanbanCard({
                   : priorityBorderColor,
       )}
     >
-      {/* Epic badge */}
+      {}
       {issue.epicTitle && (
         <div className="mb-2 flex items-center gap-1">
           <span className="truncate rounded bg-purple-500/10 px-1.5 py-0.5 text-[10px] font-medium text-purple-600 dark:text-purple-400">
@@ -298,7 +287,7 @@ export function KanbanCard({
         </div>
       )}
 
-      {/* Top row: type + key + priority */}
+      {}
       <div className="mb-2 flex items-center justify-between gap-2">
         <div className="flex items-center gap-1.5">
           <TypeIcon className={cn("size-3.5 shrink-0", type.color)} />
@@ -329,12 +318,12 @@ export function KanbanCard({
         </div>
       </div>
 
-      {/* Title */}
+      {}
       <p className="mb-2 line-clamp-2 text-sm font-medium leading-snug text-foreground group-hover:text-primary transition-colors">
         {issue.title}
       </p>
 
-      {/* Labels */}
+      {}
       {issue.labels && issue.labels.length > 0 && (
         <div className="mb-2.5 flex flex-wrap gap-1">
           {issue.labels.slice(0, 3).map((label) => (
@@ -348,7 +337,7 @@ export function KanbanCard({
         </div>
       )}
 
-      {/* Bottom row: aging + comments + assignee */}
+      {}
       <div className="flex items-center justify-between gap-1">
         <div className="flex items-center gap-1.5">
           {agingLevel !== "none" && agingLabel && (
@@ -375,7 +364,7 @@ export function KanbanCard({
           )}
         </div>
 
-        {/* Assignee — quick-edit on hover */}
+        {}
         <div onClick={(e) => e.stopPropagation()}>
           <AssigneeQuickEdit
             issue={issue}
@@ -385,7 +374,7 @@ export function KanbanCard({
         </div>
       </div>
 
-      {/* ── Quick-edit toolbar (hover/focus) ─────────────────────────────── */}
+      {}
       <AnimatePresence>
         {showQuickEdit && (
           <motion.div
@@ -396,7 +385,7 @@ export function KanbanCard({
             onClick={(e) => e.stopPropagation()}
             className="mt-2.5 flex items-center gap-1 border-t border-border/60 pt-2"
           >
-            {/* Status quick-edit */}
+            {}
             <QuickEditDropdown
               options={ISSUE_STATUSES.map(({ value, label, icon, color }) => ({
                 value, label, icon, color,
@@ -413,7 +402,7 @@ export function KanbanCard({
 
             <span className="text-border">·</span>
 
-            {/* Priority quick-edit */}
+            {}
             <QuickEditDropdown
               options={ISSUE_PRIORITIES.map(({ value, label, icon, color }) => ({
                 value, label, icon, color,

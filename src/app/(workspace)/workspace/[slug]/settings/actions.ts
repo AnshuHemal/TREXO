@@ -4,16 +4,12 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/session";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 export interface ActionResult<T = void> {
   success: boolean;
   data?: T;
   error?: string;
   fieldErrors?: Record<string, string>;
 }
-
-// ─── checkWorkspaceSlug ───────────────────────────────────────────────────────
 
 export async function checkWorkspaceSlug(
   slug: string,
@@ -25,8 +21,6 @@ export async function checkWorkspaceSlug(
   });
   return { available: !existing };
 }
-
-// ─── updateWorkspaceLogo ──────────────────────────────────────────────────────
 
 export async function updateWorkspaceLogo(
   workspaceId: string,
@@ -43,7 +37,6 @@ export async function updateWorkspaceLogo(
     return { success: false, error: "You don't have permission to update this workspace." };
   }
 
-  // Validate base64 size (max ~2MB after encoding)
   if (logo && logo.length > 3 * 1024 * 1024) {
     return { success: false, error: "Logo image must be smaller than 2 MB." };
   }
@@ -59,15 +52,12 @@ export async function updateWorkspaceLogo(
   }
 }
 
-// ─── updateWorkspace ──────────────────────────────────────────────────────────
-
 export async function updateWorkspace(
   workspaceId: string,
   data: { name: string; slug: string },
 ): Promise<ActionResult> {
   const user = await requireUser();
 
-  // Verify the user is a member with OWNER or ADMIN role
   const membership = await prisma.workspaceMember.findFirst({
     where: {
       workspaceId,
@@ -81,7 +71,6 @@ export async function updateWorkspace(
     return { success: false, error: "You don't have permission to update this workspace." };
   }
 
-  // ── Validation ──────────────────────────────────────────────────────────────
   const fieldErrors: Record<string, string> = {};
 
   const name = data.name.trim();
@@ -100,7 +89,6 @@ export async function updateWorkspace(
     return { success: false, fieldErrors };
   }
 
-  // ── Slug uniqueness (exclude current workspace) ─────────────────────────────
   const existing = await prisma.workspace.findFirst({
     where: { slug, NOT: { id: workspaceId } },
     select: { id: true },
@@ -113,7 +101,6 @@ export async function updateWorkspace(
     };
   }
 
-  // ── Update ──────────────────────────────────────────────────────────────────
   try {
     await prisma.workspace.update({
       where: { id: workspaceId },
@@ -126,12 +113,9 @@ export async function updateWorkspace(
   }
 }
 
-// ─── deleteWorkspace ──────────────────────────────────────────────────────────
-
 export async function deleteWorkspace(workspaceId: string): Promise<never> {
   const user = await requireUser();
 
-  // Only OWNER can delete
   const membership = await prisma.workspaceMember.findFirst({
     where: {
       workspaceId,

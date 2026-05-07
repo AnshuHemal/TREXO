@@ -20,8 +20,6 @@ import { updateSprintDates } from "../../sprints/actions";
 import { updateIssue } from "../../issues/actions";
 import { getPriorityConfig, getStatusConfig, getTypeConfig } from "@/lib/issue-config";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 export interface RoadmapSprint {
   id: string;
   name: string;
@@ -74,8 +72,6 @@ interface RoadmapClientProps {
   workspaceSlug: string;
 }
 
-// ─── Zoom config ──────────────────────────────────────────────────────────────
-
 type ZoomLevel = "week" | "month" | "quarter";
 
 const ZOOM_CONFIG: Record<ZoomLevel, { dayWidth: number; label: string }> = {
@@ -84,19 +80,13 @@ const ZOOM_CONFIG: Record<ZoomLevel, { dayWidth: number; label: string }> = {
   quarter: { dayWidth: 14, label: "Quarter" },
 };
 
-// ─── View / group config ──────────────────────────────────────────────────────
-
 type ViewMode  = "sprints" | "epics" | "issues";
 type GroupMode = "none" | "sprint" | "assignee";
-
-// ─── Layout constants ─────────────────────────────────────────────────────────
 
 const ROW_HEIGHT    = 48;
 const LABEL_WIDTH   = 240;
 const HEADER_HEIGHT = 56;
 const GROUP_HEIGHT  = 36;
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function startOfDay(d: Date) {
   const r = new Date(d); r.setHours(0, 0, 0, 0); return r;
@@ -145,8 +135,6 @@ function getStatusLabel(status: string) {
   return map[status] ?? status;
 }
 
-// ─── Main component ───────────────────────────────────────────────────────────
-
 export function RoadmapClient({
   project,
   sprints: initialSprints,
@@ -177,7 +165,6 @@ export function RoadmapClient({
 
   const DAY_WIDTH = ZOOM_CONFIG[zoom].dayWidth;
 
-  // ── Date range ────────────────────────────────────────────────────────────────
   const today = useMemo(() => startOfDay(new Date()), []);
 
   const { rangeStart, rangeEnd } = useMemo(() => {
@@ -202,7 +189,6 @@ export function RoadmapClient({
   const totalWidth = days.length * DAY_WIDTH;
   const todayLeft  = diffDays(rangeStart, today) * DAY_WIDTH;
 
-  // ── Month groups ──────────────────────────────────────────────────────────────
   const monthGroups = useMemo(() => {
     const groups: { label: string; startIdx: number; count: number }[] = [];
     let cur = "";
@@ -214,7 +200,6 @@ export function RoadmapClient({
     return groups;
   }, [days, zoom]);
 
-  // ── Scroll to today ───────────────────────────────────────────────────────────
   const scrollRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (!scrollRef.current) return;
@@ -222,7 +207,6 @@ export function RoadmapClient({
     scrollRef.current.scrollLeft = Math.max(0, offset);
   }, [todayLeft]);
 
-  // ── Bar position ──────────────────────────────────────────────────────────────
   function barProps(start: Date | null, end: Date | null) {
     if (!start || !end) return null;
     const s = startOfDay(new Date(start));
@@ -232,7 +216,6 @@ export function RoadmapClient({
     return { left, width };
   }
 
-  // ── Sprint drag ───────────────────────────────────────────────────────────────
   const dragState = useRef<{
     sprintId: string;
     type: "move" | "resize-left" | "resize-right";
@@ -252,7 +235,6 @@ export function RoadmapClient({
     }, [],
   );
 
-  // ── Issue drag (due date) ─────────────────────────────────────────────────────
   const issueDragState = useRef<{
     issueId: string;
     startX: number;
@@ -271,7 +253,7 @@ export function RoadmapClient({
 
   useEffect(() => {
     function onMouseMove(e: MouseEvent) {
-      // Sprint drag
+
       const ds = dragState.current;
       if (ds) {
         const deltaDays = Math.round((e.clientX - ds.startX) / DAY_WIDTH);
@@ -294,7 +276,6 @@ export function RoadmapClient({
         }));
       }
 
-      // Issue drag
       const id = issueDragState.current;
       if (id) {
         const deltaDays = Math.round((e.clientX - id.startX) / DAY_WIDTH);
@@ -307,7 +288,7 @@ export function RoadmapClient({
     }
 
     async function onMouseUp() {
-      // Sprint persist
+
       const ds = dragState.current;
       dragState.current = null;
       if (ds) {
@@ -322,7 +303,6 @@ export function RoadmapClient({
         }
       }
 
-      // Issue persist
       const id = issueDragState.current;
       issueDragState.current = null;
       if (id) {
@@ -346,7 +326,6 @@ export function RoadmapClient({
     };
   }, [sprints, issues, DAY_WIDTH]);
 
-  // ── Grouped rows for issues view ──────────────────────────────────────────────
   const groupedIssues = useMemo(() => {
     if (view !== "issues") return [];
 
@@ -385,29 +364,26 @@ export function RoadmapClient({
     return [];
   }, [view, group, issues, sprints, members]);
 
-  // ── Scroll helpers ────────────────────────────────────────────────────────────
   function scrollToToday() {
     if (!scrollRef.current) return;
     scrollRef.current.scrollTo({ left: Math.max(0, todayLeft - 160), behavior: "smooth" });
   }
-
-  // ── Render ────────────────────────────────────────────────────────────────────
 
   const rows = view === "sprints" ? sprints : view === "epics" ? epics : [];
 
   return (
     <div className="flex flex-1 flex-col overflow-hidden bg-background">
 
-      {/* ── Toolbar ──────────────────────────────────────────────────────────── */}
+      {}
       <motion.div
         initial={{ opacity: 0, y: -4 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.25 }}
         className="flex flex-wrap items-center justify-between gap-3 border-b border-border bg-background/95 px-5 py-3 backdrop-blur-sm"
       >
-        {/* Left: view + group */}
+        {}
         <div className="flex items-center gap-2">
-          {/* View toggle */}
+          {}
           <div className="flex items-center gap-0.5 rounded-lg border border-border bg-muted/40 p-1">
             {(["sprints", "epics", "issues"] as ViewMode[]).map((v) => {
               const icons: Record<ViewMode, React.ReactNode> = {
@@ -433,7 +409,7 @@ export function RoadmapClient({
             })}
           </div>
 
-          {/* Group by (issues only) */}
+          {}
           {view === "issues" && (
             <Select value={group} onValueChange={(v) => setGroup(v as GroupMode)}>
               <SelectTrigger className={cn("h-8 w-40 text-sm", group !== "none" && "border-primary text-primary")}>
@@ -454,9 +430,9 @@ export function RoadmapClient({
           </div>
         </div>
 
-        {/* Right: zoom + navigation */}
+        {}
         <div className="flex items-center gap-2">
-          {/* Zoom */}
+          {}
           <div className="flex items-center gap-0.5 rounded-lg border border-border bg-muted/40 p-1">
             {(["week", "month", "quarter"] as ZoomLevel[]).map((z) => (
               <button
@@ -491,19 +467,19 @@ export function RoadmapClient({
         </div>
       </motion.div>
 
-      {/* ── Main grid ────────────────────────────────────────────────────────── */}
+      {}
       <div className="flex flex-1 overflow-hidden">
 
-        {/* Left label panel */}
+        {}
         <div className="shrink-0 border-r border-border bg-background" style={{ width: LABEL_WIDTH }}>
-          {/* Header spacer */}
+          {}
           <div className="flex items-end border-b border-border px-4 pb-2" style={{ height: HEADER_HEIGHT }}>
             <span className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
               {view === "sprints" ? "Sprint" : view === "epics" ? "Epic" : "Issue"}
             </span>
           </div>
 
-          {/* Label rows */}
+          {}
           <div className="overflow-y-auto" style={{ maxHeight: `calc(100vh - ${HEADER_HEIGHT + 100}px)` }}>
             <AnimatePresence mode="wait">
               <motion.div
@@ -551,16 +527,16 @@ export function RoadmapClient({
           </div>
         </div>
 
-        {/* Scrollable timeline */}
+        {}
         <div ref={scrollRef} className="flex-1 overflow-x-auto overflow-y-auto select-none">
           <div style={{ width: totalWidth, minWidth: "100%" }}>
 
-            {/* Date header */}
+            {}
             <div
               className="sticky top-0 z-20 border-b border-border bg-background/95 backdrop-blur-sm"
               style={{ height: HEADER_HEIGHT }}
             >
-              {/* Month row */}
+              {}
               <div className="flex" style={{ height: 24 }}>
                 {monthGroups.map((g) => (
                   <div
@@ -573,7 +549,7 @@ export function RoadmapClient({
                 ))}
               </div>
 
-              {/* Day row */}
+              {}
               <div className="flex" style={{ height: 32 }}>
                 {days.map((day, i) => {
                   const isToday   = diffDays(today, day) === 0;
@@ -607,9 +583,9 @@ export function RoadmapClient({
               </div>
             </div>
 
-            {/* Grid body */}
+            {}
             <div className="relative">
-              {/* Column shading */}
+              {}
               <div className="pointer-events-none absolute inset-0 flex">
                 {days.map((day, i) => (
                   <div
@@ -623,7 +599,7 @@ export function RoadmapClient({
                 ))}
               </div>
 
-              {/* Today line */}
+              {}
               <div
                 className="pointer-events-none absolute top-0 bottom-0 z-10 w-0.5 bg-primary/50"
                 style={{ left: todayLeft + DAY_WIDTH / 2 }}
@@ -631,7 +607,7 @@ export function RoadmapClient({
                 <div className="absolute -top-1 left-1/2 -translate-x-1/2 size-2 rounded-full bg-primary" />
               </div>
 
-              {/* Rows */}
+              {}
               <AnimatePresence mode="wait">
                 <motion.div
                   key={`${view}-${group}`}
@@ -730,8 +706,6 @@ export function RoadmapClient({
   );
 }
 
-// ─── TimelineRow ──────────────────────────────────────────────────────────────
-
 function TimelineRow({ idx, children }: { idx: number; children: React.ReactNode }) {
   return (
     <motion.div
@@ -748,8 +722,6 @@ function TimelineRow({ idx, children }: { idx: number; children: React.ReactNode
     </motion.div>
   );
 }
-
-// ─── SprintBar ────────────────────────────────────────────────────────────────
 
 interface SprintBarProps {
   sprint: RoadmapSprint;
@@ -804,7 +776,7 @@ function SprintBar({ sprint, left, width, colors, progress, onMouseDown, tooltip
         onMouseEnter={() => setTooltip(sprint.id)}
         onMouseLeave={() => setTooltip(null)}
       >
-        {/* Resize left */}
+        {}
         <div
           className="absolute left-0 top-0 h-full w-2.5 cursor-ew-resize rounded-l-lg opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
           onMouseDown={(e) => { e.stopPropagation(); onMouseDown(e, sprint, "resize-left"); }}
@@ -812,7 +784,7 @@ function SprintBar({ sprint, left, width, colors, progress, onMouseDown, tooltip
           <GripVertical className="size-2.5 text-muted-foreground" />
         </div>
 
-        {/* Progress fill */}
+        {}
         {progress > 0 && (
           <div
             className={cn("absolute left-0 top-0 h-full rounded-lg opacity-25", colors.dot)}
@@ -829,7 +801,7 @@ function SprintBar({ sprint, left, width, colors, progress, onMouseDown, tooltip
           </span>
         )}
 
-        {/* Resize right */}
+        {}
         <div
           className="absolute right-0 top-0 h-full w-2.5 cursor-ew-resize rounded-r-lg opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
           onMouseDown={(e) => { e.stopPropagation(); onMouseDown(e, sprint, "resize-right"); }}
@@ -840,8 +812,6 @@ function SprintBar({ sprint, left, width, colors, progress, onMouseDown, tooltip
     </div>
   );
 }
-
-// ─── EpicBar ──────────────────────────────────────────────────────────────────
 
 function EpicBar({
   epic, left, width, progress, projectKey, workspaceSlug,
@@ -908,8 +878,6 @@ function EpicBar({
   );
 }
 
-// ─── IssueBar ─────────────────────────────────────────────────────────────────
-
 function IssueBar({
   issue, left, width, projectKey, workspaceSlug, onMouseDown, tooltip, setTooltip,
 }: {
@@ -926,7 +894,6 @@ function IssueBar({
   const PriorityIcon = priorityCfg.icon;
   const TypeIcon     = typeCfg.icon;
 
-  // Color by type
   const barColor =
     issue.type === "BUG"   ? "bg-destructive/15 border-destructive/40 text-destructive"
     : issue.type === "STORY" ? "bg-primary/15 border-primary/40 text-primary"
@@ -999,8 +966,6 @@ function IssueBar({
     </div>
   );
 }
-
-// ─── Label rows ───────────────────────────────────────────────────────────────
 
 function SprintLabelRow({ sprint }: { sprint: RoadmapSprint }) {
   const colors = getSprintColor(sprint.status);
@@ -1081,8 +1046,6 @@ function GroupLabelHeader({
     </div>
   );
 }
-
-// ─── Utility components ───────────────────────────────────────────────────────
 
 function NoDatePlaceholder() {
   return (

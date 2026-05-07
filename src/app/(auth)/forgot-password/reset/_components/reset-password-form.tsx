@@ -12,8 +12,6 @@ import { emailOtp } from "@/lib/auth-client";
 import { FadeIn } from "@/components/motion/fade-in";
 import { cn } from "@/lib/utils";
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
 function getPasswordStrength(password: string): "empty" | "weak" | "fair" | "strong" {
   if (!password) return "empty";
   if (password.length < 8)  return "weak";
@@ -21,15 +19,6 @@ function getPasswordStrength(password: string): "empty" | "weak" | "fair" | "str
   return "strong";
 }
 
-// ─── Component ────────────────────────────────────────────────────────────────
-
-/**
- * Step 3 of the forgot-password flow.
- *
- * Reads email + otp from URL search params, collects a new password,
- * and calls emailOtp.resetPassword({ email, otp, newPassword }).
- * On success, redirects to /login after a short delay.
- */
 export function ResetPasswordForm() {
   const searchParams = useSearchParams();
   const email = searchParams.get("email") ?? "";
@@ -43,15 +32,11 @@ export function ResetPasswordForm() {
   const [status, setStatus]             = useState<"idle" | "success" | "error">("idle");
   const [error, setError]               = useState<string | null>(null);
 
-  // ─── Client-side validation ─────────────────────────────────────────────────
-
   function validate(): string | null {
     if (password.length < 8) return "Password must be at least 8 characters.";
     if (password !== confirm) return "Passwords do not match.";
     return null;
   }
-
-  // ─── Submit ─────────────────────────────────────────────────────────────────
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -82,8 +67,6 @@ export function ResetPasswordForm() {
     setTimeout(() => { window.location.href = "/login"; }, 1500);
   }
 
-  // ─── Derived ────────────────────────────────────────────────────────────────
-
   const strength = getPasswordStrength(password);
 
   const strengthBarWidth =
@@ -99,13 +82,11 @@ export function ResetPasswordForm() {
 
   const isDisabled = isPending || status === "success";
 
-  // ─── Render ─────────────────────────────────────────────────────────────────
-
   return (
     <FadeIn className="flex flex-col gap-6">
       <div className="rounded-2xl border border-border bg-card px-8 py-10 shadow-md">
 
-        {/* Header */}
+        {}
         <FadeIn direction="down" delay={0.05} className="mb-8 flex flex-col items-center gap-3 text-center">
           <motion.div
             className="flex size-14 items-center justify-center rounded-2xl bg-primary/10"
@@ -148,7 +129,7 @@ export function ResetPasswordForm() {
           </div>
         </FadeIn>
 
-        {/* Success banner */}
+        {}
         <AnimatePresence>
           {status === "success" && (
             <motion.div
@@ -164,11 +145,11 @@ export function ResetPasswordForm() {
           )}
         </AnimatePresence>
 
-        {/* Form */}
+        {}
         {status !== "success" && (
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
 
-            {/* New password */}
+            {}
             <FadeIn delay={0.1} className="flex flex-col gap-1.5">
               <Label htmlFor="password">New password</Label>
               <div className="relative">
@@ -198,7 +179,7 @@ export function ResetPasswordForm() {
                 </button>
               </div>
 
-              {/* Strength indicator */}
+              {}
               <div className="h-0.5 w-full overflow-hidden rounded-full bg-border">
                 <motion.div
                   className={cn("h-full rounded-full transition-colors duration-300", strengthBarColor)}
@@ -208,7 +189,7 @@ export function ResetPasswordForm() {
               </div>
             </FadeIn>
 
-            {/* Confirm password */}
+            {}
             <FadeIn delay={0.15} className="flex flex-col gap-1.5">
               <Label htmlFor="confirm">Confirm password</Label>
               <div className="relative">
@@ -239,7 +220,7 @@ export function ResetPasswordForm() {
               </div>
             </FadeIn>
 
-            {/* Inline error */}
+            {}
             <AnimatePresence mode="wait">
               {error && (
                 <motion.div
@@ -279,7 +260,7 @@ export function ResetPasswordForm() {
 
       </div>
 
-      {/* Back link */}
+      {}
       <FadeIn direction="none" delay={0.25}>
         <p className="text-center text-sm text-muted-foreground">
           Remember your password?{" "}

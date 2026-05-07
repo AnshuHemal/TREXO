@@ -16,8 +16,6 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { CompleteSprintDialog } from "../../sprints/_components/complete-sprint-dialog";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 interface SprintHeaderProps {
   sprint: {
     id: string;
@@ -31,8 +29,6 @@ interface SprintHeaderProps {
   otherSprints: { id: string; name: string }[];
   onCompleted: () => void;
 }
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function formatDate(date: Date | null): string {
   if (!date) return "—";
@@ -50,8 +46,6 @@ function getDaysRemaining(endDate: Date | null): { days: number; isOverdue: bool
   const diff = Math.ceil((end.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
   return { days: Math.abs(diff), isOverdue: diff < 0 };
 }
-
-// ─── Component ────────────────────────────────────────────────────────────────
 
 export function SprintHeader({ sprint, otherSprints, onCompleted }: SprintHeaderProps) {
   const [showCompleteDialog, setShowCompleteDialog] = useState(false);
@@ -72,9 +66,9 @@ export function SprintHeader({ sprint, otherSprints, onCompleted }: SprintHeader
         transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
         className="border-b border-border bg-background/95 backdrop-blur-sm"
       >
-        {/* Main header row */}
+        {}
         <div className="flex flex-wrap items-center gap-3 px-4 py-3">
-          {/* Sprint name + active badge */}
+          {}
           <div className="flex items-center gap-2.5 min-w-0">
             <div className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-primary/10">
               <Zap className="size-4 text-primary" />
@@ -91,10 +85,10 @@ export function SprintHeader({ sprint, otherSprints, onCompleted }: SprintHeader
             </div>
           </div>
 
-          {/* Divider */}
+          {}
           <div className="hidden h-5 w-px bg-border sm:block" />
 
-          {/* Dates */}
+          {}
           <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
             <Calendar className="size-3.5 shrink-0" />
             <span>{formatDate(sprint.startDate)}</span>
@@ -102,7 +96,7 @@ export function SprintHeader({ sprint, otherSprints, onCompleted }: SprintHeader
             <span>{formatDate(sprint.endDate)}</span>
           </div>
 
-          {/* Days remaining */}
+          {}
           {daysInfo && (
             <div className={cn(
               "flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium",
@@ -125,10 +119,10 @@ export function SprintHeader({ sprint, otherSprints, onCompleted }: SprintHeader
             </div>
           )}
 
-          {/* Divider */}
+          {}
           <div className="hidden h-5 w-px bg-border sm:block" />
 
-          {/* Progress stats */}
+          {}
           <div className="flex items-center gap-2 text-sm">
             <span className="text-muted-foreground">
               <span className="font-semibold text-foreground">{sprint.doneIssues}</span>
@@ -141,7 +135,7 @@ export function SprintHeader({ sprint, otherSprints, onCompleted }: SprintHeader
             )}
           </div>
 
-          {/* Goal toggle */}
+          {}
           {sprint.goal && (
             <button
               onClick={() => setGoalExpanded((v) => !v)}
@@ -156,7 +150,7 @@ export function SprintHeader({ sprint, otherSprints, onCompleted }: SprintHeader
             </button>
           )}
 
-          {/* Complete sprint button */}
+          {}
           <div className="ml-auto">
             <Button
               size="sm"
@@ -170,7 +164,7 @@ export function SprintHeader({ sprint, otherSprints, onCompleted }: SprintHeader
           </div>
         </div>
 
-        {/* Sprint goal (expandable) */}
+        {}
         <AnimatePresence>
           {sprint.goal && goalExpanded && (
             <motion.div
@@ -188,7 +182,7 @@ export function SprintHeader({ sprint, otherSprints, onCompleted }: SprintHeader
           )}
         </AnimatePresence>
 
-        {/* Progress bar */}
+        {}
         <div className="h-1 w-full bg-border">
           <motion.div
             className={cn(
@@ -202,7 +196,7 @@ export function SprintHeader({ sprint, otherSprints, onCompleted }: SprintHeader
         </div>
       </motion.div>
 
-      {/* Complete sprint dialog */}
+      {}
       <CompleteSprintDialog
         open={showCompleteDialog}
         onOpenChange={setShowCompleteDialog}

@@ -12,8 +12,6 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { setProjectMuted } from "../actions";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 interface GlobalPrefs {
   assigned: boolean;
   mentioned: boolean;
@@ -29,8 +27,6 @@ interface ProjectNotificationsFormProps {
   isMuted: boolean;
   globalPrefs: GlobalPrefs;
 }
-
-// ─── Toggle ───────────────────────────────────────────────────────────────────
 
 function Toggle({
   enabled,
@@ -75,8 +71,6 @@ function Toggle({
   );
 }
 
-// ─── Notification type row ────────────────────────────────────────────────────
-
 const NOTIF_TYPES = [
   {
     key: "assigned" as keyof GlobalPrefs,
@@ -107,8 +101,6 @@ const NOTIF_TYPES = [
     iconColor: "text-primary",
   },
 ] as const;
-
-// ─── Main component ───────────────────────────────────────────────────────────
 
 export function ProjectNotificationsForm({
   projectId,
@@ -144,7 +136,7 @@ export function ProjectNotificationsForm({
   return (
     <div className="flex flex-col gap-5">
 
-      {/* ── Mute this project card ──────────────────────────────────────── */}
+      {}
       <FadeInCard delay={0}>
         <div className={cn(
           "flex items-start justify-between gap-4 rounded-xl border p-5 transition-all duration-300",
@@ -197,7 +189,7 @@ export function ProjectNotificationsForm({
           </div>
         </div>
 
-        {/* Status feedback */}
+        {}
         <AnimatePresence mode="wait">
           {status === "saved" && (
             <motion.div
@@ -228,7 +220,7 @@ export function ProjectNotificationsForm({
         </AnimatePresence>
       </FadeInCard>
 
-      {/* ── What's affected ─────────────────────────────────────────────── */}
+      {}
       <FadeInCard delay={0.06}>
         <div className="rounded-xl border border-border bg-card overflow-hidden">
           <div className="border-b border-border px-5 py-3.5">
@@ -289,7 +281,7 @@ export function ProjectNotificationsForm({
         </div>
       </FadeInCard>
 
-      {/* ── Global preferences notice ────────────────────────────────────── */}
+      {}
       {anyGlobalDisabled && (
         <FadeInCard delay={0.12}>
           <div className="flex items-start gap-3 rounded-xl border border-amber-500/20 bg-amber-500/5 px-4 py-3.5">

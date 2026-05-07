@@ -4,14 +4,6 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { signIn } from "@/lib/auth-client";
 
-/**
- * Google + GitHub OAuth sign-in buttons.
- *
- * Better Auth's signIn.social() returns a redirect URL pointing to the
- * provider's authorization page. We must navigate to it via
- * window.location.href — NOT router.push() — so the full page navigation
- * happens and the OAuth flow can complete.
- */
 export function OAuthButtons() {
   const [loadingProvider, setLoadingProvider] = useState<
     "google" | "github" | null
@@ -33,14 +25,11 @@ export function OAuthButtons() {
       return;
     }
 
-    // Better Auth returns the provider's authorization URL.
-    // Use a full page navigation so the OAuth redirect chain works correctly.
     if (data?.url) {
       window.location.href = data.url;
       return;
     }
 
-    // Fallback — should not normally be reached.
     setLoadingProvider(null);
   }
 
@@ -76,8 +65,6 @@ export function OAuthButtons() {
     </div>
   );
 }
-
-// ─── Icons ────────────────────────────────────────────────────────────────────
 
 function Spinner() {
   return (

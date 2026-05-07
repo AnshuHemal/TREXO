@@ -2,8 +2,6 @@
 
 import { createContext, useContext, useState, useCallback } from "react";
 
-// ─── Context ──────────────────────────────────────────────────────────────────
-
 interface MobileSidebarContextValue {
   isOpen: boolean;
   open: () => void;
@@ -22,8 +20,6 @@ export function useMobileSidebar(): MobileSidebarContextValue {
 export function useMobileSidebarSafe(): MobileSidebarContextValue | null {
   return useContext(MobileSidebarContext);
 }
-
-// ─── Provider ─────────────────────────────────────────────────────────────────
 
 export function MobileSidebarProvider({ children }: { children: React.ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);

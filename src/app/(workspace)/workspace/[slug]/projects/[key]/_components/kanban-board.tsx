@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
+
 "use client";
 
 import { useState, useCallback } from "react";
@@ -24,8 +24,6 @@ import { useRealtimeIssues } from "@/hooks/use-realtime-issues";
 import { useWorkspaceSafe } from "@/components/providers/workspace-provider";
 import { RealtimeIndicator, ReconnectBanner } from "@/components/shared/realtime-indicator";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 export interface BoardIssue {
   id: string;
   key: number;
@@ -39,14 +37,14 @@ export interface BoardIssue {
   commentCount: number;
   estimate?: number | null;
   dueDate?: Date | null;
-  /** When the issue last moved into its current status — used for aging. */
+
   statusChangedAt?: Date | null;
-  /** Labels attached to this issue */
+
   labels?: { id: string; name: string; color: string }[];
-  // Epic grouping
+
   epicId?: string | null;
   epicTitle?: string | null;
-  // Blocking indicator
+
   isBlocked?: boolean;
 }
 
@@ -66,8 +64,6 @@ interface KanbanBoardProps {
   currentUserImage?: string | null;
   workspaceSlug: string;
 }
-
-// ─── Position helpers ─────────────────────────────────────────────────────────
 
 const POSITION_GAP = 1000;
 
@@ -90,8 +86,6 @@ function computeNewPosition(
   return POSITION_GAP;
 }
 
-// ─── Component ────────────────────────────────────────────────────────────────
-
 export function KanbanBoard({
   project,
   issues: initialIssues,
@@ -107,12 +101,10 @@ export function KanbanBoard({
   const [issueDetail, setIssueDetail] = useState<IssueDetail | null>(null);
   const [isLoadingDetail, setIsLoadingDetail] = useState(false);
 
-  // ── Filter + swimlane state ───────────────────────────────────────────────────
   const [filterAssignee, setFilterAssignee] = useState("all");
   const [filterPriority, setFilterPriority] = useState("all");
   const [swimlane, setSwimlane]             = useState<SwimlaneMode>("none");
 
-  // ── Real-time state ───────────────────────────────────────────────────────────
   type ConnStatus = "connecting" | "connected" | "disconnected";
   const [connStatus, setConnStatus] = useState<ConnStatus>("connecting");
   const ctx = useWorkspaceSafe();
@@ -170,7 +162,6 @@ export function KanbanBoard({
     },
   });
 
-  // WIP limits per status (configurable — defaults shown)
   const WIP_LIMITS: Record<string, number> = {
     IN_PROGRESS: 5,
     IN_REVIEW:   3,
@@ -184,15 +175,12 @@ export function KanbanBoard({
     setSwimlane("none");
   }
 
-  // ── DnD sensors ──────────────────────────────────────────────────────────────
-  // PointerSensor with a 5px activation distance prevents accidental drags on click
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: { distance: 5 },
     }),
   );
 
-  // ── Issues grouped by status — exclude sub-tasks from the board ──────────────
   const columnIssues = useCallback(
     (status: string) => {
       return issues
@@ -208,7 +196,6 @@ export function KanbanBoard({
     [issues, filterAssignee, filterPriority],
   );
 
-  // ── Swimlane grouping ─────────────────────────────────────────────────────────
   function getSwimlaneGroups(colIssues: BoardIssue[]): { key: string; label: string; issues: BoardIssue[] }[] {
     if (swimlane === "none") return [{ key: "all", label: "", issues: colIssues }];
 
@@ -237,8 +224,6 @@ export function KanbanBoard({
     return entries;
   }
 
-  // ── Drag handlers ─────────────────────────────────────────────────────────────
-
   function handleDragStart({ active }: DragStartEvent) {
     const issue = issues.find((i) => i.id === active.id);
     setActiveIssue(issue ?? null);
@@ -250,11 +235,10 @@ export function KanbanBoard({
     const activeIssueData = issues.find((i) => i.id === active.id);
     if (!activeIssueData) return;
 
-    // Determine target status — over could be a column or a card
     const overStatus = (over.data.current?.status ?? over.id) as string;
 
     if (activeIssueData.status !== overStatus) {
-      // Moving to a different column — update status optimistically
+
       setIssues((prev) =>
         prev.map((i) =>
           i.id === active.id ? { ...i, status: overStatus } : i,
@@ -276,7 +260,6 @@ export function KanbanBoard({
       .filter((i) => i.status === targetStatus && i.id !== active.id)
       .sort((a, b) => a.position - b.position);
 
-    // Find where in the column the card was dropped
     const overIndex = over.data.current?.sortable?.index ?? columnItems.length;
     const newPosition = computeNewPosition(
       issues.filter((i) => i.status === targetStatus),
@@ -284,7 +267,6 @@ export function KanbanBoard({
       active.id as string,
     );
 
-    // Optimistic update
     setIssues((prev) =>
       prev.map((i) =>
         i.id === active.id
@@ -293,14 +275,11 @@ export function KanbanBoard({
       ),
     );
 
-    // Sync to server (fire-and-forget — optimistic update already applied)
     moveIssue(active.id as string, targetStatus as never, newPosition).catch(() => {
-      // On failure, revert to server state by reloading
+
       window.location.reload();
     });
   }
-
-  // ── Quick-create ──────────────────────────────────────────────────────────────
 
   async function handleQuickCreate(status: string, title: string) {
     const result = await createIssue({
@@ -333,8 +312,6 @@ export function KanbanBoard({
     }
   }
 
-  // ── Issue detail modal ────────────────────────────────────────────────────────
-
   async function handleOpenIssue(issueId: string) {
     setSelectedIssueId(issueId);
     setIsLoadingDetail(true);
@@ -361,14 +338,12 @@ export function KanbanBoard({
     handleCloseModal();
   }
 
-  // ── Render ────────────────────────────────────────────────────────────────────
-
   return (
     <>
-      {/* Reconnect banner */}
+      {}
       <ReconnectBanner show={connStatus === "disconnected"} />
 
-      {/* Filter bar */}
+      {}
       <BoardFilterBar
         members={members}
         filterAssignee={filterAssignee}
@@ -411,7 +386,7 @@ export function KanbanBoard({
                     />
                   ) : (
                     <>
-                      {/* Column header (shared across swimlanes) */}
+                      {}
                       <div className="flex items-center gap-2 rounded-xl border border-border bg-muted/40 px-3 py-2.5">
                         {(() => { const Icon = icon; return <Icon className={`size-4 shrink-0 ${color}`} />; })()}
                         <span className="text-sm font-semibold text-foreground">{label}</span>
@@ -425,7 +400,7 @@ export function KanbanBoard({
                         )}
                       </div>
 
-                      {/* Swimlane groups */}
+                      {}
                       {groups.map(({ key, label: groupLabel, issues: groupIssues }) => (
                         <div key={key} className="flex flex-col rounded-xl border border-border bg-muted/40">
                           {groupLabel && (
@@ -453,7 +428,7 @@ export function KanbanBoard({
             })}
           </div>
 
-          {/* Drag overlay */}
+          {}
           <DragOverlay dropAnimation={{ duration: 150, easing: "cubic-bezier(0.18, 0.67, 0.6, 1.22)" }}>
             {activeIssue && (
               <KanbanCard
@@ -467,7 +442,7 @@ export function KanbanBoard({
         </DndContext>
       </div>
 
-      {/* Issue detail modal */}
+      {}
       <AnimatePresence>
         {selectedIssueId && (
           isLoadingDetail || !issueDetail ? (

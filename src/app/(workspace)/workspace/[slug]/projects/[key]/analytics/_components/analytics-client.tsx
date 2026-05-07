@@ -15,8 +15,6 @@ import { cn } from "@/lib/utils";
 import { getStatusConfig, getPriorityConfig, getTypeConfig } from "@/lib/issue-config";
 import { FadeIn } from "@/components/motion/fade-in";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 interface VelocityPoint {
   sprintId: string;
   sprintName: string;
@@ -59,8 +57,6 @@ interface AnalyticsClientProps {
   completedSprintCount: number;
 }
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
 function getInitials(name: string) {
   const parts = name.trim().split(/\s+/);
   return parts.length >= 2 ? (parts[0][0] + parts[1][0]).toUpperCase() : name.slice(0, 2).toUpperCase();
@@ -76,8 +72,6 @@ function getDaysRemaining(endDate: Date | null) {
   const diff = Math.ceil((new Date(endDate).getTime() - Date.now()) / 86_400_000);
   return diff;
 }
-
-// ─── Stat card ────────────────────────────────────────────────────────────────
 
 function StatCard({
   label, value, sub, icon: Icon, color, delay,
@@ -102,8 +96,6 @@ function StatCard({
     </FadeIn>
   );
 }
-
-// ─── Custom tooltips ──────────────────────────────────────────────────────────
 
 function VelocityTooltip({ active, payload, label }: { active?: boolean; payload?: Array<{ name: string; value: number; color: string }>; label?: string }) {
   if (!active || !payload?.length) return null;
@@ -137,8 +129,6 @@ function BurndownTooltip({ active, payload, label }: { active?: boolean; payload
   );
 }
 
-// ─── CFD colors ───────────────────────────────────────────────────────────────
-
 const CFD_COLORS: Record<string, string> = {
   BACKLOG:     "hsl(var(--muted-foreground) / 0.3)",
   TODO:        "hsl(var(--foreground) / 0.2)",
@@ -152,8 +142,6 @@ const CFD_LABELS: Record<string, string> = {
   IN_REVIEW: "In Review", DONE: "Done",
 };
 
-// ─── Main component ───────────────────────────────────────────────────────────
-
 export function AnalyticsClient({
   project,
   workspaceSlug,
@@ -165,7 +153,6 @@ export function AnalyticsClient({
 }: AnalyticsClientProps) {
   const [activeTab, setActiveTab] = useState<"velocity" | "burndown" | "flow">("velocity");
 
-  // Velocity stats
   const avgVelocity = velocityData.length > 0
     ? Math.round(velocityData.reduce((s, d) => s + d.completed, 0) / velocityData.length)
     : 0;
@@ -174,7 +161,6 @@ export function AnalyticsClient({
     ? lastVelocity - (velocityData.at(-2)?.completed ?? 0)
     : 0;
 
-  // Active sprint stats
   const sprintProgress = activeSprint && activeSprint.totalIssues > 0
     ? Math.round((activeSprint.doneIssues / activeSprint.totalIssues) * 100)
     : 0;
@@ -182,14 +168,14 @@ export function AnalyticsClient({
 
   return (
     <div className="flex flex-1 flex-col">
-      {/* Toolbar */}
+      {}
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-6 py-3">
         <div>
           <h1 className="text-base font-bold text-foreground">Analytics</h1>
           <p className="text-sm text-muted-foreground">{project.name} · {completedSprintCount} completed sprints</p>
         </div>
 
-        {/* Tab switcher */}
+        {}
         <div className="flex items-center gap-0.5 rounded-lg border border-border bg-muted/40 p-1">
           {([
             { key: "velocity", label: "Velocity", icon: Zap },
@@ -213,10 +199,10 @@ export function AnalyticsClient({
         </div>
       </div>
 
-      {/* Content */}
+      {}
       <div className="flex-1 overflow-y-auto p-6">
 
-        {/* ── Stats row ──────────────────────────────────────────────────── */}
+        {}
         <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
           <StatCard
             label="Avg velocity"
@@ -252,9 +238,9 @@ export function AnalyticsClient({
           />
         </div>
 
-        {/* ── Charts ─────────────────────────────────────────────────────── */}
+        {}
 
-        {/* Velocity chart */}
+        {}
         {activeTab === "velocity" && (
           <div className="flex flex-col gap-6">
             <FadeIn delay={0.1}>
@@ -319,7 +305,7 @@ export function AnalyticsClient({
               </div>
             </FadeIn>
 
-            {/* Sprint history table */}
+            {}
             {velocityData.length > 0 && (
               <FadeIn delay={0.15}>
                 <div className="rounded-xl border border-border bg-card overflow-hidden">
@@ -373,7 +359,7 @@ export function AnalyticsClient({
           </div>
         )}
 
-        {/* Burndown chart */}
+        {}
         {activeTab === "burndown" && (
           <div className="flex flex-col gap-6">
             <FadeIn delay={0.1}>
@@ -461,7 +447,7 @@ export function AnalyticsClient({
               </div>
             </FadeIn>
 
-            {/* Active sprint issue breakdown */}
+            {}
             {activeSprint && (
               <FadeIn delay={0.15}>
                 <div className="rounded-xl border border-border bg-card overflow-hidden">
@@ -532,7 +518,7 @@ export function AnalyticsClient({
           </div>
         )}
 
-        {/* Cumulative flow diagram */}
+        {}
         {activeTab === "flow" && (
           <FadeIn delay={0.1}>
             <div className="rounded-xl border border-border bg-card p-6">

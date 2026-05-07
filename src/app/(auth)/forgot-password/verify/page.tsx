@@ -3,18 +3,14 @@ import { Suspense } from "react";
 import { siteConfig } from "@/config/site";
 import { VerifyOtpForm } from "./_components/verify-otp-form";
 
-// ─── Metadata ─────────────────────────────────────────────────────────────────
-
 export const metadata: Metadata = {
   title: "Enter reset code",
   description: `Enter the code sent to your email to reset your ${siteConfig.name} password.`,
 };
 
-// ─── Page ─────────────────────────────────────────────────────────────────────
-
 export default function VerifyOtpPage() {
   return (
-    // Suspense boundary required because VerifyOtpForm reads useSearchParams()
+
     <Suspense>
       <VerifyOtpForm />
     </Suspense>

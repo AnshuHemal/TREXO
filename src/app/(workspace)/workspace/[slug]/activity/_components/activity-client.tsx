@@ -36,8 +36,6 @@ import { cn } from "@/lib/utils";
 import { formatActivityType, formatActivityValue } from "@/lib/issue-config";
 import { FadeIn } from "@/components/motion/fade-in";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 interface ActivityEntry {
   id: string;
   type: string;
@@ -82,8 +80,6 @@ interface ActivityClientProps {
   activeTo: string | null;
 }
 
-// ─── Activity type config ─────────────────────────────────────────────────────
-
 const ACTIVITY_TYPES = [
   { value: "issue_created",    label: "Issue created",    icon: GitCommitHorizontal, color: "text-emerald-500" },
   { value: "status_changed",   label: "Status changed",   icon: ArrowRightLeft,      color: "text-blue-500"    },
@@ -99,8 +95,6 @@ function getActivityIcon(type: string) {
   if (found) return { Icon: found.icon, color: found.color };
   return { Icon: AlertCircle, color: "text-muted-foreground" };
 }
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function getInitials(name: string) {
   const parts = name.trim().split(/\s+/);
@@ -130,8 +124,6 @@ function formatAbsolute(date: Date): string {
   });
 }
 
-// ─── Activity row ─────────────────────────────────────────────────────────────
-
 function ActivityRow({
   entry,
   index,
@@ -150,7 +142,7 @@ function ActivityRow({
       transition={{ duration: 0.18, delay: Math.min(index * 0.025, 0.4), ease: [0.25, 0.1, 0.25, 1] }}
       className="group flex items-start gap-4 rounded-xl border border-border bg-card px-5 py-4 transition-colors hover:border-primary/20 hover:bg-accent/20"
     >
-      {/* Actor avatar */}
+      {}
       <Avatar className="mt-0.5 size-8 shrink-0 ring-2 ring-background">
         <AvatarImage src={entry.actor.image ?? undefined} />
         <AvatarFallback className="text-sm font-semibold">
@@ -158,19 +150,19 @@ function ActivityRow({
         </AvatarFallback>
       </Avatar>
 
-      {/* Content */}
+      {}
       <div className="flex flex-1 flex-col gap-1.5 min-w-0">
-        {/* Main line */}
+        {}
         <div className="flex flex-wrap items-center gap-1.5 text-sm">
           <span className="font-semibold text-foreground">{entry.actor.name}</span>
 
-          {/* Activity type icon + label */}
+          {}
           <span className="flex items-center gap-1 text-muted-foreground">
             <Icon className={cn("size-3.5 shrink-0", color)} />
             {formatActivityType(entry.type)}
           </span>
 
-          {/* From → To values */}
+          {}
           {entry.fromValue && entry.toValue && (
             <span className="flex items-center gap-1">
               <span className="rounded-md border border-border bg-muted px-1.5 py-0.5 text-[11px] font-medium text-muted-foreground">
@@ -183,7 +175,7 @@ function ActivityRow({
             </span>
           )}
 
-          {/* Only toValue (e.g. issue_created) */}
+          {}
           {!entry.fromValue && entry.toValue && (
             <span className="rounded-md border border-primary/20 bg-primary/5 px-1.5 py-0.5 text-[11px] font-medium text-primary">
               {formatActivityValue(entry.toValue)}
@@ -191,7 +183,7 @@ function ActivityRow({
           )}
         </div>
 
-        {/* Issue reference */}
+        {}
         {entry.issue && (
           <a
             href={`/workspace/${workspaceSlug}/projects/${entry.issue.project.key}/backlog`}
@@ -209,7 +201,7 @@ function ActivityRow({
         )}
       </div>
 
-      {/* Timestamp */}
+      {}
       <div
         className="flex shrink-0 items-center gap-1 text-[11px] text-muted-foreground/60"
         title={formatAbsolute(entry.createdAt)}
@@ -220,8 +212,6 @@ function ActivityRow({
     </motion.div>
   );
 }
-
-// ─── Filter bar ───────────────────────────────────────────────────────────────
 
 function FilterBar({
   members,
@@ -257,7 +247,7 @@ function FilterBar({
 
           <Separator orientation="vertical" className="h-5" />
 
-          {/* Actor filter */}
+          {}
           <Select
             value={activeActorId ?? "all"}
             onValueChange={(v) => onFilter("actor", v === "all" ? null : v)}
@@ -286,7 +276,7 @@ function FilterBar({
             </SelectContent>
           </Select>
 
-          {/* Project filter */}
+          {}
           <Select
             value={activeProjectId ?? "all"}
             onValueChange={(v) => onFilter("project", v === "all" ? null : v)}
@@ -314,7 +304,7 @@ function FilterBar({
             </SelectContent>
           </Select>
 
-          {/* Activity type filter */}
+          {}
           <Select
             value={activeType ?? "all"}
             onValueChange={(v) => onFilter("type", v === "all" ? null : v)}
@@ -340,7 +330,7 @@ function FilterBar({
             </SelectContent>
           </Select>
 
-          {/* Date range */}
+          {}
           <div className="flex items-center gap-1.5">
             <Input
               type="date"
@@ -365,7 +355,7 @@ function FilterBar({
             />
           </div>
 
-          {/* Clear */}
+          {}
           <AnimatePresence>
             {hasActiveFilters && (
               <motion.div
@@ -388,7 +378,7 @@ function FilterBar({
           </AnimatePresence>
         </div>
 
-        {/* Active filter chips */}
+        {}
         <AnimatePresence>
           {hasActiveFilters && (
             <motion.div
@@ -457,8 +447,6 @@ function FilterChip({ label, onRemove }: { label: string; onRemove: () => void }
   );
 }
 
-// ─── Pagination ───────────────────────────────────────────────────────────────
-
 function Pagination({
   currentPage,
   totalPages,
@@ -477,7 +465,6 @@ function Pagination({
 
   if (totalPages <= 1) return null;
 
-  // Build page numbers to show (window of 5 around current)
   const pages: (number | "…")[] = [];
   if (totalPages <= 7) {
     for (let i = 1; i <= totalPages; i++) pages.push(i);
@@ -546,8 +533,6 @@ function Pagination({
   );
 }
 
-// ─── Main component ───────────────────────────────────────────────────────────
-
 export function ActivityClient({
   activities,
   members,
@@ -570,8 +555,6 @@ export function ActivityClient({
 
   const hasActiveFilters = !!(activeActorId || activeProjectId || activeType || activeFrom || activeTo);
 
-  // ── URL-based navigation ──────────────────────────────────────────────────────
-
   const navigate = useCallback(
     (updates: Record<string, string | null>) => {
       const params = new URLSearchParams(searchParams.toString());
@@ -584,7 +567,6 @@ export function ActivityClient({
         }
       }
 
-      // Reset to page 1 when filters change
       if (!("page" in updates)) params.delete("page");
 
       startTransition(() => {
@@ -608,11 +590,9 @@ export function ActivityClient({
     navigate({ page: String(page) });
   }
 
-  // ── Render ────────────────────────────────────────────────────────────────────
-
   return (
     <div className="flex flex-col gap-4">
-      {/* Filter bar */}
+      {}
       <FilterBar
         members={members}
         projects={projects}
@@ -626,7 +606,7 @@ export function ActivityClient({
         hasActiveFilters={hasActiveFilters}
       />
 
-      {/* Activity list */}
+      {}
       {activities.length === 0 ? (
         <FadeIn delay={0.1}>
           <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border py-24 text-center">
@@ -669,7 +649,7 @@ export function ActivityClient({
         </FadeIn>
       )}
 
-      {/* Pagination */}
+      {}
       <Pagination
         currentPage={currentPage}
         totalPages={totalPages}

@@ -3,8 +3,6 @@
 import { motion } from "motion/react";
 import { Building2, ListTodo, Rocket } from "lucide-react";
 
-// ─── Steps ────────────────────────────────────────────────────────────────────
-
 const STEPS = [
   {
     number: "01",
@@ -29,19 +27,17 @@ const STEPS = [
   },
 ];
 
-// ─── Component ────────────────────────────────────────────────────────────────
-
 export function HowItWorks() {
   return (
     <section id="how-it-works" className="relative px-6 py-24 lg:py-32">
-      {/* Subtle background */}
+      {}
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 bg-muted/20"
       />
 
       <div className="relative mx-auto max-w-7xl">
-        {/* Section header */}
+        {}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -61,9 +57,9 @@ export function HowItWorks() {
           </p>
         </motion.div>
 
-        {/* Steps */}
+        {}
         <div className="relative grid gap-8 md:grid-cols-3">
-          {/* Connector line (desktop only) */}
+          {}
           <div
             aria-hidden
             className="absolute left-[calc(16.67%+1rem)] right-[calc(16.67%+1rem)] top-10 hidden h-px border-t border-dashed border-border md:block"
@@ -84,13 +80,13 @@ export function HowItWorks() {
                 }}
                 className="relative flex flex-col items-center text-center"
               >
-                {/* Number + icon circle */}
+                {}
                 <div className="relative mb-6">
-                  {/* Outer ring */}
+                  {}
                   <div className="flex size-20 items-center justify-center rounded-full border border-border bg-card shadow-sm">
                     <Icon className="size-7 text-primary" />
                   </div>
-                  {/* Step number badge */}
+                  {}
                   <div className="absolute -right-1 -top-1 flex size-6 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground shadow">
                     {i + 1}
                   </div>

@@ -55,8 +55,6 @@ import {
   type FilterState,
 } from "../saved-filter-actions";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 interface SavedFiltersDropdownProps {
   workspaceId: string;
   projectId: string;
@@ -68,8 +66,6 @@ interface SavedFiltersDropdownProps {
   onFiltersChange: (filters: SavedFilterItem[]) => void;
   hasActiveFilters: boolean;
 }
-
-// ─── Save dialog ──────────────────────────────────────────────────────────────
 
 function SaveFilterDialog({
   open,
@@ -91,7 +87,6 @@ function SaveFilterDialog({
   const [error, setError]       = useState<string | null>(null);
   const [isPending, start]      = useTransition();
 
-  // Reset state when dialog opens
   useEffect(() => {
     if (open) { setName(""); setIsShared(false); setError(null); }
   }, [open]);
@@ -130,7 +125,7 @@ function SaveFilterDialog({
         </DialogHeader>
 
         <div className="flex flex-col gap-4 py-2">
-          {/* Name */}
+          {}
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="filter-name" className="text-sm font-medium">
               View name
@@ -149,7 +144,7 @@ function SaveFilterDialog({
             <p className="text-sm text-muted-foreground">{name.length}/60</p>
           </div>
 
-          {/* Filter preview */}
+          {}
           <div className="rounded-lg border border-border bg-muted/30 p-3">
             <p className="mb-2 text-sm font-medium uppercase tracking-wide text-muted-foreground">
               Filters being saved
@@ -157,7 +152,7 @@ function SaveFilterDialog({
             <FilterPreview filters={currentFilters} />
           </div>
 
-          {/* Share toggle */}
+          {}
           <div className="flex items-center justify-between rounded-lg border border-border p-3">
             <div className="flex items-center gap-2.5">
               {isShared
@@ -210,8 +205,6 @@ function SaveFilterDialog({
   );
 }
 
-// ─── Edit dialog ──────────────────────────────────────────────────────────────
-
 function EditFilterDialog({
   filter,
   open,
@@ -228,7 +221,6 @@ function EditFilterDialog({
   const [error, setError]       = useState<string | null>(null);
   const [isPending, start]      = useTransition();
 
-  // Sync state when the filter prop changes (different filter opened)
   useEffect(() => {
     if (open) { setName(filter.name); setIsShared(filter.isShared); setError(null); }
   }, [open, filter.id]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -314,8 +306,6 @@ function EditFilterDialog({
   );
 }
 
-// ─── Filter preview ───────────────────────────────────────────────────────────
-
 function FilterPreview({ filters }: { filters: FilterState }) {
   const chips: { label: string; value: string }[] = [];
 
@@ -352,8 +342,6 @@ function FilterPreview({ filters }: { filters: FilterState }) {
     </div>
   );
 }
-
-// ─── Filter row item (NOT a DropdownMenuItem — avoids auto-close on action clicks) ──
 
 function FilterRow({
   filter,
@@ -421,8 +409,6 @@ function FilterRow({
   );
 }
 
-// ─── Main component ───────────────────────────────────────────────────────────
-
 export function SavedFiltersDropdown({
   workspaceId,
   projectId,
@@ -458,7 +444,7 @@ export function SavedFiltersDropdown({
       const result = await deleteSavedFilter(filter.id);
       if (result.success) {
         onFiltersChange(savedFilters.filter((f) => f.id !== filter.id));
-        // If the deleted filter was active, clear it
+
         if (filter.id === activeFilterId) {
           onApply({ id: "", name: "", filters: {}, isShared: false, userId: "", createdAt: new Date() });
         }
@@ -494,13 +480,13 @@ export function SavedFiltersDropdown({
           align="start"
           className="w-64 p-1.5"
           sideOffset={4}
-          // Prevent closing when interacting with dialogs triggered from inside
+
           onInteractOutside={(e) => {
-            // Don't close if a dialog is open
+
             if (saveOpen || editFilter || deleteTarget) e.preventDefault();
           }}
         >
-          {/* Save current */}
+          {}
           <div className="px-1 pb-1.5">
             <Button
               variant="outline"
@@ -519,7 +505,7 @@ export function SavedFiltersDropdown({
 
           <DropdownMenuSeparator />
 
-          {/* My views */}
+          {}
           {myFilters.length > 0 && (
             <DropdownMenuGroup>
               <DropdownMenuLabel className="flex items-center gap-1.5 px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
@@ -548,7 +534,7 @@ export function SavedFiltersDropdown({
             </DropdownMenuGroup>
           )}
 
-          {/* Shared views */}
+          {}
           {sharedFilters.length > 0 && (
             <>
               {myFilters.length > 0 && <DropdownMenuSeparator />}
@@ -572,7 +558,7 @@ export function SavedFiltersDropdown({
             </>
           )}
 
-          {/* Empty state */}
+          {}
           {savedFilters.length === 0 && (
             <div className="flex flex-col items-center gap-2 py-6 text-center">
               <Bookmark className="size-6 text-muted-foreground/40" />
@@ -583,7 +569,7 @@ export function SavedFiltersDropdown({
             </div>
           )}
 
-          {/* Clear active view */}
+          {}
           <AnimatePresence>
             {activeFilterId && (
               <motion.div
@@ -612,7 +598,7 @@ export function SavedFiltersDropdown({
         </DropdownMenuContent>
       </DropdownMenu>
 
-      {/* Save dialog — rendered outside dropdown to avoid portal conflicts */}
+      {}
       <SaveFilterDialog
         open={saveOpen}
         onOpenChange={setSaveOpen}
@@ -622,7 +608,7 @@ export function SavedFiltersDropdown({
         onSaved={handleSaved}
       />
 
-      {/* Edit dialog */}
+      {}
       {editFilter && (
         <EditFilterDialog
           key={editFilter.id}
@@ -633,7 +619,7 @@ export function SavedFiltersDropdown({
         />
       )}
 
-      {/* Delete confirm */}
+      {}
       <AlertDialog
         open={!!deleteTarget}
         onOpenChange={(v) => { if (!v) setDeleteTarget(null); }}

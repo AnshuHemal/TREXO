@@ -15,8 +15,6 @@ import {
   ArrowRight,
 } from "lucide-react";
 
-// ─── Issue Status ─────────────────────────────────────────────────────────────
-
 export const ISSUE_STATUSES = [
   { value: "BACKLOG",     label: "Backlog",     icon: Circle,       color: "text-muted-foreground" },
   { value: "TODO",        label: "To Do",       icon: Circle,       color: "text-foreground" },
@@ -32,8 +30,6 @@ export function getStatusConfig(status: string) {
   return ISSUE_STATUSES.find((s) => s.value === status) ?? ISSUE_STATUSES[0];
 }
 
-// ─── Issue Priority ───────────────────────────────────────────────────────────
-
 export const ISSUE_PRIORITIES = [
   { value: "URGENT",      label: "Urgent",      icon: AlertCircle, color: "text-destructive" },
   { value: "HIGH",        label: "High",        icon: ArrowUp,     color: "text-orange-500" },
@@ -47,8 +43,6 @@ export type IssuePriority = (typeof ISSUE_PRIORITIES)[number]["value"];
 export function getPriorityConfig(priority: string) {
   return ISSUE_PRIORITIES.find((p) => p.value === priority) ?? ISSUE_PRIORITIES[2];
 }
-
-// ─── Issue Type ───────────────────────────────────────────────────────────────
 
 export const ISSUE_TYPES = [
   { value: "TASK",    label: "Task",    icon: CheckCircle2, color: "text-primary" },
@@ -64,8 +58,6 @@ export function getTypeConfig(type: string) {
   return ISSUE_TYPES.find((t) => t.value === type) ?? ISSUE_TYPES[0];
 }
 
-// ─── Activity labels ──────────────────────────────────────────────────────────
-
 export function formatActivityType(type: string): string {
   const map: Record<string, string> = {
     issue_created:    "created this issue",
@@ -77,28 +69,18 @@ export function formatActivityType(type: string): string {
   return map[type] ?? type.replace(/_/g, " ");
 }
 
-// ─── Activity value formatters ────────────────────────────────────────────────
-
-/**
- * Converts a raw enum value stored in Activity.fromValue / toValue
- * into a human-readable label for display in the timeline.
- */
 export function formatActivityValue(value: string | null | undefined): string {
   if (!value) return "none";
 
-  // Status values
   const status = ISSUE_STATUSES.find((s) => s.value === value);
   if (status) return status.label;
 
-  // Priority values
   const priority = ISSUE_PRIORITIES.find((p) => p.value === value);
   if (priority) return priority.label;
 
-  // Type values
   const type = ISSUE_TYPES.find((t) => t.value === value);
   if (type) return type.label;
 
-  // Fallback: humanise snake_case / UPPER_CASE
   return value
     .toLowerCase()
     .replace(/_/g, " ")

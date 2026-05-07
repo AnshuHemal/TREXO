@@ -11,8 +11,6 @@ import {
   ChevronRight,
 } from "lucide-react";
 
-// ─── Tab data ─────────────────────────────────────────────────────────────────
-
 const TABS = [
   {
     id: "board",
@@ -50,8 +48,6 @@ const TABS = [
     preview: <TimePreview />,
   },
 ];
-
-// ─── Preview components ───────────────────────────────────────────────────────
 
 function BoardPreview() {
   const cols = [
@@ -130,13 +126,13 @@ function RoadmapPreview() {
   ];
   return (
     <div className="p-4">
-      {/* Month headers */}
+      {}
       <div className="mb-2 flex">
         {months.map((m) => (
           <div key={m} className="flex-1 text-center text-[10px] text-muted-foreground/60">{m}</div>
         ))}
       </div>
-      {/* Today line */}
+      {}
       <div className="relative">
         <div className="absolute left-[38%] top-0 h-full w-px bg-primary/40 z-10" />
         <div className="flex flex-col gap-2">
@@ -221,8 +217,6 @@ function TimePreview() {
   );
 }
 
-// ─── Component ────────────────────────────────────────────────────────────────
-
 export function ProductShowcase() {
   const [activeTab, setActiveTab] = useState(0);
   const tab = TABS[activeTab];
@@ -230,7 +224,7 @@ export function ProductShowcase() {
   return (
     <section id="product" className="px-6 py-16 lg:py-16">
       <div className="mx-auto max-w-7xl">
-        {/* Section header */}
+        {}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -256,7 +250,7 @@ export function ProductShowcase() {
           transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
           className="flex flex-col gap-6 lg:flex-row lg:gap-10"
         >
-          {/* Tab list */}
+          {}
           <div className="flex shrink-0 flex-row gap-1 overflow-x-auto lg:w-56 lg:flex-col lg:overflow-visible">
             {TABS.map((t, i) => {
               const Icon = t.icon;
@@ -281,9 +275,9 @@ export function ProductShowcase() {
             })}
           </div>
 
-          {/* Preview panel */}
+          {}
           <div className="flex-1 overflow-hidden rounded-xl border border-border bg-card shadow-xl shadow-black/5">
-            {/* Panel header */}
+            {}
             <div className="flex items-center gap-1.5 border-b border-border bg-muted/30 px-4 py-3">
               <span className="size-2.5 rounded-full bg-red-400/60" />
               <span className="size-2.5 rounded-full bg-yellow-400/60" />
@@ -293,7 +287,7 @@ export function ProductShowcase() {
               </span>
             </div>
 
-            {/* Animated content */}
+            {}
             <AnimatePresence mode="wait">
               <motion.div
                 key={activeTab}
@@ -307,7 +301,7 @@ export function ProductShowcase() {
               </motion.div>
             </AnimatePresence>
 
-            {/* Description bar */}
+            {}
             <div className="border-t border-border bg-muted/20 px-4 py-3">
               <AnimatePresence mode="wait">
                 <motion.p

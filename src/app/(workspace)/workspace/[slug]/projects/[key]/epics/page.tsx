@@ -32,7 +32,6 @@ export default async function EpicsPage({ params }: EpicsPageProps) {
   });
   if (!project) notFound();
 
-  // Fetch all epics (without subTasks — we fetch children separately below)
   const epics = await prisma.issue.findMany({
     where: { projectId: project.id, type: "EPIC" },
     orderBy: [{ status: "asc" }, { createdAt: "desc" }],
@@ -43,7 +42,6 @@ export default async function EpicsPage({ params }: EpicsPageProps) {
     },
   });
 
-  // Also fetch issues that have this epic as their parent (non-subtask children)
   const epicIds = epics.map((e) => e.id);
   const childIssues = await prisma.issue.findMany({
     where: {
@@ -60,7 +58,6 @@ export default async function EpicsPage({ params }: EpicsPageProps) {
     orderBy: { key: "asc" },
   });
 
-  // Group child issues by epic
   const childByEpic = new Map<string, typeof childIssues>();
   for (const child of childIssues) {
     if (!child.parentId) continue;
@@ -68,7 +65,6 @@ export default async function EpicsPage({ params }: EpicsPageProps) {
     childByEpic.get(child.parentId)!.push(child);
   }
 
-  // Workspace members for assignee display
   const members = await prisma.workspaceMember.findMany({
     where: { workspaceId: workspace.id },
     include: { user: { select: { id: true, name: true, email: true, image: true } } },

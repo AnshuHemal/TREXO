@@ -8,8 +8,6 @@ import { Button } from "@/components/ui/button";
 import { formatActivityType, formatActivityValue } from "@/lib/issue-config";
 import { cn } from "@/lib/utils";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 interface ActivityItem {
   id: string;
   type: string;
@@ -29,8 +27,6 @@ interface ActivityFeedFullProps {
   activities: ActivityItem[];
   workspaceSlug: string;
 }
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function getInitials(name: string) {
   const parts = name.trim().split(/\s+/);
@@ -56,7 +52,6 @@ function formatDate(date: Date) {
   }).format(new Date(date));
 }
 
-// Group activities by day
 function groupByDay(activities: ActivityItem[]) {
   const groups = new Map<string, ActivityItem[]>();
   for (const a of activities) {
@@ -71,8 +66,6 @@ function groupByDay(activities: ActivityItem[]) {
     items,
   }));
 }
-
-// ─── Component ────────────────────────────────────────────────────────────────
 
 const PAGE_SIZE = 25;
 
@@ -94,7 +87,7 @@ export function ActivityFeedFull({ activities, workspaceSlug }: ActivityFeedFull
     <div className="flex flex-col gap-8">
       {groups.map(({ label, items }) => (
         <div key={label}>
-          {/* Day label */}
+          {}
           <div className="mb-3 flex items-center gap-3">
             <span className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
               {label}
@@ -102,7 +95,7 @@ export function ActivityFeedFull({ activities, workspaceSlug }: ActivityFeedFull
             <div className="flex-1 h-px bg-border" />
           </div>
 
-          {/* Activity items */}
+          {}
           <div className="flex flex-col gap-1">
             {items.map((a, i) => (
               <motion.div
@@ -112,7 +105,7 @@ export function ActivityFeedFull({ activities, workspaceSlug }: ActivityFeedFull
                 transition={{ duration: 0.18, delay: i * 0.02 }}
                 className="flex items-start gap-3 rounded-lg px-3 py-2.5 hover:bg-muted/40 transition-colors"
               >
-                {/* Actor avatar */}
+                {}
                 <Avatar className="mt-0.5 size-7 shrink-0">
                   <AvatarImage src={a.actor.image ?? undefined} />
                   <AvatarFallback className="text-[10px] font-semibold">
@@ -120,7 +113,7 @@ export function ActivityFeedFull({ activities, workspaceSlug }: ActivityFeedFull
                   </AvatarFallback>
                 </Avatar>
 
-                {/* Content */}
+                {}
                 <div className="flex flex-1 flex-wrap items-baseline gap-1 min-w-0">
                   <span className="text-sm font-semibold text-foreground">{a.actor.name}</span>
                   <span className="text-sm text-muted-foreground">{formatActivityType(a.type)}</span>
@@ -149,7 +142,7 @@ export function ActivityFeedFull({ activities, workspaceSlug }: ActivityFeedFull
                   )}
                 </div>
 
-                {/* Time */}
+                {}
                 <span className="shrink-0 text-[11px] text-muted-foreground/60">
                   {formatRelative(a.createdAt)}
                 </span>
@@ -159,7 +152,7 @@ export function ActivityFeedFull({ activities, workspaceSlug }: ActivityFeedFull
         </div>
       ))}
 
-      {/* Load more */}
+      {}
       {shown < activities.length && (
         <div className="flex justify-center">
           <Button

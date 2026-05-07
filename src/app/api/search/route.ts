@@ -2,12 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getUser } from "@/lib/session";
 
-/**
- * GET /api/search?q=...&workspaceId=...&projectId=...&status=...&priority=...&assigneeId=...
- *
- * Returns matching issues and projects for the global search palette.
- * Scoped to workspaces the current user belongs to.
- */
 export async function GET(request: NextRequest) {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -20,12 +14,10 @@ export async function GET(request: NextRequest) {
   const priority    = searchParams.get("priority")    ?? undefined;
   const assigneeId  = searchParams.get("assigneeId")  ?? undefined;
 
-  // Require at least 1 character to search
   if (!q && !status && !priority && !assigneeId) {
     return NextResponse.json({ issues: [], projects: [] });
   }
 
-  // Resolve which workspaces the user can access
   const memberships = await prisma.workspaceMember.findMany({
     where: {
       userId: user.id,
@@ -38,8 +30,6 @@ export async function GET(request: NextRequest) {
   if (accessibleWorkspaceIds.length === 0) {
     return NextResponse.json({ issues: [], projects: [] });
   }
-
-  // ── Issue search ────────────────────────────────────────────────────────────
 
   const issues = await prisma.issue.findMany({
     where: {
@@ -81,8 +71,6 @@ export async function GET(request: NextRequest) {
       assignee: { select: { id: true, name: true, image: true } },
     },
   });
-
-  // ── Project search ──────────────────────────────────────────────────────────
 
   const projects = q
     ? await prisma.project.findMany({

@@ -9,23 +9,17 @@ import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { authClient } from "@/lib/auth-client";
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
 function getInitials(name: string) {
   const parts = name.trim().split(/\s+/);
   if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
   return name.slice(0, 2).toUpperCase();
 }
 
-// ─── Props ────────────────────────────────────────────────────────────────────
-
 interface ProfileFormProps {
   initialName: string;
   initialEmail: string;
   initialImage: string | null;
 }
-
-// ─── Component ────────────────────────────────────────────────────────────────
 
 export function ProfileForm({ initialName, initialEmail, initialImage }: ProfileFormProps) {
   const [name, setName]           = useState(initialName);
@@ -47,7 +41,7 @@ export function ProfileForm({ initialName, initialEmail, initialImage }: Profile
       return;
     }
     setImageFile(file);
-    // Preview
+
     const reader = new FileReader();
     reader.onload = (ev) => setImage(ev.target?.result as string);
     reader.readAsDataURL(file);
@@ -59,8 +53,7 @@ export function ProfileForm({ initialName, initialEmail, initialImage }: Profile
     setMessage(null);
 
     startTransition(async () => {
-      // For avatar: in production, upload to Uploadthing/R2 and get URL.
-      // Here we use the base64 preview directly (works for demo; swap for real upload URL).
+
       const imageUrl = imageFile ? image : undefined;
 
       const { error } = await authClient.updateUser({
@@ -82,7 +75,7 @@ export function ProfileForm({ initialName, initialEmail, initialImage }: Profile
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-      {/* Avatar */}
+      {}
       <div className="flex items-center gap-5">
         <div className="relative">
           <Avatar className="size-20">
@@ -122,7 +115,7 @@ export function ProfileForm({ initialName, initialEmail, initialImage }: Profile
         </div>
       </div>
 
-      {/* Name */}
+      {}
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="display-name">Display name</Label>
         <Input
@@ -137,7 +130,7 @@ export function ProfileForm({ initialName, initialEmail, initialImage }: Profile
         />
       </div>
 
-      {/* Email — read-only */}
+      {}
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="email">Email address</Label>
         <Input
@@ -153,7 +146,7 @@ export function ProfileForm({ initialName, initialEmail, initialImage }: Profile
         </p>
       </div>
 
-      {/* Status */}
+      {}
       <AnimatePresence mode="wait">
         {status === "success" && message && (
           <motion.div key="ok" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}

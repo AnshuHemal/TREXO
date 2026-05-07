@@ -6,13 +6,9 @@ import { WorkspaceTopbar } from "../../../../_components/workspace-topbar";
 import { IssueDetailPage } from "./_components/issue-detail-page";
 import type { IssueLinkItem } from "../link-actions";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 interface IssuePageProps {
   params: Promise<{ slug: string; key: string; issueKey: string }>;
 }
-
-// ─── Metadata ─────────────────────────────────────────────────────────────────
 
 export async function generateMetadata({
   params,
@@ -36,20 +32,16 @@ export async function generateMetadata({
   };
 }
 
-// ─── Page ─────────────────────────────────────────────────────────────────────
-
 export default async function IssuePage({ params }: IssuePageProps) {
   const { slug, key, issueKey } = await params;
   const user = await requireUser();
 
-  // Parse issue number from URL (e.g. "42" from "TRX-42" or just "42")
   const rawKey = issueKey.toUpperCase().startsWith(key.toUpperCase() + "-")
     ? issueKey.slice(key.length + 1)
     : issueKey;
   const issueNumber = parseInt(rawKey, 10);
   if (isNaN(issueNumber)) notFound();
 
-  // ── Membership check ──────────────────────────────────────────────────────────
   const membership = await prisma.workspaceMember.findFirst({
     where: { userId: user.id, workspace: { slug } },
     include: { workspace: { select: { id: true, name: true, slug: true } } },
@@ -58,14 +50,12 @@ export default async function IssuePage({ params }: IssuePageProps) {
 
   const { workspace } = membership;
 
-  // ── Project ───────────────────────────────────────────────────────────────────
   const project = await prisma.project.findFirst({
     where: { workspaceId: workspace.id, key: key.toUpperCase() },
     select: { id: true, name: true, key: true },
   });
   if (!project) notFound();
 
-  // ── Issue ─────────────────────────────────────────────────────────────────────
   const issue = await prisma.issue.findFirst({
     where: { projectId: project.id, key: issueNumber },
     include: {
@@ -122,14 +112,12 @@ export default async function IssuePage({ params }: IssuePageProps) {
 
   if (!issue) notFound();
 
-  // ── Workspace members ─────────────────────────────────────────────────────────
   const members = await prisma.workspaceMember.findMany({
     where: { workspaceId: workspace.id },
     include: { user: { select: { id: true, name: true, email: true, image: true } } },
     orderBy: { createdAt: "asc" },
   });
 
-  // ── All workspace labels ──────────────────────────────────────────────────────
   const allLabels = await prisma.label.findMany({
     orderBy: { name: "asc" },
     select: { id: true, name: true, color: true },
@@ -142,7 +130,6 @@ export default async function IssuePage({ params }: IssuePageProps) {
     image: m.user.image,
   }));
 
-  // Normalise links (same logic as the modal)
   const links: IssueLinkItem[] = [];
   for (const l of issue.outgoingLinks) {
     links.push({ id: l.id, type: l.type as IssueLinkItem["type"], issue: l.target });

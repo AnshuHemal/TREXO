@@ -42,7 +42,7 @@ export default async function TemplatesPage({ params }: TemplatesPageProps) {
       },
     });
   } catch {
-    // Stale Prisma client — restart dev server to fix
+
   }
 
   return (

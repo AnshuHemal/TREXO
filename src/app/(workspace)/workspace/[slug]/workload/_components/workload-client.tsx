@@ -14,8 +14,6 @@ import { cn } from "@/lib/utils";
 import { fadeUpVariants } from "@/components/motion/fade-in";
 import { StaggerChildren } from "@/components/motion/fade-in";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 interface Member {
   id: string;
   name: string;
@@ -43,17 +41,13 @@ interface WorkloadClientProps {
   workspaceSlug: string;
 }
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
 function getInitials(name: string) {
   const parts = name.trim().split(/\s+/);
   if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
   return name.slice(0, 2).toUpperCase();
 }
 
-const MAX_BAR = 10; // issues for 100% bar width
-
-// ─── Member row ───────────────────────────────────────────────────────────────
+const MAX_BAR = 10;
 
 function MemberWorkloadRow({
   member,
@@ -76,7 +70,7 @@ function MemberWorkloadRow({
       variants={fadeUpVariants}
       className="overflow-hidden rounded-xl border border-border bg-card"
     >
-      {/* Header */}
+      {}
       <button
         type="button"
         onClick={() => setExpanded((v) => !v)}
@@ -100,7 +94,7 @@ function MemberWorkloadRow({
             )}
           </div>
 
-          {/* Load bar */}
+          {}
           <div className="flex items-center gap-2">
             <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-border">
               <motion.div
@@ -131,7 +125,7 @@ function MemberWorkloadRow({
         </motion.span>
       </button>
 
-      {/* Issue list */}
+      {}
       <AnimatePresence>
         {expanded && issues.length > 0 && (
           <motion.div
@@ -195,10 +189,8 @@ function MemberWorkloadRow({
   );
 }
 
-// ─── Main component ───────────────────────────────────────────────────────────
-
 export function WorkloadClient({ members, issues, currentUserId }: WorkloadClientProps) {
-  // Group issues by assignee
+
   const issuesByMember = new Map<string, Issue[]>();
   for (const member of members) {
     issuesByMember.set(member.id, []);
@@ -209,7 +201,6 @@ export function WorkloadClient({ members, issues, currentUserId }: WorkloadClien
     }
   }
 
-  // Sort: most loaded first, current user always first
   const sorted = [...members].sort((a, b) => {
     if (a.id === currentUserId) return -1;
     if (b.id === currentUserId) return 1;
@@ -221,7 +212,7 @@ export function WorkloadClient({ members, issues, currentUserId }: WorkloadClien
 
   return (
     <div className="flex flex-col gap-6">
-      {/* Summary row */}
+      {}
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
         {[
           { label: "Open issues",   value: totalOpen,          icon: BarChart2 },
@@ -242,7 +233,7 @@ export function WorkloadClient({ members, issues, currentUserId }: WorkloadClien
         ))}
       </div>
 
-      {/* Member rows */}
+      {}
       <StaggerChildren className="flex flex-col gap-3">
         {sorted.map((member) => (
           <MemberWorkloadRow

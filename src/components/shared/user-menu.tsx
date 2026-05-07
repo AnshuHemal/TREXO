@@ -14,27 +14,15 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { signOut, useSession } from "@/lib/auth-client";
 
-/**
- * Authenticated user menu shown in the header when a session exists.
- *
- * Navigation uses <Link> (asChild on DropdownMenuItem) instead of
- * router.push() to avoid the "Router action dispatched before initialization"
- * error that occurs when router methods are called during early hydration.
- *
- * Sign-out uses window.location.href for the same reason — it also ensures
- * a full page reload so all client state is cleared cleanly.
- */
 export function UserMenu() {
   const { data: session, isPending } = useSession();
 
-  // Still loading — render a skeleton the same size as the trigger button.
   if (isPending) {
     return (
       <div className="h-9 w-24 animate-pulse rounded-full bg-muted" aria-hidden />
     );
   }
 
-  // No session — header renders Login/Get Started instead.
   if (!session?.user) return null;
 
   const { user } = session;
@@ -44,8 +32,7 @@ export function UserMenu() {
     await signOut({
       fetchOptions: {
         onSuccess: () => {
-          // Full page navigation clears all client state and avoids any
-          // router-not-initialized race conditions.
+
           window.location.href = "/";
         },
       },
@@ -77,7 +64,7 @@ export function UserMenu() {
       </DropdownMenuTrigger>
 
       <DropdownMenuContent align="end" className="w-56" sideOffset={8}>
-        {/* User info — not interactive */}
+        {}
         <DropdownMenuLabel className="flex flex-col gap-0.5 font-normal">
           <span className="truncate font-semibold text-foreground">
             {user.name ?? "User"}
@@ -89,8 +76,7 @@ export function UserMenu() {
 
         <DropdownMenuSeparator />
 
-        {/* Use asChild + Link so navigation is handled by Next.js Link,
-            not router.push, avoiding the hydration race. */}
+        {}
         <DropdownMenuItem asChild>
           <Link href="/dashboard">
             <LayoutDashboard className="mr-2 size-4" />
@@ -118,8 +104,6 @@ export function UserMenu() {
     </DropdownMenu>
   );
 }
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function getInitials(nameOrEmail: string): string {
   const parts = nameOrEmail.trim().split(/\s+/);

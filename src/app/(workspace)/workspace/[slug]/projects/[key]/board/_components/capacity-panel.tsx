@@ -10,8 +10,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import type { BoardIssue } from "../../_components/kanban-board";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 interface Member {
   id: string;
   name: string;
@@ -25,14 +23,10 @@ interface CapacityPanelProps {
   defaultCapacity?: number;
 }
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
 function getInitials(name: string) {
   const parts = name.trim().split(/\s+/);
   return parts.length >= 2 ? (parts[0][0] + parts[1][0]).toUpperCase() : name.slice(0, 2).toUpperCase();
 }
-
-// ─── Capacity bar ─────────────────────────────────────────────────────────────
 
 function MemberCapacityBar({
   member,
@@ -68,7 +62,7 @@ function MemberCapacityBar({
         warn && "border-amber-500/20",
       )}
     >
-      {/* Member row */}
+      {}
       <div className="flex items-center gap-2.5">
         <Avatar className="size-7 shrink-0 ring-2 ring-background">
           <AvatarImage src={member.image ?? undefined} />
@@ -90,7 +84,7 @@ function MemberCapacityBar({
         </div>
       </div>
 
-      {/* Progress bar */}
+      {}
       <div className="h-2 w-full overflow-hidden rounded-full bg-border">
         <motion.div
           className={cn("h-full rounded-full", barColor)}
@@ -100,7 +94,7 @@ function MemberCapacityBar({
         />
       </div>
 
-      {/* Status label */}
+      {}
       <div className="flex items-center justify-between">
         <span className={cn("flex items-center gap-1 text-[10px] font-medium", textColor)}>
           {over && <><AlertTriangle className="size-3" />{used - capacity} pts over capacity</>}
@@ -118,14 +112,11 @@ function MemberCapacityBar({
   );
 }
 
-// ─── Main component ───────────────────────────────────────────────────────────
-
 export function CapacityPanel({ issues, members, defaultCapacity = 20 }: CapacityPanelProps) {
   const [capacity, setCapacity]     = useState(defaultCapacity);
   const [isExpanded, setIsExpanded] = useState(true);
   const [showSettings, setShowSettings] = useState(false);
 
-  // Compute per-member stats
   const memberStats = members.map((m) => {
     const memberIssues = issues.filter(
       (i) => i.assigneeId === m.id && i.type !== "SUBTASK",
@@ -134,7 +125,6 @@ export function CapacityPanel({ issues, members, defaultCapacity = 20 }: Capacit
     return { member: m, used, issueCount: memberIssues.length };
   });
 
-  // Only show members with issues OR all members if none have issues
   const hasAnyIssues = memberStats.some((s) => s.issueCount > 0);
   const visibleStats = hasAnyIssues
     ? memberStats.filter((s) => s.issueCount > 0)
@@ -149,7 +139,7 @@ export function CapacityPanel({ issues, members, defaultCapacity = 20 }: Capacit
 
   return (
     <div className="flex w-72 shrink-0 flex-col border-l border-border bg-background">
-      {/* Panel header */}
+      {}
       <div className="flex items-center justify-between border-b border-border px-4 py-3">
         <button
           type="button"
@@ -191,7 +181,7 @@ export function CapacityPanel({ issues, members, defaultCapacity = 20 }: Capacit
             transition={{ duration: 0.2 }}
             className="flex flex-col overflow-hidden"
           >
-            {/* Settings row */}
+            {}
             <AnimatePresence>
               {showSettings && (
                 <motion.div
@@ -222,7 +212,7 @@ export function CapacityPanel({ issues, members, defaultCapacity = 20 }: Capacit
               )}
             </AnimatePresence>
 
-            {/* Team summary */}
+            {}
             <div className="border-b border-border px-4 py-3">
               <div className="flex items-center justify-between text-sm text-muted-foreground">
                 <span>Team total</span>
@@ -256,7 +246,7 @@ export function CapacityPanel({ issues, members, defaultCapacity = 20 }: Capacit
               )}
             </div>
 
-            {/* Per-member bars */}
+            {}
             <div className="flex flex-col gap-2 overflow-y-auto p-3">
               {visibleStats.length === 0 ? (
                 <div className="flex flex-col items-center gap-2 py-8 text-center">

@@ -3,8 +3,6 @@ import { Logo } from "@/components/shared/logo";
 import { ThemeToggle } from "@/components/shared/theme-toggle";
 import { siteConfig } from "@/config/site";
 
-// ─── Footer links ─────────────────────────────────────────────────────────────
-
 const LINKS = {
   Product: [
     { label: "Features", href: "/#features" },
@@ -25,17 +23,15 @@ const LINKS = {
   ],
 };
 
-// ─── Component ────────────────────────────────────────────────────────────────
-
 export function Footer() {
   const year = new Date().getFullYear();
 
   return (
     <footer className="border-t border-border bg-muted/10">
       <div className="mx-auto max-w-7xl px-6 py-16">
-        {/* Top grid */}
+        {}
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-5">
-          {/* Brand column */}
+          {}
           <div className="lg:col-span-2">
             <Logo size={28} />
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-muted-foreground">
@@ -46,7 +42,7 @@ export function Footer() {
             </p>
           </div>
 
-          {/* Link columns */}
+          {}
           {Object.entries(LINKS).map(([group, links]) => (
             <div key={group}>
               <h4 className="mb-4 text-sm font-semibold uppercase tracking-widest text-muted-foreground/60">
@@ -68,7 +64,7 @@ export function Footer() {
           ))}
         </div>
 
-        {/* Bottom bar */}
+        {}
         <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-border pt-8 sm:flex-row">
           <p className="text-sm text-muted-foreground/60">
             &copy; {year} {siteConfig.name}. All rights reserved.

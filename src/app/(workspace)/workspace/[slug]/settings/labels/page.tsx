@@ -26,7 +26,6 @@ export default async function LabelsPage({ params }: LabelsPageProps) {
   const { workspace } = membership;
   const canManage = membership.role === "OWNER" || membership.role === "ADMIN";
 
-  // Fetch all labels (global for now — scoped to workspace in a future iteration)
   const labels = await prisma.label.findMany({
     orderBy: { name: "asc" },
     select: {

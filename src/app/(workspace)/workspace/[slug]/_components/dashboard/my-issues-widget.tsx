@@ -7,8 +7,6 @@ import { FadeIn } from "@/components/motion/fade-in";
 import { getPriorityConfig, getStatusConfig } from "@/lib/issue-config";
 import { cn } from "@/lib/utils";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 interface MyIssueItem {
   id: string;
   key: number;
@@ -23,8 +21,6 @@ interface MyIssuesWidgetProps {
   issues: MyIssueItem[];
   workspaceSlug: string;
 }
-
-// ─── Component ────────────────────────────────────────────────────────────────
 
 export function MyIssuesWidget({ issues, workspaceSlug }: MyIssuesWidgetProps) {
   return (

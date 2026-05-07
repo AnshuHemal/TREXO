@@ -1,20 +1,10 @@
 import nodemailer from "nodemailer";
 import { siteConfig } from "@/config/site";
 
-// ─── Brevo SMTP transporter ───────────────────────────────────────────────────
-//
-// Credentials come from Brevo → SMTP & API → SMTP tab.
-// Free plan: 300 emails/day, no credit card required.
-//
-// Required env vars:
-//   BREVO_SMTP_USER   — your Brevo login email
-//   BREVO_SMTP_PASS   — the SMTP key from Brevo (NOT your login password)
-//   EMAIL_FROM        — the "from" address, e.g. noreply@trexo.com
-
 const transporter = nodemailer.createTransport({
   host: "smtp-relay.brevo.com",
   port: 587,
-  secure: false, // STARTTLS
+  secure: false,
   auth: {
     user: process.env.BREVO_SMTP_USER,
     pass: process.env.BREVO_SMTP_PASS,
@@ -23,8 +13,6 @@ const transporter = nodemailer.createTransport({
 
 const FROM =
   process.env.EMAIL_FROM ?? `${siteConfig.name} <noreply@trexo.com>`;
-
-// ─── Core send helper ─────────────────────────────────────────────────────────
 
 export async function sendEmail({
   to,
@@ -38,19 +26,12 @@ export async function sendEmail({
   await transporter.sendMail({ from: FROM, to, subject, html });
 }
 
-// ─── sendOTPEmail ─────────────────────────────────────────────────────────────
-
 interface SendOTPEmailOptions {
   to: string;
   otp: string;
   type: "email-verification" | "sign-in" | "forget-password" | "change-email";
 }
 
-/**
- * Sends a transactional OTP email via Brevo SMTP.
- * Drop-in replacement for the previous Resend implementation —
- * Better Auth calls this with the same signature.
- */
 export async function sendOTPEmail({ to, otp, type }: SendOTPEmailOptions) {
   await sendEmail({
     to,
@@ -59,8 +40,6 @@ export async function sendOTPEmail({ to, otp, type }: SendOTPEmailOptions) {
   });
 }
 
-// ─── sendInviteEmail ──────────────────────────────────────────────────────────
-
 interface SendInviteEmailOptions {
   to: string;
   inviterName: string;
@@ -68,9 +47,6 @@ interface SendInviteEmailOptions {
   inviteUrl: string;
 }
 
-/**
- * Sends a workspace invitation email.
- */
 export async function sendInviteEmail({
   to,
   inviterName,
@@ -83,8 +59,6 @@ export async function sendInviteEmail({
     html: buildInviteEmailHTML({ inviterName, workspaceName, inviteUrl }),
   });
 }
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function getSubject(type: SendOTPEmailOptions["type"]): string {
   switch (type) {
@@ -117,8 +91,6 @@ function getBody(type: SendOTPEmailOptions["type"]): string {
   }
 }
 
-// ─── OTP email template ───────────────────────────────────────────────────────
-
 function buildOTPEmailHTML({
   otp,
   type,
@@ -129,7 +101,7 @@ function buildOTPEmailHTML({
   const heading = getHeading(type);
   const body    = getBody(type);
 
-  return /* html */ `
+  return  `
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -173,8 +145,6 @@ function buildOTPEmailHTML({
 </html>`.trim();
 }
 
-// ─── Invite email template ────────────────────────────────────────────────────
-
 function buildInviteEmailHTML({
   inviterName,
   workspaceName,
@@ -184,7 +154,7 @@ function buildInviteEmailHTML({
   workspaceName: string;
   inviteUrl: string;
 }): string {
-  return /* html */ `
+  return  `
 <!DOCTYPE html>
 <html lang="en">
 <head>

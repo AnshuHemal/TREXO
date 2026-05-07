@@ -6,8 +6,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { FadeIn } from "@/components/motion/fade-in";
 import { formatActivityType, formatActivityValue } from "@/lib/issue-config";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 interface ActivityEntry {
   id: string;
   type: string;
@@ -27,8 +25,6 @@ interface ActivityFeedProps {
   activities: ActivityEntry[];
 }
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
 function getInitials(name: string) {
   const parts = name.trim().split(/\s+/);
   if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
@@ -44,8 +40,6 @@ function formatRelative(date: Date): string {
   if (hrs < 24) return `${hrs}h ago`;
   return `${Math.floor(hrs / 24)}d ago`;
 }
-
-// ─── Component ────────────────────────────────────────────────────────────────
 
 export function ActivityFeed({ activities }: ActivityFeedProps) {
   return (

@@ -32,29 +32,24 @@ export default async function HealthPage({ params }: HealthPageProps) {
   });
   if (!project) notFound();
 
-  // ── 1. Issues by status ───────────────────────────────────────────────────
   const statusCounts = await prisma.issue.groupBy({
     by: ["status"],
     where: { projectId: project.id },
     _count: { id: true },
   });
 
-  // ── 2. Issues by priority ─────────────────────────────────────────────────
   const priorityCounts = await prisma.issue.groupBy({
     by: ["priority"],
     where: { projectId: project.id, status: { notIn: ["DONE", "CANCELLED"] } },
     _count: { id: true },
   });
 
-  // ── 3. Issues by type ─────────────────────────────────────────────────────
   const typeCounts = await prisma.issue.groupBy({
     by: ["type"],
     where: { projectId: project.id },
     _count: { id: true },
   });
 
-  // ── 4. Cycle time — avg days from creation to DONE ────────────────────────
-  // We use activity log: find status_changed → DONE events and match to issue createdAt
   const doneActivities = await prisma.activity.findMany({
     where: {
       issue: { projectId: project.id },
@@ -69,7 +64,6 @@ export default async function HealthPage({ params }: HealthPageProps) {
     take: 200,
   });
 
-  // Deduplicate: only the first DONE transition per issue
   const seenIssues = new Set<string>();
   const cycleTimes: number[] = [];
   for (const act of doneActivities) {
@@ -85,8 +79,6 @@ export default async function HealthPage({ params }: HealthPageProps) {
       ? Math.round((cycleTimes.reduce((s, d) => s + d, 0) / cycleTimes.length) * 10) / 10
       : null;
 
-  // ── 5. Open issues trend — last 30 days ───────────────────────────────────
-  // Count issues created per day for the last 30 days
   const thirtyDaysAgo = new Date();
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 29);
   thirtyDaysAgo.setHours(0, 0, 0, 0);
@@ -100,7 +92,6 @@ export default async function HealthPage({ params }: HealthPageProps) {
     orderBy: { createdAt: "asc" },
   });
 
-  // Also get issues closed (DONE) in the last 30 days via activity
   const recentClosedActivities = await prisma.activity.findMany({
     where: {
       issue: { projectId: project.id },
@@ -112,7 +103,6 @@ export default async function HealthPage({ params }: HealthPageProps) {
     orderBy: { createdAt: "asc" },
   });
 
-  // Build daily trend: opened vs closed per day
   const trendMap = new Map<
     string,
     { date: string; opened: number; closed: number }
@@ -142,14 +132,11 @@ export default async function HealthPage({ params }: HealthPageProps) {
   }
   const trendData = Array.from(trendMap.values());
 
-  // ── 6. Top contributors — who closed the most issues (all time / active sprint) ──
-  // Find the active sprint
   const activeSprint = await prisma.sprint.findFirst({
     where: { projectId: project.id, status: "ACTIVE" },
     select: { id: true, name: true },
   });
 
-  // Closed issues with assignee info
   const closedIssues = await prisma.issue.findMany({
     where: {
       projectId: project.id,
@@ -164,7 +151,6 @@ export default async function HealthPage({ params }: HealthPageProps) {
     },
   });
 
-  // Aggregate by assignee
   const contributorMap = new Map<
     string,
     { user: { id: string; name: string; image: string | null }; count: number; points: number }
@@ -187,7 +173,6 @@ export default async function HealthPage({ params }: HealthPageProps) {
     .sort((a, b) => b.count - a.count || b.points - a.points)
     .slice(0, 8);
 
-  // ── 7. Summary stats ──────────────────────────────────────────────────────
   const totalIssues = statusCounts.reduce((s, r) => s + r._count.id, 0);
   const openIssues = statusCounts
     .filter((r) => !["DONE", "CANCELLED"].includes(r.status))
@@ -209,21 +194,21 @@ export default async function HealthPage({ params }: HealthPageProps) {
         <HealthClient
           project={{ id: project.id, name: project.name, key: project.key }}
           workspaceSlug={workspace.slug}
-          // Status donut
+
           statusCounts={statusCounts.map((r) => ({ status: r.status, count: r._count.id }))}
-          // Priority breakdown
+
           priorityCounts={priorityCounts.map((r) => ({ priority: r.priority, count: r._count.id }))}
-          // Type breakdown
+
           typeCounts={typeCounts.map((r) => ({ type: r.type, count: r._count.id }))}
-          // Trend
+
           trendData={trendData}
-          // Cycle time
+
           avgCycleTime={avgCycleTime}
           cycleTimeSampleSize={cycleTimes.length}
-          // Contributors
+
           topContributors={topContributors}
           activeSprintName={activeSprint?.name ?? null}
-          // Summary
+
           totalIssues={totalIssues}
           openIssues={openIssues}
           doneIssues={doneIssues}

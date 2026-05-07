@@ -17,11 +17,9 @@ import {
 import { cn } from "@/lib/utils";
 import { createSprint, updateSprint } from "../actions";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 interface CreateSprintDialogProps {
   projectId: string;
-  /** If provided, the dialog is in edit mode */
+
   sprint?: {
     id: string;
     name: string;
@@ -33,8 +31,6 @@ interface CreateSprintDialogProps {
   onSuccess: (sprintId: string) => void;
 }
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
 function toInputDate(date: Date | null | undefined): string {
   if (!date) return "";
   return new Date(date).toISOString().split("T")[0];
@@ -44,8 +40,6 @@ function fromInputDate(value: string): Date | null {
   if (!value) return null;
   return new Date(value);
 }
-
-// ─── Component ────────────────────────────────────────────────────────────────
 
 export function CreateSprintDialog({
   projectId,
@@ -150,7 +144,7 @@ export function CreateSprintDialog({
           </DialogHeader>
 
           <form onSubmit={handleSubmit} className="mt-4 flex flex-col gap-4">
-            {/* Name */}
+            {}
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="sprint-name">Sprint name</Label>
               <Input
@@ -172,7 +166,7 @@ export function CreateSprintDialog({
               </AnimatePresence>
             </div>
 
-            {/* Goal */}
+            {}
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="sprint-goal">
                 Sprint goal{" "}
@@ -189,7 +183,7 @@ export function CreateSprintDialog({
               />
             </div>
 
-            {/* Dates */}
+            {}
             <div className="grid grid-cols-2 gap-3">
               <div className="flex flex-col gap-1.5">
                 <Label htmlFor="sprint-start">Start date</Label>
@@ -213,7 +207,7 @@ export function CreateSprintDialog({
               </div>
             </div>
 
-            {/* Server error */}
+            {}
             <AnimatePresence mode="wait">
               {serverError && (
                 <motion.div key="se" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}

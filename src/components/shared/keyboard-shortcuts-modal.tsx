@@ -9,8 +9,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 export interface ShortcutEntry {
   keys: string;
   description: string;
@@ -23,8 +21,6 @@ interface KeyboardShortcutsModalProps {
   shortcuts: ShortcutEntry[];
 }
 
-// ─── Group config ─────────────────────────────────────────────────────────────
-
 const GROUP_CONFIG: Record<string, { icon: React.ElementType; color: string }> = {
   General:    { icon: Globe,           color: "text-muted-foreground" },
   Navigation: { icon: Navigation,      color: "text-blue-500"         },
@@ -33,8 +29,6 @@ const GROUP_CONFIG: Record<string, { icon: React.ElementType; color: string }> =
   Backlog:    { icon: Zap,             color: "text-amber-500"        },
   "Issue Detail": { icon: MousePointer2, color: "text-emerald-500"   },
 };
-
-// ─── Kbd component ────────────────────────────────────────────────────────────
 
 export function Kbd({ children, className }: { children: React.ReactNode; className?: string }) {
   return (
@@ -65,8 +59,6 @@ export function KeySequence({ keys }: { keys: string }) {
   );
 }
 
-// ─── Shortcut row ─────────────────────────────────────────────────────────────
-
 function ShortcutRow({ entry, index }: { entry: ShortcutEntry; index: number }) {
   return (
     <motion.div
@@ -80,8 +72,6 @@ function ShortcutRow({ entry, index }: { entry: ShortcutEntry; index: number }) 
     </motion.div>
   );
 }
-
-// ─── Group section ────────────────────────────────────────────────────────────
 
 function GroupSection({
   group, entries, startIndex,
@@ -110,10 +100,8 @@ function GroupSection({
   );
 }
 
-// ─── Main component ───────────────────────────────────────────────────────────
-
 export function KeyboardShortcutsModal({ open, onClose, shortcuts }: KeyboardShortcutsModalProps) {
-  // Close on Escape
+
   useEffect(() => {
     if (!open) return;
     function handleKey(e: KeyboardEvent) {
@@ -123,14 +111,12 @@ export function KeyboardShortcutsModal({ open, onClose, shortcuts }: KeyboardSho
     return () => window.removeEventListener("keydown", handleKey);
   }, [open, onClose]);
 
-  // Group shortcuts preserving insertion order
   const groups = shortcuts.reduce<Record<string, ShortcutEntry[]>>((acc, s) => {
     if (!acc[s.group]) acc[s.group] = [];
     acc[s.group].push(s);
     return acc;
   }, {});
 
-  // Compute start indices for staggered animation
   let runningIndex = 0;
   const groupsWithIndex = Object.entries(groups).map(([group, entries]) => {
     const start = runningIndex;
@@ -138,7 +124,6 @@ export function KeyboardShortcutsModal({ open, onClose, shortcuts }: KeyboardSho
     return { group, entries, start };
   });
 
-  // Split into two columns
   const half = Math.ceil(groupsWithIndex.length / 2);
   const leftGroups  = groupsWithIndex.slice(0, half);
   const rightGroups = groupsWithIndex.slice(half);
@@ -164,7 +149,7 @@ export function KeyboardShortcutsModal({ open, onClose, shortcuts }: KeyboardSho
             className="relative w-full max-w-2xl overflow-hidden rounded-2xl border border-border bg-card shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Header */}
+            {}
             <div className="flex items-center justify-between border-b border-border px-6 py-4">
               <div className="flex items-center gap-3">
                 <div className="flex size-9 items-center justify-center rounded-xl bg-primary/10">
@@ -189,16 +174,16 @@ export function KeyboardShortcutsModal({ open, onClose, shortcuts }: KeyboardSho
               </div>
             </div>
 
-            {/* Body — two-column grid */}
+            {}
             <div className="max-h-[65vh] overflow-y-auto p-6">
               <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                {/* Left column */}
+                {}
                 <div className="flex flex-col gap-6">
                   {leftGroups.map(({ group, entries, start }) => (
                     <GroupSection key={group} group={group} entries={entries} startIndex={start} />
                   ))}
                 </div>
-                {/* Right column */}
+                {}
                 <div className="flex flex-col gap-6">
                   {rightGroups.map(({ group, entries, start }) => (
                     <GroupSection key={group} group={group} entries={entries} startIndex={start} />
@@ -207,7 +192,7 @@ export function KeyboardShortcutsModal({ open, onClose, shortcuts }: KeyboardSho
               </div>
             </div>
 
-            {/* Footer */}
+            {}
             <div className="flex items-center justify-between border-t border-border bg-muted/20 px-6 py-3">
               <p className="text-sm text-muted-foreground">
                 Shortcuts are disabled when typing in an input field

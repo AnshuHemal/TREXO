@@ -18,15 +18,11 @@ import {
 import { cn } from "@/lib/utils";
 import { createLabel, updateLabel, deleteLabel } from "../actions";
 
-// ─── Preset colors ────────────────────────────────────────────────────────────
-
 const PRESET_COLORS = [
   "#ef4444", "#f97316", "#eab308", "#22c55e",
   "#06b6d4", "#3b82f6", "#8b5cf6", "#ec4899",
   "#64748b", "#0f172a",
 ];
-
-// ─── Types ────────────────────────────────────────────────────────────────────
 
 interface LabelItem {
   id: string;
@@ -40,8 +36,6 @@ interface LabelsManagerProps {
   workspaceId: string;
   canManage: boolean;
 }
-
-// ─── Color picker ─────────────────────────────────────────────────────────────
 
 function ColorPicker({
   value,
@@ -81,8 +75,6 @@ function ColorPicker({
     </div>
   );
 }
-
-// ─── Label row ────────────────────────────────────────────────────────────────
 
 function LabelRow({
   label,
@@ -205,8 +197,6 @@ function LabelRow({
   );
 }
 
-// ─── Main component ───────────────────────────────────────────────────────────
-
 export function LabelsManager({ labels: initialLabels, workspaceId, canManage }: LabelsManagerProps) {
   const [labels, setLabels]         = useState(initialLabels);
   const [isCreating, setIsCreating] = useState(false);
@@ -243,7 +233,7 @@ export function LabelsManager({ labels: initialLabels, workspaceId, canManage }:
 
   return (
     <div className="flex flex-col gap-4">
-      {/* Header */}
+      {}
       <div className="flex items-center justify-between">
         <span className="text-sm text-muted-foreground">
           {labels.length} {labels.length === 1 ? "label" : "labels"}
@@ -255,7 +245,7 @@ export function LabelsManager({ labels: initialLabels, workspaceId, canManage }:
         )}
       </div>
 
-      {/* Create form */}
+      {}
       <AnimatePresence>
         {isCreating && (
           <motion.div
@@ -294,7 +284,7 @@ export function LabelsManager({ labels: initialLabels, workspaceId, canManage }:
         )}
       </AnimatePresence>
 
-      {/* Label list */}
+      {}
       {labels.length === 0 && !isCreating ? (
         <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border py-16 text-center">
           <Tag className="size-8 text-muted-foreground/40" />

@@ -16,8 +16,6 @@ import {
   Layers,
 } from "lucide-react";
 
-// ─── Feature data ─────────────────────────────────────────────────────────────
-
 const FEATURES = [
   {
     icon: Kanban,
@@ -93,8 +91,6 @@ const FEATURES = [
   },
 ];
 
-// ─── Variants ─────────────────────────────────────────────────────────────────
-
 const containerVariants = {
   hidden: {},
   visible: {
@@ -111,13 +107,11 @@ const cardVariants = {
   },
 };
 
-// ─── Component ────────────────────────────────────────────────────────────────
-
 export function FeaturesGrid() {
   return (
     <section id="features" className="px-6 py-24 lg:py-32">
       <div className="mx-auto max-w-7xl">
-        {/* Section header */}
+        {}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -137,7 +131,7 @@ export function FeaturesGrid() {
           </p>
         </motion.div>
 
-        {/* Grid */}
+        {}
         <motion.div
           variants={containerVariants}
           initial="hidden"

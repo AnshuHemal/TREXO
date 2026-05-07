@@ -24,8 +24,6 @@ import {
 import { cn } from "@/lib/utils";
 import { IssueDetailModal, type IssueDetail } from "../../projects/[key]/issues/_components/issue-detail-modal";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 interface Member {
   id: string;
   name: string;
@@ -59,8 +57,6 @@ interface MyIssuesClientProps {
   workspaceSlug: string;
 }
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
 function getInitials(name: string) {
   const parts = name.trim().split(/\s+/);
   if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
@@ -68,8 +64,6 @@ function getInitials(name: string) {
 }
 
 const OPEN_STATUSES = new Set(["BACKLOG", "TODO", "IN_PROGRESS", "IN_REVIEW"]);
-
-// ─── Issue row ────────────────────────────────────────────────────────────────
 
 function IssueRow({
   issue,
@@ -99,23 +93,23 @@ function IssueRow({
       <PriorityIcon className={cn("size-4 shrink-0", priority.color)} />
       <TypeIcon     className={cn("size-4 shrink-0", type.color)} />
 
-      {/* Issue key */}
+      {}
       <span className="w-20 shrink-0 font-mono text-sm text-muted-foreground">
         {issue.project.key}-{issue.key}
       </span>
 
-      {/* Title */}
+      {}
       <span className="flex-1 truncate text-sm font-medium text-foreground group-hover:text-primary transition-colors">
         {issue.title}
       </span>
 
-      {/* Status */}
+      {}
       <div className="flex shrink-0 items-center gap-1.5">
         <StatusIcon className={cn("size-3.5", status.color)} />
         <span className="hidden text-sm text-muted-foreground sm:block">{status.label}</span>
       </div>
 
-      {/* Comment count */}
+      {}
       {issue.commentCount > 0 && (
         <div className="flex shrink-0 items-center gap-1 text-sm text-muted-foreground">
           <MessageSquare className="size-3.5" />
@@ -123,7 +117,7 @@ function IssueRow({
         </div>
       )}
 
-      {/* Assignee avatar */}
+      {}
       <div className="shrink-0">
         {issue.assignee ? (
           <Avatar className="size-6">
@@ -137,8 +131,6 @@ function IssueRow({
     </motion.div>
   );
 }
-
-// ─── Project group ────────────────────────────────────────────────────────────
 
 function ProjectGroup({
   project,
@@ -160,7 +152,7 @@ function ProjectGroup({
       transition={{ duration: 0.25, delay: groupIndex * 0.08, ease: [0.25, 0.1, 0.25, 1] }}
       className="flex flex-col gap-2"
     >
-      {/* Group header */}
+      {}
       <button
         onClick={() => setIsExpanded((v) => !v)}
         className="flex items-center gap-2.5 rounded-md px-1 py-1 text-left transition-colors hover:bg-accent/40"
@@ -184,7 +176,7 @@ function ProjectGroup({
         </span>
       </button>
 
-      {/* Issues */}
+      {}
       <AnimatePresence>
         {isExpanded && (
           <motion.div
@@ -209,8 +201,6 @@ function ProjectGroup({
   );
 }
 
-// ─── Main component ───────────────────────────────────────────────────────────
-
 export function MyIssuesClient({
   issues,
   members,
@@ -223,8 +213,6 @@ export function MyIssuesClient({
   const [selectedIssueId, setSelectedIssueId] = useState<string | null>(null);
   const [issueDetail, setIssueDetail]         = useState<IssueDetail | null>(null);
   const [isLoadingDetail, startDetailTransition] = useTransition();
-
-  // ── Filtering ─────────────────────────────────────────────────────────────────
 
   const filtered = useMemo(() => {
     return issues.filter((i) => {
@@ -240,8 +228,6 @@ export function MyIssuesClient({
     });
   }, [issues, statusFilter, search]);
 
-  // ── Group by project ──────────────────────────────────────────────────────────
-
   const grouped = useMemo(() => {
     const map = new Map<string, { project: MyIssue["project"]; issues: MyIssue[] }>();
     for (const issue of filtered) {
@@ -251,8 +237,6 @@ export function MyIssuesClient({
     }
     return Array.from(map.values());
   }, [filtered]);
-
-  // ── Issue detail modal ────────────────────────────────────────────────────────
 
   async function handleOpenIssue(issueId: string) {
     setSelectedIssueId(issueId);
@@ -270,17 +254,14 @@ export function MyIssuesClient({
     setIssueDetail(null);
   }
 
-  // Find the project key for the selected issue (needed by the modal)
   const selectedIssue = issues.find((i) => i.id === selectedIssueId);
-
-  // ── Render ────────────────────────────────────────────────────────────────────
 
   return (
     <div className="flex flex-1 flex-col">
-      {/* Toolbar */}
+      {}
       <div className="flex items-center justify-between border-b border-border px-6 py-3">
         <div className="flex items-center gap-2">
-          {/* Search */}
+          {}
           <div className="relative">
             <Search className="absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
             <Input
@@ -291,7 +272,7 @@ export function MyIssuesClient({
             />
           </div>
 
-          {/* Status filter */}
+          {}
           <Select
             value={statusFilter}
             onValueChange={(v) => setStatusFilter(v as "open" | "all")}
@@ -306,13 +287,13 @@ export function MyIssuesClient({
           </Select>
         </div>
 
-        {/* Issue count */}
+        {}
         <span className="text-sm text-muted-foreground">
           {filtered.length} {filtered.length === 1 ? "issue" : "issues"}
         </span>
       </div>
 
-      {/* Content */}
+      {}
       <div className="flex-1 overflow-y-auto p-6">
         {filtered.length === 0 ? (
           <motion.div
@@ -362,7 +343,7 @@ export function MyIssuesClient({
         )}
       </div>
 
-      {/* Issue detail modal */}
+      {}
       <AnimatePresence>
         {selectedIssueId && (
           isLoadingDetail || !issueDetail ? (
@@ -390,7 +371,7 @@ export function MyIssuesClient({
               currentUserImage={currentUserImage}
               onClose={handleCloseModal}
               onDeleted={() => {
-                // Remove from local list and close
+
                 handleCloseModal();
               }}
             />

@@ -5,30 +5,17 @@ import { motion, AnimatePresence } from "motion/react";
 import { Kbd } from "@/components/shared/keyboard-shortcuts-modal";
 import { cn } from "@/lib/utils";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 interface ShortcutHintProps {
-  /** The keyboard shortcut to display, e.g. "C", "G B", "?" */
+
   shortcut: string;
-  /** Label shown alongside the shortcut */
+
   label?: string;
-  /** Where the tooltip appears relative to the trigger */
+
   side?: "top" | "bottom" | "left" | "right";
   children: React.ReactNode;
   className?: string;
 }
 
-// ─── Component ────────────────────────────────────────────────────────────────
-
-/**
- * Wraps any element and shows a keyboard shortcut tooltip on hover.
- * Matches Notion's style: label + kbd badge appear on hover.
- *
- * @example
- * <ShortcutHint shortcut="C" label="Create issue">
- *   <Button>New issue</Button>
- * </ShortcutHint>
- */
 export function ShortcutHint({
   shortcut,
   label,

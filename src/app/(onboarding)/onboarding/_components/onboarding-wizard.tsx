@@ -8,8 +8,6 @@ import { StepInvite } from "./step-invite";
 import { FadeIn } from "@/components/motion/fade-in";
 import { completeOnboarding, type CreateWorkspaceResult } from "../actions";
 
-// ─── Step definitions ─────────────────────────────────────────────────────────
-
 const STEPS = ["workspace", "invite"] as const;
 type Step = (typeof STEPS)[number];
 
@@ -18,15 +16,6 @@ const STEP_META: Record<Step, { label: string; description: string }> = {
   invite:    { label: "Invite team", description: "Add teammates"     },
 };
 
-// ─── Component ────────────────────────────────────────────────────────────────
-
-/**
- * Multi-step onboarding wizard.
- *
- * The card shell lives here so both steps share the same container —
- * matching the auth screen pattern (rounded-2xl border bg-card shadow-md).
- * Steps slide in/out horizontally inside the card using AnimatePresence.
- */
 export function OnboardingWizard() {
   const [currentStep, setCurrentStep] = useState<Step>("workspace");
   const [direction, setDirection]     = useState<1 | -1>(1);
@@ -62,10 +51,10 @@ export function OnboardingWizard() {
   return (
     <FadeIn className="flex flex-col gap-6">
 
-      {/* ── Card ──────────────────────────────────────────────────────────── */}
+      {}
       <div className="rounded-2xl border border-border bg-card shadow-md overflow-hidden">
 
-        {/* Step progress bar — inside card, at the top */}
+        {}
         <div className="border-b border-border px-8 py-5">
           <div className="flex items-center justify-center gap-0">
             {STEPS.map((step, i) => {
@@ -75,9 +64,9 @@ export function OnboardingWizard() {
               return (
                 <div key={step} className="flex items-center">
 
-                  {/* Step pill */}
+                  {}
                   <div className="flex items-center gap-2.5">
-                    {/* Number / check circle */}
+                    {}
                     <motion.div
                       animate={{
                         backgroundColor: isCompleted
@@ -115,7 +104,7 @@ export function OnboardingWizard() {
                       </AnimatePresence>
                     </motion.div>
 
-                    {/* Label + description */}
+                    {}
                     <div className="flex flex-col">
                       <span className={`text-sm font-semibold leading-none transition-colors ${isCurrent ? "text-foreground" : isCompleted ? "text-primary" : "text-muted-foreground"}`}>
                         {STEP_META[step].label}
@@ -126,7 +115,7 @@ export function OnboardingWizard() {
                     </div>
                   </div>
 
-                  {/* Connector */}
+                  {}
                   {i < STEPS.length - 1 && (
                     <div className="mx-4 flex-1">
                       <div className="relative h-px w-16 bg-border overflow-hidden rounded-full">
@@ -145,7 +134,7 @@ export function OnboardingWizard() {
           </div>
         </div>
 
-        {/* Step content */}
+        {}
         <div className="px-8 py-10 overflow-hidden">
           <AnimatePresence mode="wait" custom={direction}>
             <motion.div
@@ -174,7 +163,7 @@ export function OnboardingWizard() {
 
       </div>
 
-      {/* Step counter below card */}
+      {}
       <FadeIn direction="none" delay={0.2}>
         <p className="text-center text-sm text-muted-foreground">
           Step {currentIndex + 1} of {STEPS.length}

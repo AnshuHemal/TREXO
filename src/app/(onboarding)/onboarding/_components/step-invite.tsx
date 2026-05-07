@@ -9,13 +9,9 @@ import { FadeIn } from "@/components/motion/fade-in";
 import { cn } from "@/lib/utils";
 import { sendInvites } from "../actions";
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
 function isValidEmail(email: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
 }
-
-// ─── Component ────────────────────────────────────────────────────────────────
 
 interface StepInviteProps {
   workspaceId: string;
@@ -53,7 +49,7 @@ export function StepInvite({ workspaceId, workspaceName, onComplete, onSkip }: S
   return (
     <div className="flex flex-col gap-6">
 
-      {/* Icon + heading */}
+      {}
       <FadeIn direction="down" delay={0.05} className="flex flex-col items-center gap-3 text-center">
         <motion.div
           className="flex size-14 items-center justify-center rounded-2xl bg-primary/10"
@@ -75,7 +71,7 @@ export function StepInvite({ workspaceId, workspaceName, onComplete, onSkip }: S
         </div>
       </FadeIn>
 
-      {/* Form */}
+      {}
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
 
         <FadeIn delay={0.1} className="flex flex-col gap-2">
@@ -147,7 +143,7 @@ export function StepInvite({ workspaceId, workspaceName, onComplete, onSkip }: S
         </FadeIn>
       </form>
 
-      {/* Skip */}
+      {}
       <FadeIn direction="none" delay={0.2} className="text-center">
         <button type="button" onClick={onSkip} disabled={isPending}
           className="text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline transition-colors disabled:opacity-50">

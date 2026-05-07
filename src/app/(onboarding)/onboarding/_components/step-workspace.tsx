@@ -14,8 +14,6 @@ import {
   type CreateWorkspaceResult,
 } from "../actions";
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
 function nameToSlug(name: string): string {
   return name
     .toLowerCase()
@@ -25,8 +23,6 @@ function nameToSlug(name: string): string {
     .replace(/-+/g, "-")
     .slice(0, 48);
 }
-
-// ─── Component ────────────────────────────────────────────────────────────────
 
 interface StepWorkspaceProps {
   onComplete: (result: CreateWorkspaceResult) => void;
@@ -43,7 +39,6 @@ export function StepWorkspace({ onComplete }: StepWorkspaceProps) {
 
   const slugDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // ── Derived slug from name (no effect — computed on name change) ─────────────
   function handleNameChange(value: string) {
     setName(value);
     setFieldErrors((p) => ({ ...p, name: "" }));
@@ -54,7 +49,6 @@ export function StepWorkspace({ onComplete }: StepWorkspaceProps) {
     }
   }
 
-  // ── Slug check (debounced, called from event handlers not effects) ───────────
   function triggerSlugCheck(value: string) {
     if (slugDebounceRef.current) clearTimeout(slugDebounceRef.current);
     if (!value || value.length < 2) {
@@ -76,7 +70,6 @@ export function StepWorkspace({ onComplete }: StepWorkspaceProps) {
     triggerSlugCheck(cleaned);
   }
 
-  // ── Submit ──────────────────────────────────────────────────────────────────
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setFieldErrors({});
@@ -102,7 +95,7 @@ export function StepWorkspace({ onComplete }: StepWorkspaceProps) {
   return (
     <div className="flex flex-col gap-6">
 
-      {/* Icon + heading */}
+      {}
       <FadeIn direction="down" delay={0.05} className="flex flex-col items-center gap-3 text-center">
         <motion.div
           className="flex size-14 items-center justify-center rounded-2xl bg-primary/10"
@@ -122,10 +115,10 @@ export function StepWorkspace({ onComplete }: StepWorkspaceProps) {
         </div>
       </FadeIn>
 
-      {/* Form */}
+      {}
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
 
-        {/* Name */}
+        {}
         <FadeIn delay={0.1} className="flex flex-col gap-1.5">
           <Label htmlFor="ws-name">Workspace name</Label>
           <Input
@@ -148,7 +141,7 @@ export function StepWorkspace({ onComplete }: StepWorkspaceProps) {
           </AnimatePresence>
         </FadeIn>
 
-        {/* Slug */}
+        {}
         <FadeIn delay={0.15} className="flex flex-col gap-1.5">
           <Label htmlFor="ws-slug">Workspace URL</Label>
           <div className={cn(
@@ -206,7 +199,7 @@ export function StepWorkspace({ onComplete }: StepWorkspaceProps) {
           </AnimatePresence>
         </FadeIn>
 
-        {/* Server error */}
+        {}
         <AnimatePresence mode="wait">
           {serverError && (
             <motion.div key="se" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}

@@ -13,8 +13,6 @@ import { useRealtime } from "@/hooks/use-realtime";
 import { useWorkspaceSafe } from "@/components/providers/workspace-provider";
 import type { RealtimeEvent } from "@/lib/sse";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 interface NotificationItem {
   id: string;
   type: string;
@@ -28,8 +26,6 @@ interface NotificationItem {
     project: { key: string; workspace: { slug: string } };
   } | null;
 }
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function getInitials(name: string) {
   const parts = name.trim().split(/\s+/);
@@ -68,8 +64,6 @@ function NotificationIcon({ type }: { type: string }) {
   }
 }
 
-// ─── Component ────────────────────────────────────────────────────────────────
-
 export function NotificationBell() {
   const [open, setOpen]                   = useState(false);
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
@@ -77,8 +71,6 @@ export function NotificationBell() {
   const [isLoading, setIsLoading]         = useState(false);
   const dropdownRef                       = useRef<HTMLDivElement>(null);
   const ctx                               = useWorkspaceSafe();
-
-  // ── Fetch ─────────────────────────────────────────────────────────────────────
 
   const fetchNotifications = useCallback(async () => {
     try {
@@ -88,27 +80,24 @@ export function NotificationBell() {
       setNotifications(data.notifications);
       setUnreadCount(data.unreadCount);
     } catch {
-      // Silently fail
+
     }
   }, []);
 
-  // Initial fetch only — SSE replaces polling
   useEffect(() => {
     fetchNotifications();
   }, [fetchNotifications]);
 
-  // ── SSE — replace 30s polling with instant push ───────────────────────────────
   useRealtime({
     workspaceId: ctx?.workspaceId,
     filter: ["notification.created"],
     onEvent: useCallback((event: RealtimeEvent) => {
-      // Re-fetch to get the full notification with actor/issue details
+
       fetchNotifications();
     }, [fetchNotifications]),
     enabled: !!ctx?.workspaceId,
   });
 
-  // Close on outside click
   useEffect(() => {
     function handleClick(e: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
@@ -118,8 +107,6 @@ export function NotificationBell() {
     if (open) document.addEventListener("mousedown", handleClick);
     return () => document.removeEventListener("mousedown", handleClick);
   }, [open]);
-
-  // ── Mark as read ──────────────────────────────────────────────────────────────
 
   async function markRead(ids?: string[]) {
     setIsLoading(true);
@@ -149,11 +136,9 @@ export function NotificationBell() {
     }
   }
 
-  // ── Render ────────────────────────────────────────────────────────────────────
-
   return (
     <div className="relative" ref={dropdownRef}>
-      {/* Bell button */}
+      {}
       <Button
         variant="ghost"
         size="icon"
@@ -179,7 +164,7 @@ export function NotificationBell() {
         </AnimatePresence>
       </Button>
 
-      {/* Dropdown */}
+      {}
       <AnimatePresence>
         {open && (
           <motion.div
@@ -189,7 +174,7 @@ export function NotificationBell() {
             transition={{ duration: 0.15, ease: [0.25, 0.1, 0.25, 1] }}
             className="absolute right-0 top-10 z-50 w-80 overflow-hidden rounded-xl border border-border bg-card shadow-xl"
           >
-            {/* Header */}
+            {}
             <div className="flex items-center justify-between border-b border-border px-4 py-3">
               <h3 className="text-sm font-semibold text-foreground">Notifications</h3>
               <div className="flex items-center gap-1">
@@ -216,7 +201,7 @@ export function NotificationBell() {
               </div>
             </div>
 
-            {/* List */}
+            {}
             <div className="max-h-[400px] overflow-y-auto">
               {notifications.length === 0 ? (
                 <div className="flex flex-col items-center justify-center gap-2 py-12 text-center">
@@ -237,7 +222,7 @@ export function NotificationBell() {
                         !n.read && "bg-primary/5",
                       )}
                     >
-                      {/* Unread dot */}
+                      {}
                       <div className="mt-1.5 shrink-0">
                         {!n.read ? (
                           <span className="flex size-2 rounded-full bg-primary" />
@@ -246,13 +231,13 @@ export function NotificationBell() {
                         )}
                       </div>
 
-                      {/* Actor avatar */}
+                      {}
                       <Avatar className="mt-0.5 size-7 shrink-0">
                         <AvatarImage src={n.actor.image ?? undefined} />
                         <AvatarFallback className="text-[10px]">{getInitials(n.actor.name)}</AvatarFallback>
                       </Avatar>
 
-                      {/* Content */}
+                      {}
                       <div className="flex flex-1 flex-col gap-0.5 min-w-0">
                         <div className="flex items-center gap-1.5">
                           <NotificationIcon type={n.type} />
@@ -277,7 +262,7 @@ export function NotificationBell() {
               )}
             </div>
 
-            {/* Footer */}
+            {}
             <div className="flex items-center justify-between border-t border-border px-4 py-2.5">
               {notifications.length > 0 ? (
                 <p className="text-sm text-muted-foreground">

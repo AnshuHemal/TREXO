@@ -3,8 +3,6 @@
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/session";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 export interface ActionResult<T = void> {
   success: boolean;
   data?: T;
@@ -26,8 +24,6 @@ export interface LogTimeInput {
   loggedAt?: Date;
   description?: string | null;
 }
-
-// ─── logTime ─────────────────────────────────────────────────────────────────
 
 export async function logTime(
   input: LogTimeInput,
@@ -60,8 +56,6 @@ export async function logTime(
     return { success: false, error: "Failed to log time. Please try again." };
   }
 }
-
-// ─── updateTimeLog ────────────────────────────────────────────────────────────
 
 export async function updateTimeLog(
   logId: string,
@@ -98,8 +92,6 @@ export async function updateTimeLog(
   }
 }
 
-// ─── deleteTimeLog ────────────────────────────────────────────────────────────
-
 export async function deleteTimeLog(logId: string): Promise<ActionResult> {
   const user = await requireUser();
 
@@ -120,8 +112,6 @@ export async function deleteTimeLog(logId: string): Promise<ActionResult> {
     return { success: false, error: "Failed to delete time log." };
   }
 }
-
-// ─── getTimeLogsForIssue ──────────────────────────────────────────────────────
 
 export async function getTimeLogsForIssue(
   issueId: string,

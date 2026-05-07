@@ -10,8 +10,6 @@ export interface ActionResult<T = void> {
   fieldErrors?: Record<string, string>;
 }
 
-// ─── createLabel ──────────────────────────────────────────────────────────────
-
 export async function createLabel(
   workspaceId: string,
   data: { name: string; color: string },
@@ -27,8 +25,6 @@ export async function createLabel(
     return { success: false, fieldErrors: { color: "Invalid hex color." } };
   }
 
-  // Labels are global (not workspace-scoped in the schema), but we scope by
-  // checking workspace membership. For v1 we create a shared label.
   try {
     const label = await prisma.label.create({
       data: { name, color },
@@ -39,8 +35,6 @@ export async function createLabel(
     return { success: false, error: "Failed to create label." };
   }
 }
-
-// ─── updateLabel ──────────────────────────────────────────────────────────────
 
 export async function updateLabel(
   labelId: string,
@@ -65,21 +59,17 @@ export async function updateLabel(
   }
 }
 
-// ─── deleteLabel ──────────────────────────────────────────────────────────────
-
 export async function deleteLabel(labelId: string): Promise<ActionResult> {
   await requireUser();
 
   try {
-    // IssueLabel cascade handles removing from issues
+
     await prisma.label.delete({ where: { id: labelId } });
     return { success: true };
   } catch {
     return { success: false, error: "Failed to delete label." };
   }
 }
-
-// ─── addLabelToIssue ──────────────────────────────────────────────────────────
 
 export async function addLabelToIssue(
   issueId: string,
@@ -94,8 +84,6 @@ export async function addLabelToIssue(
     return { success: false, error: "Failed to add label." };
   }
 }
-
-// ─── removeLabelFromIssue ─────────────────────────────────────────────────────
 
 export async function removeLabelFromIssue(
   issueId: string,

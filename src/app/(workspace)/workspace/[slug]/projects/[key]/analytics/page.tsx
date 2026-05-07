@@ -32,7 +32,6 @@ export default async function AnalyticsPage({ params }: AnalyticsPageProps) {
   });
   if (!project) notFound();
 
-  // ── Last 6 completed sprints for velocity ─────────────────────────────────
   const completedSprints = await prisma.sprint.findMany({
     where: { projectId: project.id, status: "COMPLETED" },
     orderBy: { endDate: "desc" },
@@ -46,7 +45,6 @@ export default async function AnalyticsPage({ params }: AnalyticsPageProps) {
     },
   });
 
-  // ── Active sprint for burndown ────────────────────────────────────────────
   const activeSprint = await prisma.sprint.findFirst({
     where: { projectId: project.id, status: "ACTIVE" },
     include: {
@@ -61,18 +59,15 @@ export default async function AnalyticsPage({ params }: AnalyticsPageProps) {
     },
   });
 
-  // ── All issues for cumulative flow ────────────────────────────────────────
-  // Current issue counts by status
   const currentStatusCounts = await prisma.issue.groupBy({
     by: ["status"],
     where: { projectId: project.id },
     _count: { id: true },
   });
 
-  // ── Build velocity data ───────────────────────────────────────────────────
   const velocityData = completedSprints
     .slice()
-    .reverse() // chronological order
+    .reverse()
     .map((sprint) => {
       const committed = sprint.issues.reduce((sum, i) => sum + (i.estimate ?? 0), 0);
       const completed = sprint.issues
@@ -93,7 +88,6 @@ export default async function AnalyticsPage({ params }: AnalyticsPageProps) {
       };
     });
 
-  // ── Build burndown data for active sprint ─────────────────────────────────
   let burndownData: { date: string; remaining: number; ideal: number }[] = [];
 
   if (activeSprint?.startDate && activeSprint?.endDate) {
@@ -106,7 +100,6 @@ export default async function AnalyticsPage({ params }: AnalyticsPageProps) {
       .filter((i) => i.status === "DONE" || i.status === "CANCELLED")
       .reduce((sum, i) => sum + (i.estimate ?? 0), 0);
 
-    // Generate daily data points from start to today (or end)
     const endDate = today < end ? today : end;
     const totalDays = Math.max(1, Math.ceil((end.getTime() - start.getTime()) / 86_400_000));
 
@@ -116,12 +109,10 @@ export default async function AnalyticsPage({ params }: AnalyticsPageProps) {
       const elapsed = Math.ceil((current.getTime() - start.getTime()) / 86_400_000);
       const idealRemaining = Math.max(0, totalPoints - (totalPoints / totalDays) * elapsed);
 
-      // For past days, use actual data approximation
-      // For today, use current done points
       const isToday = current.toDateString() === today.toDateString();
       const actualRemaining = isToday
         ? totalPoints - donePoints
-        : totalPoints - (totalPoints * (elapsed / totalDays)); // approximation
+        : totalPoints - (totalPoints * (elapsed / totalDays));
 
       burndownData.push({
         date: current.toLocaleDateString("en-US", { month: "short", day: "numeric" }),
@@ -134,12 +125,9 @@ export default async function AnalyticsPage({ params }: AnalyticsPageProps) {
     }
   }
 
-  // ── Build cumulative flow data ────────────────────────────────────────────
-  // Build daily snapshots for the last 14 days
   const STATUSES = ["BACKLOG", "TODO", "IN_PROGRESS", "IN_REVIEW", "DONE"];
   const cfdData: Array<{ date: string; BACKLOG: number; TODO: number; IN_PROGRESS: number; IN_REVIEW: number; DONE: number }> = [];
 
-  // Start from current counts and work backwards using activity log
   const currentCounts: Record<string, number> = {};
   for (const s of STATUSES) currentCounts[s] = 0;
   for (const row of currentStatusCounts) {
@@ -148,7 +136,6 @@ export default async function AnalyticsPage({ params }: AnalyticsPageProps) {
     }
   }
 
-  // Generate last 14 days
   for (let i = 13; i >= 0; i--) {
     const date = new Date();
     date.setDate(date.getDate() - i);
@@ -164,7 +151,6 @@ export default async function AnalyticsPage({ params }: AnalyticsPageProps) {
     });
   }
 
-  // ── Active sprint summary ─────────────────────────────────────────────────
   const activeSprintSummary = activeSprint ? {
     id:         activeSprint.id,
     name:       activeSprint.name,
