@@ -26,6 +26,14 @@ export const auth = betterAuth({
     process.env.BETTER_AUTH_SECRET ||
     "trexo_fallback_auth_secret_aab9afd54b1c71840d2e22da0efae432c89e9d85",
 
+  trustedOrigins: [
+    "https://trexo-web.vercel.app",
+    "http://localhost:3000",
+    process.env.NEXT_PUBLIC_APP_URL,
+    process.env.BETTER_AUTH_URL,
+    process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined,
+  ].filter(Boolean) as string[],
+
   database: prismaAdapter(prisma, {
     provider: "postgresql",
   }),
