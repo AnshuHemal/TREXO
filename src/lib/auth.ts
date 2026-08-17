@@ -15,12 +15,26 @@ function generateOTP(): string {
   ).join("");
 }
 
+const getBaseURL = () => {
+  const url = process.env.BETTER_AUTH_URL || process.env.NEXT_PUBLIC_APP_URL;
+  if (url && !url.includes("localhost")) {
+    return url.replace(/\/+$/, "");
+  }
+  if (process.env.VERCEL_PROJECT_PRODUCTION_URL) {
+    return `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`;
+  }
+  if (process.env.VERCEL_URL) {
+    return `https://${process.env.VERCEL_URL}`;
+  }
+  if (process.env.NODE_ENV === "production") {
+    return "https://trexo-web.vercel.app";
+  }
+  return url || "http://localhost:3000";
+};
+
 export const auth = betterAuth({
 
-  baseURL:
-    process.env.BETTER_AUTH_URL ||
-    process.env.NEXT_PUBLIC_APP_URL ||
-    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000"),
+  baseURL: getBaseURL(),
 
   secret:
     process.env.BETTER_AUTH_SECRET ||
@@ -29,9 +43,11 @@ export const auth = betterAuth({
   trustedOrigins: [
     "https://trexo-web.vercel.app",
     "http://localhost:3000",
+    "http://127.0.0.1:3000",
     process.env.NEXT_PUBLIC_APP_URL,
     process.env.BETTER_AUTH_URL,
     process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined,
+    process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : undefined,
   ].filter(Boolean) as string[],
 
   database: prismaAdapter(prisma, {
